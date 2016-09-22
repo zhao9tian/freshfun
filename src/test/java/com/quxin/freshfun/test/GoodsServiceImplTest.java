@@ -18,7 +18,7 @@ public class GoodsServiceImplTest extends TestBase{
     
     @Before
     public void setUp() throws Exception {
-
+        goodsService = getContext().getBean("goodsService", GoodsService.class);
         goodsService = getContext().getBean("goodsService", GoodsService.class);
     }
 
