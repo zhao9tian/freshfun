@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.quxin.freshfun.dao.*;
+import com.quxin.freshfun.model.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -21,36 +23,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.quxin.freshfun.dao.GoodsDeliveryTypeMapper;
-import com.quxin.freshfun.dao.GoodsLimitMapper;
-import com.quxin.freshfun.dao.GoodsMapper;
-import com.quxin.freshfun.dao.OrderDetailsMapper;
-import com.quxin.freshfun.dao.OrdersMapper;
-import com.quxin.freshfun.dao.ResponseResult;
-import com.quxin.freshfun.dao.ShoppingCartMapper;
-import com.quxin.freshfun.dao.UserOutcomeDetailsMapper;
-import com.quxin.freshfun.dao.UserOutcomeMapper;
-import com.quxin.freshfun.dao.UserRevenueDetailsMapper;
-import com.quxin.freshfun.dao.UserRevenueMapper;
-import com.quxin.freshfun.dao.UsersMapper;
-import com.quxin.freshfun.model.GoodsDeliveryTypePOJO;
-import com.quxin.freshfun.model.GoodsInfo;
-import com.quxin.freshfun.model.GoodsLimit;
-import com.quxin.freshfun.model.GoodsPOJO;
-import com.quxin.freshfun.model.OrderAddress;
-import com.quxin.freshfun.model.OrderDetailsPOJO;
-import com.quxin.freshfun.model.OrderInPieces;
-import com.quxin.freshfun.model.OrderInfo;
-import com.quxin.freshfun.model.OrderPayInfo;
-import com.quxin.freshfun.model.OrderPayPOJO;
-import com.quxin.freshfun.model.OrdersPOJO;
-import com.quxin.freshfun.model.PayModify;
-import com.quxin.freshfun.model.ShoppingCartPOJO;
-import com.quxin.freshfun.model.UserOutcome;
-import com.quxin.freshfun.model.UserOutcomeDetails;
-import com.quxin.freshfun.model.UserRevenue;
-import com.quxin.freshfun.model.UserRevenueDetails;
-import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.mongodb.AddressManagerMongo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.AESUtil;
@@ -86,6 +58,8 @@ public class OrderServiceImpl implements OrderService {
 	private UserRevenueMapper revenue;
 	@Autowired
 	private UserRevenueDetailsMapper revenueDetail;
+	@Autowired
+	private MerchantAgentMapper merchantAgentMapper;
 	
 	//周
 	public static final int FREQUENCY_WEEK = 0;
@@ -669,6 +643,11 @@ public class OrderServiceImpl implements OrderService {
 					Integer id = orderDetails.selectPayIdByOrderDetailsId(orderId);
 					payStatus = orderDetails.updateOrderDetailPayStatus(currentDate, id);
 					billLogger.info("订单详情支付"+map.get("attach"));
+				}else if("B".equals(orderId.subSequence(0, 1))){
+					//商户代理费支付回调
+					Integer id = Integer.parseInt(orderId.substring(1,orderId.length()));
+					payStatus = merchantAgentMapper.updatePayStatus(id);
+					billLogger.info("商户编号："+map.get("attach")+"支付状态："+payStatus);
 				}else{
 					List<Integer> payIdList = orderDetails.selectPayId(Long.parseLong(orderId));
 					for (Integer id : payIdList) {
@@ -700,11 +679,32 @@ public class OrderServiceImpl implements OrderService {
 		ResponseResult orderPay = orderPay(order.getOrderId(),payMoney,order.getCode(),order.getOpenId());
 		return orderPay;
 	}
-	
-	
-	public static void main(String[] args) {
-		String str ="Nzc1NzM4ODcyOTk3ODcxNjE2fDE0NzM5MjE5MzM=";
-		System.out.println(AESUtil.decodeStr(str));
+
+
+	@Override
+	public ResponseResult addQuanMingPay(QuanMingPayInfo info) throws BusinessException {
+		//商户支付金额
+		Integer agentPrice = 30000;
+		Long date = DateUtils.getCurrentDate();
+		MerchantAgent agent = new MerchantAgent();
+		agent.setMerchantId(Long.parseLong(info.getUserId().replace("\"","")));
+		agent.setPayStatus(0);
+		agent.setPrice(agentPrice*100);
+		agent.setCreateDate(date);
+		agent.setUpdateDate(date);
+		int status = merchantAgentMapper.insertSelective(agent);
+		if(status <= 0){
+			billLogger.error("商户："+info.getUserId()+"添加商户代理信息失败");
+			throw new BusinessException("添加商户代理信息失败");
+		}else{
+			//支付
+			StringBuilder sb = new StringBuilder();
+			sb.append("B");
+			sb.append(agent.getId());
+			//发起支付请求
+			ResponseResult payResult = orderPay(sb.toString(),agentPrice.toString(),info.getCode(),info.getOpenId());
+			return payResult;
+		}
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.quxin.freshfun.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.common.collect.Maps;
 import com.quxin.freshfun.dao.GoodsLimitMapper;
 import com.quxin.freshfun.dao.ResponseResult;
-import com.quxin.freshfun.model.OrderDetailsPOJO;
-import com.quxin.freshfun.model.OrderInfo;
-import com.quxin.freshfun.model.OrderPayPOJO;
-import com.quxin.freshfun.model.OrderStatusInfo;
-import com.quxin.freshfun.model.PayModify;
-import com.quxin.freshfun.model.ReturnStatus;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
@@ -263,6 +258,20 @@ public class OrderController {
 		map.put("payResult", payResult);
 		return map;
 	}
+
+	@RequestMapping(value="/quanMingPay",method={RequestMethod.POST})
+	@ResponseBody
+	public ResponseResult quanMingPay(@RequestBody QuanMingPayInfo payInfo){
+		ResponseResult payResult = null;
+		try{
+			payResult = order.addQuanMingPay(payInfo);
+		}catch (BusinessException e){
+			resultLogger.error("商户代理信息添加失败",e);
+		}
+
+		return payResult;
+	}
+
 	@RequestMapping(value="/awaitPayOrder",method={RequestMethod.POST})
 	@ResponseBody
 	public Map<String, ResponseResult> awaitPayOrder(@RequestBody OrderPayPOJO orderPay){
