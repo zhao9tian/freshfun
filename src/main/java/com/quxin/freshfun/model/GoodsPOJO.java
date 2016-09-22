@@ -148,7 +148,27 @@ public class GoodsPOJO {
 
     private String marketMoney;
 
+    public String getShare_url() {
+        return share_url;
+    }
+
+    public void setShare_url(String share_url) {
+        this.share_url = share_url;
+    }
+
     private Integer merchantProxyId;
+
+    private String share_url;
+
+    public GoodsSelectionPOJO getGoodsSelection() {
+        return goodsSelection;
+    }
+
+    public void setGoodsSelection(GoodsSelectionPOJO goodsSelection) {
+        this.goodsSelection = goodsSelection;
+    }
+
+    private GoodsSelectionPOJO goodsSelection;
 
     public Integer getMerchantProxyId() {
         return merchantProxyId;

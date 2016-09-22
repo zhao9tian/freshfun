@@ -688,7 +688,6 @@ public class OrderServiceImpl implements OrderService {
 		Long date = DateUtils.getCurrentDate();
 		MerchantAgent agent = new MerchantAgent();
 		agent.setMerchantId(Long.parseLong(info.getUserId().replace("\"","")));
-		agent.setPayStatus(0);
 		agent.setPrice(agentPrice*100);
 		agent.setCreateDate(date);
 		agent.setUpdateDate(date);
