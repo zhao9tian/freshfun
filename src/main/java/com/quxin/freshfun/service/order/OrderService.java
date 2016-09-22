@@ -21,7 +21,7 @@ public interface OrderService {
 	public List<OrdersPOJO> findAllOrders();
 	/**
 	 * 添加订单信息
-	 * @param order
+	 * @param orderInfo
 	 * @return
 	 */
 	ResponseResult addOrder(OrderInfo orderInfo) throws BusinessException;
@@ -36,7 +36,7 @@ public interface OrderService {
 	
 	/**
 	 * 添加订单信息
-	 * @param order
+	 * @param orderInfo
 	 * @return
 	 */
 	ResponseResult addLimitOrder(OrderInfo orderInfo);
@@ -47,5 +47,19 @@ public interface OrderService {
 	 * @return
 	 */
 	OrderDetailsPOJO getOrderLogistic(String orderDetailId);
-	
+
+
+	/**
+	 * 获取总收益
+	 * @param id
+	 * @return
+	 */
+	Integer queryAllIncome(Long id);
+
+	/**
+	 * 获取已入账收益
+	 * @param id
+	 * @return
+	 */
+	Integer queryEarnedIncome(Long id);
 }

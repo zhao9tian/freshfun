@@ -173,10 +173,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 添加限时购订单
-	 * @param goodsPOJO
-	 * @param goodsInfo
-	 * @param user_id
-	 * @param orderDetailsId
+	 * @param orderInfo
 	 */
 	public ResponseResult addLimitOrder(OrderInfo orderInfo) {
 		Integer [] goodsPrice = new Integer[orderInfo.getGoodsInfo().size()];
@@ -370,7 +367,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 普通订单
-	 * @param order2
+	 * @param order
 	 */
 	private void createCommonOrderDetail(OrdersPOJO order) {
 		OrderInPieces orderInPiecesBean = getOrderInPiecesBean(order);
@@ -708,5 +705,14 @@ public class OrderServiceImpl implements OrderService {
 	public static void main(String[] args) {
 		String str ="Nzc1NzM4ODcyOTk3ODcxNjE2fDE0NzM5MjE5MzM=";
 		System.out.println(AESUtil.decodeStr(str));
+	}
+
+	@Override
+	public Integer queryAllIncome(Long id) {
+		return orderDetails.selectAllIncome(id);
+	}
+	@Override
+	public Integer queryEarnedIncome(Long id) {
+		return orderDetails.selectEarnedIncome(id);
 	}
 }

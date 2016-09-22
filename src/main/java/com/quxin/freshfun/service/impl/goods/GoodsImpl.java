@@ -149,4 +149,8 @@ public class GoodsImpl implements GoodsService {
 		
 	}
 
+	@Override
+	public List<GoodsPOJO> findProxyGoods(Map<String, Object> map) {
+		return goods.findProxyGoods(map);
+	}
 }

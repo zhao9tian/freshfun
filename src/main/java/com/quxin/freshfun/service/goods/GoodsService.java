@@ -57,4 +57,10 @@ public interface GoodsService {
 	 */
 	public void addComment(Comment comment);
 
+	/**
+	 * 根据代理商户ID查询代理的商品信息
+	 * @param map
+	 * @return
+	 */
+	List<GoodsPOJO> findProxyGoods (Map<String,Object> map);
 }

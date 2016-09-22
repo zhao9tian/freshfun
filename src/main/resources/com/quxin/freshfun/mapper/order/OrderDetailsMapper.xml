@@ -410,5 +410,13 @@
   <select id="applyRefund" parameterType="java.lang.String" >
   	select id from order_details where order_details_id =#{orderDetailId} and order_status = 3 and (recive_time + 5 * 24 * 3600 - UNIX_TIMESTAMP(NOW())  <![CDATA[>]]> 0 )
   </select>
+
+  <select id="selectAllIncome" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select sum(actual_price) from order_details where goods_id in (select id from goods where merchant_proxy_id = #{id,jdbcType=BIGINT})
+  </select>
+
+  <select id="selectEarnedIncome" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select sum(actual_price) from order_details where goods_id in (select id from goods where merchant_proxy_id = #{id,jdbcType=BIGINT}) and order_status=3
+  </select>
   
 </mapper>

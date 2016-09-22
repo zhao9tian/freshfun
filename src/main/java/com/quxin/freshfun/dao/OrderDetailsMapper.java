@@ -200,4 +200,18 @@ public interface OrderDetailsMapper {
 	 * @return
 	 */
 	Integer applyRefund(String orderDetailId);
+
+    /**
+     * 获取总收益
+     * @param id
+     * @return
+     */
+    Integer selectAllIncome(Long id);
+
+    /**
+     * 获取已入账收益
+     * @param id
+     * @return
+     */
+    Integer selectEarnedIncome(Long id);
 }
