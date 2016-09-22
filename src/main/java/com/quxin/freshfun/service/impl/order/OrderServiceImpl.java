@@ -647,6 +647,13 @@ public class OrderServiceImpl implements OrderService {
 					//商户代理费支付回调
 					Integer id = Integer.parseInt(orderId.substring(1,orderId.length()));
 					payStatus = merchantAgentMapper.updatePayStatus(id);
+                    //查询商户代理信息
+                    MerchantAgent m = merchantAgentMapper.selectMerchantInfo(id);
+                    //修改商品的代理状态
+                    int goodsStatus = goods.updateGoodsAgent(m.getMerchantId(),m.getGoodsId());
+                    if(goodsStatus <= 0){
+                        billLogger.error("修改商品代理状态失败");
+                    }
 					billLogger.info("商户编号："+map.get("attach")+"支付状态："+payStatus);
 				}else{
 					List<Integer> payIdList = orderDetails.selectPayId(Long.parseLong(orderId));
@@ -689,6 +696,8 @@ public class OrderServiceImpl implements OrderService {
 		MerchantAgent agent = new MerchantAgent();
 		agent.setMerchantId(Long.parseLong(info.getUserId().replace("\"","")));
 		agent.setPrice(agentPrice*100);
+        agent.setGoodsId(info.getGoodsId());
+        agent.setPayStatus(0);
 		agent.setCreateDate(date);
 		agent.setUpdateDate(date);
 		int status = merchantAgentMapper.insertSelective(agent);

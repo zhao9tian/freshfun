@@ -57,4 +57,11 @@ public interface MerchantAgentMapper {
      * @return
      */
     int updatePayStatus(int id);
+
+    /**
+     * 查询商户信息
+     * @param id
+     * @return
+     */
+    MerchantAgent selectMerchantInfo(Integer id);
 }

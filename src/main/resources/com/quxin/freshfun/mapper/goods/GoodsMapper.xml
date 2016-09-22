@@ -103,6 +103,11 @@
   <select id="selectRecommendGoods" resultMap="BaseResultMap">
       select id, goods_name, goods_img, goods_des, shop_price, market_price from goods where id >= ((select max(id) from goods)-(select min(id) from goods)) * rand() + (select min(id) from goods) limit 10
   </select>
+
+  <!--修改商品代理商户-->
+  <update id="updateGoodsAgent" >
+    update goods set merchant_proxy_id = #{userId} where id = #{goodsId}
+  </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
       WARNING - @mbggenerated

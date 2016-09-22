@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.quxin.freshfun.model.GoodsPOJO;
+import org.apache.ibatis.annotations.Param;
 
 public interface GoodsMapper {
     /**
@@ -109,4 +110,12 @@ public interface GoodsMapper {
      * @return
      */
     List<GoodsPOJO> findProxyGoods(Map<String,Object> map);
+
+    /**
+     * 修改商品代理状态
+     * @param userId
+     * @param goodsId
+     * @return
+     */
+    int updateGoodsAgent(@Param("userId") Long userId,@Param("goodsId") Integer goodsId);
 }
