@@ -98,14 +98,14 @@ public class ProxyController {
 
 	/**
 	 * 我的品牌
-	 * @param merchant_proxy_id
+	 * @param merchantProxyId
 	 * @return
 	 */
 	@RequestMapping("/toBrands")
 	@ResponseBody
-	public List<GoodsPOJO> toMyBrand(Integer merchant_proxy_id) {
+	public List<GoodsPOJO> toMyBrand(Integer merchantProxyId) {
 		Map<String, Object> doos = new HashMap<>();
-		doos.put("mpId", merchant_proxy_id);
+		doos.put("mpId", merchantProxyId);
 		List<GoodsPOJO> goodss = goodsService.findProxyGoods(doos);
 		for (GoodsPOJO goodsPOJO : goodss) {
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));

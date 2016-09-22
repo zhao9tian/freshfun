@@ -48,11 +48,11 @@ public class GoodsDetails {
 	 */
 	@RequestMapping("/goods")
 	@ResponseBody
-	public AllGoods findMongoGoods(Integer goodsID){
+	public AllGoods findMongoGoods(Integer goodsId){
 		AllGoods allGoods = new AllGoods();
-		List<GoodsMongo> goodsMongo = goods.findGoodsMongo(goodsID);
+		List<GoodsMongo> goodsMongo = goods.findGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
-		GoodsPOJO goodsMysql = goods.findGoodsMysql(goodsID);
+		GoodsPOJO goodsMysql = goods.findGoodsMysql(goodsId);
 		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShop_price()));
 		goodsMysql.setMarketMoney(MoneyFormat.priceFormatString(goodsMysql.getMarket_price()));
 		goodsMysql.setShop_price(null);
@@ -67,11 +67,11 @@ public class GoodsDetails {
 	 */
 	@RequestMapping("/goodslimit")
 	@ResponseBody
-	public AllGoods findLimitGoods(Integer goodsID){
+	public AllGoods findLimitGoods(Integer goodsId){
 		AllGoods allGoods = new AllGoods();
-		List<GoodsMongo> goodsMongo = goods.findLimitGoodsMongo(goodsID);
+		List<GoodsMongo> goodsMongo = goods.findLimitGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
-		GoodsLimit goodsMysql = goods.findLimitGoodsMysql(goodsID);
+		GoodsLimit goodsMysql = goods.findLimitGoodsMysql(goodsId);
 		allGoods.setGoodsLimit(goodsMysql);
 		return allGoods;
 	}

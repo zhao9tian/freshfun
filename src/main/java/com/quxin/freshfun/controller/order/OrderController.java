@@ -333,14 +333,14 @@ public class OrderController {
 		int a = 0;
 		int b = 0;
 		for(OrderStatusInfo orderStatus : statusCounts){
-			if(orderStatus.getOrder_status() == 0){
-				a = orderStatus.getStatus_counts();
-			}else if(orderStatus.getOrder_status() == 1){
-				b = orderStatus.getStatus_counts();
-			}else if(orderStatus.getOrder_status() == 2){
-				orderMap.put("daishouhuo", orderStatus.getStatus_counts());
-			}else if(orderStatus.getOrder_status() == 3){
-				orderMap.put("daipingjia", orderStatus.getStatus_counts());
+			if(orderStatus.getOrderStatus() == 0){
+				a = orderStatus.getStatusCounts();
+			}else if(orderStatus.getOrderStatus() == 1){
+				b = orderStatus.getStatusCounts();
+			}else if(orderStatus.getOrderStatus() == 2){
+				orderMap.put("daishouhuo", orderStatus.getStatusCounts());
+			}else if(orderStatus.getOrderStatus() == 3){
+				orderMap.put("daipingjia", orderStatus.getStatusCounts());
 			}
 		}
 		a = a+b;
@@ -351,19 +351,19 @@ public class OrderController {
 		}
 		
 		for(OrderStatusInfo orderStatus : refundCounts){
-			if(orderStatus.getRefund_counts() == 0){
+			if(orderStatus.getRefundCounts() == 0){
 				orderMap.put("tuihuo", "");
 			}else{
-				orderMap.put("tuihuo", orderStatus.getRefund_counts());
+				orderMap.put("tuihuo", orderStatus.getRefundCounts());
 			}
 			
 		}
 		
 		for(OrderStatusInfo orderStatus : payCounts){
-			if(orderStatus.getPay_counts() == 0){
+			if(orderStatus.getPayCounts() == 0){
 				orderMap.put("daifukuan", "");
 			}else{
-				orderMap.put("daifukuan", orderStatus.getPay_counts());
+				orderMap.put("daifukuan", orderStatus.getPayCounts());
 			}
 			
 		}

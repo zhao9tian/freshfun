@@ -2,16 +2,16 @@ package com.quxin.freshfun.model;
 
 public class GoodsThemeInfo {
 	
-	private Integer ThemeID;
+	private Integer ThemeId;
 	
 	private Integer pagetime;
 
 	public Integer getThemeID() {
-		return ThemeID;
+		return ThemeId;
 	}
 
 	public void setThemeID(Integer themeID) {
-		ThemeID = themeID;
+		ThemeId = themeID;
 	}
 
 	public Integer getPagetime() {

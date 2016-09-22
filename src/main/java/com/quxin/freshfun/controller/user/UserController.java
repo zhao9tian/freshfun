@@ -49,9 +49,8 @@ public class UserController {
 	 */
 	@RequestMapping("/useraddressid")
 	@ResponseBody
-	public UserAddress FindUserAddressByAddressId(Integer address_id){
-		System.out.println(address_id);
-		return userAddressService.selectByPrimaryKey(address_id);
+	public UserAddress FindUserAddressByAddressId(Integer addressId){
+		return userAddressService.selectByPrimaryKey(addressId);
 	}
 	
 	/**
@@ -62,14 +61,14 @@ public class UserController {
 	@ResponseBody
 	public Map<String, Object> AddNewAddress(@RequestBody AddressInfo addressInfo){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		String uId = addressInfo.getUser_id();
+		String uId = addressInfo.getUserId();
 		Long userID = Long.parseLong(uId.replace("\"", ""));
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();
 		String city = addressInfo.getCity();
 		String address = addressInfo.getAddress();
-		Integer is_default = addressInfo.getIs_default();
-		if (is_default == 1){
+		Integer isDefault = addressInfo.getIsDefault();
+		if (isDefault == 1){
 			userAddressService.updateDefaultAddress(userID);
 		}
 		if (userID != null && name != null && tel != null && city != null && address != null){
@@ -79,10 +78,10 @@ public class UserController {
 			addressMap.put("tel", tel); 
 			addressMap.put("city", city);
 			addressMap.put("address", address);
-			addressMap.put("is_default", is_default);
+			addressMap.put("isDefault", isDefault);
 			long nowTime = System.currentTimeMillis()/1000;
-			addressMap.put("gmt_creat", nowTime);
-			addressMap.put("gmt_modified", nowTime);
+			addressMap.put("gmtCreat", nowTime);
+			addressMap.put("gmtModified", nowTime);
 			
 			int demo = userAddressService.addNewAddress(addressMap);
 			if (demo == 1){
@@ -128,27 +127,27 @@ public class UserController {
 	@ResponseBody
 	public Map<String, Object> UpdateUserAddress(@RequestBody AddressInfo addressInfo){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		String uId = addressInfo.getUser_id();
-		Long userID = Long.parseLong(uId.replace("\"", ""));
-		Integer addressID = addressInfo.getAddress_id();
+		String uId = addressInfo.getUserId();
+		Long userId = Long.parseLong(uId.replace("\"", ""));
+		Integer addressId = addressInfo.getAddressId();
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();
 		String city = addressInfo.getCity();
 		String address = addressInfo.getAddress();
-		Integer is_default = addressInfo.getIs_default();
-		if (is_default == 1){
-			userAddressService.updateDefaultAddress(userID);
+		Integer isDefault = addressInfo.getIsDefault();
+		if (isDefault == 1){
+			userAddressService.updateDefaultAddress(userId);
 		}
-		if (addressID != null && name != null && tel != null && city != null && address != null){
+		if (addressId != null && name != null && tel != null && city != null && address != null){
 			UserAddress userAddress = new UserAddress();
-			userAddress.setId(addressID);
+			userAddress.setId(addressId);
 			userAddress.setName(name);
 			userAddress.setTel(tel);
 			userAddress.setAddress(address);
 			userAddress.setCity(city);
-			userAddress.setIs_default(is_default);
+			userAddress.setIsDefault(isDefault);
 			long nowTime = System.currentTimeMillis()/1000;
-			userAddress.setGmt_modified(nowTime);
+			userAddress.setGmtModified(nowTime);
 			int demo = userAddressService.updateByPrimaryKey(userAddress);
 			if (demo == 1){
 				stateMap.put("state", "1");			

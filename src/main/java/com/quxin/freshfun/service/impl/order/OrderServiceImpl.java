@@ -82,18 +82,18 @@ public class OrderServiceImpl implements OrderService {
 		Integer [] goodsPrice = new Integer[orderInfo.getGoodsInfo().size()];
 		//订单编号
 		IdGenerate idGenerate = new IdGenerate();
-		Long uId = Long.parseLong(orderInfo.getUser_id().replace("\"", ""));
+		Long uId = Long.parseLong(orderInfo.getUserId().replace("\"", ""));
 		Long orderId = idGenerate.nextId();
 		// #TODO 根据购物车数量循环
 		for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
 			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
 			OrderPayInfo payInfo = null;
 			//查询购物车
-			if(null == goodsInfo.getSc_id() || 0 == goodsInfo.getSc_id()){
+			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
 				GoodsPOJO goodsPOJO = goods.selectShoppingInfo(goodsInfo.getGoodsId());
 				payInfo = new OrderPayInfo(goodsPOJO.getGoods_name(), goodsPOJO.getShop_price());
 			}else{
-				ShoppingCartPOJO shoppingCart = cart.selectShoppingCart(goodsInfo.getSc_id());
+				ShoppingCartPOJO shoppingCart = cart.selectShoppingCart(goodsInfo.getScId());
 				payInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice());
 			}
 			goodsPrice[i] = payInfo.getGoodsPrice();
@@ -101,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
 			//生成订单详情
 			int orderDetailStatus = orderDetails.insertSelective(orderDetail);
 			if(orderDetailStatus <= 0){
-				resultLogger.error(orderInfo.getUser_id()+"添加订单详情失败");
+				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
 				throw new BusinessException("订单详情生成失败");
 			}
 			//生成收入账单
@@ -109,11 +109,11 @@ public class OrderServiceImpl implements OrderService {
 			//生成支出账单
 			generateExpensesBill(payInfo,goodsInfo,uId,orderDetail);
 		}
-		if(orderInfo.getGoodsInfo().get(0).getSc_id() != null){
+		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,goodsPrice,orderId);
 			int insertStatus = order.insertSelective(orderPOJO);
 			if(insertStatus <= 0){
-				resultLogger.error(orderInfo.getUser_red_id()+"添加订单失败");
+				resultLogger.error(orderInfo.getUserRedId()+"添加订单失败");
 				throw new BusinessException("订单添加失败");
 			}
 		}
@@ -123,11 +123,11 @@ public class OrderServiceImpl implements OrderService {
 		//修改订单状态 
 		//int payStatus = order.updateOrderPayStatus(orderPOJO.getId());
 		//修改支付状态
-		if(orderInfo.getGoodsInfo().get(0).getSc_id() != null){
+		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
-				Integer status = cart.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getSc_id());
+				Integer status = cart.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
 				if(status <= 0){
-					resultLogger.error(orderInfo.getUser_id()+"修改购物车状态失败");
+					resultLogger.error(orderInfo.getUserId()+"修改购物车状态失败");
 					throw new BusinessException("修改购物车状态");
 				}
 			}
@@ -168,54 +168,54 @@ public class OrderServiceImpl implements OrderService {
 			//生成订单详情
 			int orderDetailStatus = orderDetails.insertSelective(orderDetail);
 			if(orderDetailStatus <= 0){
-				resultLogger.error(orderInfo.getUser_id()+"添加订单详情失败");
+				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
 				throw new RuntimeException();
 			}
 			//生成收入账单
 			//generateBill(payInfo,goodsInfo,orderInfo.getUser_id(),orderDetail.getOrderDetailsId());
 			//生成支出账单
-			generateExpensesBill(payInfo,goodsInfo,Long.parseLong(orderInfo.getUser_id().replace("\"", "")),orderDetail);
+			generateExpensesBill(payInfo,goodsInfo,Long.parseLong(orderInfo.getUserId().replace("\"", "")),orderDetail);
 		}
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,goodsPrice,orderId);
-		orderPOJO.setIs_limit(1);
+		orderPOJO.setIsLimit(1);
 		int insertStatus = order.insertSelective(orderPOJO);
 		if(insertStatus <= 0){
-			resultLogger.error(orderInfo.getUser_red_id()+"添加订单失败");
+			resultLogger.error(orderInfo.getUserRedId()+"添加订单失败");
 			throw new RuntimeException();
 		}
 		String money = "0.01";
 		//生成订单后 调用支付
-		ResponseResult payResult = orderPay(orderPOJO.getOrder_id().toString(),money,orderInfo.getCode(),orderInfo.getOpenid());
+		ResponseResult payResult = orderPay(orderPOJO.getOrderId().toString(),money,orderInfo.getCode(),orderInfo.getOpenid());
 
 		return payResult;
 	}
 	/**
 	 * 添加用户支出账单
-	 * @param goodsPOJO
+	 * @param payInfo
 	 * @param goodsInfo
-	 * @param user_id
-	 * @param orderDetailsId
+	 * @param userId
+	 * @param orderDetail
 	 */
 	private void generateExpensesBill(OrderPayInfo payInfo, GoodsInfo goodsInfo,
-			Long user_id, OrderDetailsPOJO orderDetail) {
+			Long userId, OrderDetailsPOJO orderDetail) {
 		Long currentDate = DateUtils.getCurrentDate();
 		UserOutcome outCome = new UserOutcome();
-		outCome.setUser_id(user_id);
-		outCome.setOrder_id(orderDetail.getOrderDetailsId());
-		outCome.setOut_price(orderDetail.getActualPrice());
-		outCome.setCreate_date(currentDate);
-		outCome.setUpdate_date(currentDate);
-		outCome.setOutcome_name(payInfo.getGoodsName());
+		outCome.setUserId(userId);
+		outCome.setOrderId(orderDetail.getOrderDetailsId());
+		outCome.setOutPrice(orderDetail.getActualPrice());
+		outCome.setCreateDate(currentDate);
+		outCome.setUpdateDate(currentDate);
+		outCome.setOutcomeName(payInfo.getGoodsName());
 		int status = addUserOutcome(outCome);
 		if(status <= 0){
-			resultLogger.error(user_id+"生成用户支出账单失败");
+			resultLogger.error(userId+"生成用户支出账单失败");
 			throw new RuntimeException();
 		}
 	}
 
 	/**
 	 * 根据用户提交的信息生成订单详情
-	 * @param goodsPOJO
+	 * @param payInfo
 	 * @param goodsInfo
 	 */
 	private OrderDetailsPOJO makeOrderDetail(OrderPayInfo payInfo, GoodsInfo goodsInfo,OrderInfo orderInfo,Long orderId) {
@@ -226,11 +226,11 @@ public class OrderServiceImpl implements OrderService {
 		IdGenerate idGenerate = new IdGenerate();
 		String orderDetailId = getOrderDetailId(idGenerate,orderInfo);
 		od.setOrderId(orderId);
-		od.setUserId(Long.parseLong(orderInfo.getUser_id().replace("\"", "")));
+		od.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
 		od.setOrderDetailsId(orderDetailId);
 		od.setGoodsId(goodsInfo.getGoodsId());
-		od.setAddressId(orderInfo.getAddress_id());
-		od.setPaymentMethod(orderInfo.getPayment_method());
+		od.setAddressId(orderInfo.getAddressId());
+		od.setPaymentMethod(orderInfo.getPaymentMethod());
 		if(null != goodsInfo.getCount() && goodsInfo.getCount() > 0)
 			od.setActualPrice(payInfo.getGoodsPrice()*goodsInfo.getCount());
 		else
@@ -240,18 +240,18 @@ public class OrderServiceImpl implements OrderService {
 		od.setPayStatus(0);
 		od.setCommentStatus(0);
 		od.setCount(goodsInfo.getCount());
-		od.setPayPlateform(orderInfo.getPay_sign());
+		od.setPayPlateform(orderInfo.getPaySign());
 		od.setCreateDate(currentTime);
 		od.setUpdateDate(currentTime);
 		return od;
 	}
 	private String getOrderDetailId(IdGenerate idGenerate,OrderInfo orderInfo) {
 		StringBuilder sb = new StringBuilder();
-		if(orderInfo.getPay_sign() == 2){
+		if(orderInfo.getPaySign() == 2){
 			sb.append("WA");
 			sb.append(idGenerate.nextId());
 			return sb.toString();
-		}else if( orderInfo.getPay_sign() == 1){
+		}else if( orderInfo.getPaySign() == 1){
 			sb.append("WI");
 			sb.append(idGenerate.nextId());
 			return sb.toString();
@@ -274,16 +274,16 @@ public class OrderServiceImpl implements OrderService {
 		}
 		long currentDate = DateUtils.getCurrentDate();
 		OrdersPOJO order = new OrdersPOJO();
-		order.setUser_id(Long.parseLong(orderInfo.getUser_id().replace("\"", "")));
-		order.setOrder_id(orderId);
-		order.setGmt_create(currentDate);
-		order.setGmt_modified(currentDate);
-		order.setPayment_method(orderInfo.getPayment_method());
-		order.setOrder_count(orderInfo.getGoodsInfo().size());
-		order.setOrder_status(0);
-		order.setPay_status(0);
-		order.setUser_red_id(orderInfo.getUser_red_id());
-		order.setActual_price(sumPrice);
+		order.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
+		order.setOrderId(orderId);
+		order.setGmtCreate(currentDate);
+		order.setGmtModified(currentDate);
+		order.setPaymentMethod(orderInfo.getPaymentMethod());
+		order.setOrderCount(orderInfo.getGoodsInfo().size());
+		order.setOrderStatus(0);
+		order.setPayStatus(0);
+		order.setUserRedId(orderInfo.getUserRedId());
+		order.setActualPrice(sumPrice);
 		order.setCode(orderInfo.getCode());
 		return order;
 	}
@@ -345,12 +345,12 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	private void createCommonOrderDetail(OrdersPOJO order) {
 		OrderInPieces orderInPiecesBean = getOrderInPiecesBean(order);
-		orderInPiecesBean.setDeliveryDate(order.getGmt_create());
+		orderInPiecesBean.setDeliveryDate(order.getGmtCreate());
 		//orderInpieces.addOrderDetail(orderInPiecesBean);
 		//区分是否是分享用户
 		if(order.getCode().trim() == "" || order.getCode() == null){
 			//不是分享用户
-			//createBill(order,orderInPiecesBean.getOrderPieceId(),order.getActual_price());
+			//createBill(order,orderInPiecesBean.getOrderPieceId(),order.getActualPrice());
 		}else{
 			//分享用户
 			createBill(order,orderInPiecesBean.getOrderPieceId());
@@ -359,7 +359,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 生成账单
-	 * @param goodsPOJO
+	 * @param payInfo
 	 */
 	private void generateBill(OrderPayInfo payInfo,OrderDetailsPOJO orderDetail,Long userId,Integer goodsId) {
 //		if(null == goodsInfo.getSignCode() || "".equals(goodsInfo.getSignCode())){
@@ -370,7 +370,7 @@ public class OrderServiceImpl implements OrderService {
 //				int merchantMoney = (int) (payInfo.getGoodsPrice() * 0.8);
 //				generateBillDetail(payInfo,goodsInfo,gp.getMerchant_proxy_id(),orderInpieces,proxyMerchantMoney,2);
 //				generateBillDetail(payInfo,goodsInfo,gp.getStore_id(),orderInpieces,merchantMoney,3);
-//				
+//
 //			}else{
 //				generateBillDetail(payInfo,goodsInfo,gp.getStore_id(),orderInpieces,payInfo.getGoodsPrice(),3);
 //			}
@@ -381,7 +381,7 @@ public class OrderServiceImpl implements OrderService {
 			//String codeVal = getCodeVal(goodsInfo.getSignCode());
 			//String[] splitCode = getSplitCode(codeVal);
 			//Long shareId = Long.parseLong(splitCode[0]);
-			if(null != userPOJO.getParent_id() && userPOJO.getParent_id() != 0){
+			if(null != userPOJO.getParentId() && userPOJO.getParentId() != 0){
 				//修改用户标记
 				
 				//查询是否有代理商户
@@ -390,13 +390,13 @@ public class OrderServiceImpl implements OrderService {
 					int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
 					int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
 					int merchantMoney = (int) (orderDetail.getActualPrice() * 0.7);
-					generateBillDetail(payInfo,orderDetail,userPOJO.getParent_id(),shareMoney,1);
+					generateBillDetail(payInfo,orderDetail,userPOJO.getParentId(),shareMoney,1);
 					generateBillDetail(payInfo,orderDetail,gp.getMerchant_proxy_id(),proxyMerchantMoney,2);
 					generateBillDetail(payInfo,orderDetail,gp.getStore_id(),merchantMoney,3);
 				}else{
 					int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
 					int merchantMoney = (int) (orderDetail.getActualPrice() * 0.9);
-					generateBillDetail(payInfo,orderDetail,userPOJO.getParent_id(),shareMoney,1);
+					generateBillDetail(payInfo,orderDetail,userPOJO.getParentId(),shareMoney,1);
 					generateBillDetail(payInfo,orderDetail,gp.getStore_id(),merchantMoney,3);
 				}
 			}else{
@@ -415,21 +415,21 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 生成订单详情
-	 * @param goodsPOJO
-	 * @param goodsInfo
-	 * @param orderInpieces
+	 * @param payInfo
+	 * @param orderDetail
+	 * @param userId
 	 */
 	private void generateBillDetail(OrderPayInfo payInfo,OrderDetailsPOJO orderDetail,Long userId,int money,int deliveryType) {
 		long currentDate = DateUtils.getCurrentDate();
 		UserRevenue revenue = new UserRevenue();
-		revenue.setUser_id(userId);
-		revenue.setOrder_id(orderDetail.getOrderDetailsId());
+		revenue.setUserId(userId);
+		revenue.setOrderId(orderDetail.getOrderDetailsId());
 		revenue.setPrice(money);
-		revenue.setIn_state(0);
-		revenue.setCreate_date(currentDate);
-		revenue.setUpdate_date(currentDate);
-		revenue.setDelivery_type(deliveryType);
-		revenue.setRevenue_name(payInfo.getGoodsName());
+		revenue.setInState(0);
+		revenue.setCreateDate(currentDate);
+		revenue.setUpdateDate(currentDate);
+		revenue.setDeliveryType(deliveryType);
+		revenue.setRevenueName(payInfo.getGoodsName());
 		int status = addUserRevenue(revenue);
 		if(status <= 0){
 			resultLogger.error(userId+"生成订单详情失败");
@@ -439,7 +439,7 @@ public class OrderServiceImpl implements OrderService {
 
 	/**
 	 * 生成分享用户账单
-	 * @param order2
+	 * @param order
 	 * @param orderPieceId
 	 */
 	private void createBill(OrdersPOJO order, String orderPieceId) {
@@ -468,7 +468,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 添加用户支出信息
-	 * @param outcome
+	 * @param out
 	 */
 	private int addUserOutcome(UserOutcome out) {
 		return outcome.insertSelective(out);
@@ -489,7 +489,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	/**
 	 * 根据订单商品编号查询商品商户编号
-	 * @param goods_id
+	 * @param goodsId
 	 */
 	private GoodsPOJO findMerchantInfoByGoodsId(Integer goodsId) {
 		return goods.selectMerchantByGoodsId(goodsId);
@@ -497,7 +497,7 @@ public class OrderServiceImpl implements OrderService {
 	/**
 	 * 修改用户分享标记
 	 * @param userId
-	 * @param goodsId
+	 * @param parentId
 	 */
 	private Integer modifyUserParentId(Long userId, Long parentId) {
 		Map<String, Long> map = new HashMap<>();
@@ -530,8 +530,8 @@ public class OrderServiceImpl implements OrderService {
 		//发货次数
 		int deliveryCount = deliveryTypePOJO.getDeliveryCount();
 		//单次价格
-		int singlePrice = order.getActual_price() / deliveryCount;
-		Long[] deliveryDates = makeDeliveryDate(order.getGmt_create(),deliveryTypePOJO);
+		int singlePrice = order.getActualPrice() / deliveryCount;
+		Long[] deliveryDates = makeDeliveryDate(order.getGmtCreate(),deliveryTypePOJO);
 		for(int i = 0;i < deliveryCount;i++){
 			//生成商品详情
 			OrderInPieces orderInPiecesBean = getOrderInPiecesBean(order);
@@ -553,16 +553,16 @@ public class OrderServiceImpl implements OrderService {
 		op.setOrderPieceId(UUID.randomUUID().toString());
 //		op.setAddress(address);
 		//op.setPaymentMethod(order.getPayment_method());
-		op.setPayTime(order.getGmt_create());
+		op.setPayTime(order.getGmtCreate());
 		op.setOrderStatus(0);
 		op.setCommentStatus(0);
-		op.setActualPrice(order.getActual_price());
+		op.setActualPrice(order.getActualPrice());
 		return op;
 	}
 	
 	/**
 	 * 根据订单编号查询地址信息
-	 * @param id
+	 * @param addressId
 	 */
 	private OrderAddress getAddressByOrderId(String addressId) {
 		return orderAddress.findAddressById(addressId);
@@ -570,7 +570,7 @@ public class OrderServiceImpl implements OrderService {
 	
 	/**
 	 * 生成订单发货时间
-	 * @param goodsDelivery
+	 * @param deliveryTypePOJO
 	 */
 	private Long[] makeDeliveryDate(Long createDate,GoodsDeliveryTypePOJO deliveryTypePOJO) {
 		Long [] dates = new Long [deliveryTypePOJO.getDeliveryCount()];

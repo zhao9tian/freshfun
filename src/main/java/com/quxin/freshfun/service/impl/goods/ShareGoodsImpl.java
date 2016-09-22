@@ -16,14 +16,13 @@ public class ShareGoodsImpl implements ShareGoods {
 	private MongoShare mongoShare;
 	/**
 	 * 记录用户分享信息
-	 * @param user_id 分享用户编号
-	 * @param goods_id	商品编号
+	 * @param userId 分享用户编号
 	 * @param code 编码后的信息
 	 * @return
 	 */
 	@Override
-	public Integer recordShareInfo(String user_id, String code) {
-		Share share = new Share(user_id,code);
+	public Integer recordShareInfo(String userId, String code) {
+		Share share = new Share(userId,code);
 		Integer status = mongoShare.addShareLink(share);
 		return status;
 	}

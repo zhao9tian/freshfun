@@ -98,20 +98,20 @@ public class UserServiceImpl implements UserService{
 				IdGenerate idGenerate = new IdGenerate();			
 				userId = idGenerate.nextId();
 				user.setUserId(userId);
-				user.setWx_id(wxId);
-				user.setWz_id(wzId);
+				user.setWxId(wxId);
+				user.setWzId(wzId);
 				if(null != wxinfo.getCode() && !"".equals(wxinfo.getCode())){
 					String parentId = AESUtil.decodeStr(wxinfo.getCode()).split("\\|")[0];
-					user.setParent_id(Long.parseLong(parentId.replace("\"", "")));
+					user.setParentId(Long.parseLong(parentId.replace("\"", "")));
 				}
 				//不为空
-				user.setGmt_create(System.currentTimeMillis()/1000);
-				user.setGmt_modified(System.currentTimeMillis()/1000);
-				user.setLogin_method("wz");
-				user.setUser_credit((byte)1);
-				user.setUser_identify((byte)1);
-				user.setUser_enter((byte)1);
-				user.setIs_received((byte)1);
+				user.setGmtCreate(System.currentTimeMillis()/1000);
+				user.setGmtModified(System.currentTimeMillis()/1000);
+				user.setLoginMethod("wz");
+				user.setUserCredit((byte)1);
+				user.setUserIdentify((byte)1);
+				user.setUserEnter((byte)1);
+				user.setIsReceived((byte)1);
 				userDao.insert(user);
 				//插入一条用户信息到mongoDB
 				userInfo.setUserId(userId);

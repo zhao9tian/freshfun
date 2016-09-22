@@ -72,11 +72,11 @@ public class BillServiceImpl implements BillService {
 		
 		if(status > 0){
 			UserRevenue ur = new UserRevenue();
-			ur.setUser_id(uId);
-			ur.setRevenue_name("提现金额");
+			ur.setUserId(uId);
+			ur.setRevenueName("提现金额");
 			ur.setPrice(-submitMoney);
-			ur.setCreate_date(currentDate);
-			ur.setUpdate_date(currentDate);
+			ur.setCreateDate(currentDate);
+			ur.setUpdateDate(currentDate);
 			int u = revenue.insertSelective(ur);
 			if(u > 0){
 				return 1;				
@@ -95,19 +95,19 @@ public class BillServiceImpl implements BillService {
 		List<UserRevenue> revenueBill = revenue.selectRevenueBill(userId);
 		for (UserRevenue userRevenue : revenueBill) {
 			RevenueOrExpenses re = new RevenueOrExpenses();
-			re.setOrderId(userRevenue.getOrder_id());
-			re.setName(userRevenue.getRevenue_name());
+			re.setOrderId(userRevenue.getOrderId());
+			re.setName(userRevenue.getRevenueName());
 			re.setPrice(MoneyFormat.priceFormatString(userRevenue.getPrice()));
-			re.setDate(userRevenue.getCreate_date());
+			re.setDate(userRevenue.getCreateDate());
 			revenueOrExpenses.add(re);
 		}
 		List<UserOutcome> outcomeBill = outcome.selectOutcomeBill(userId);
 		for (UserOutcome userOutcome : outcomeBill) {
 			RevenueOrExpenses re = new RevenueOrExpenses();
-			re.setOrderId(userOutcome.getOrder_id());
-			re.setName(userOutcome.getOutcome_name());
-			re.setPrice(MoneyFormat.priceFormatString(-userOutcome.getOut_price()));
-			re.setDate(userOutcome.getCreate_date());
+			re.setOrderId(userOutcome.getOrderId());
+			re.setName(userOutcome.getOutcomeName());
+			re.setPrice(MoneyFormat.priceFormatString(-userOutcome.getOutPrice()));
+			re.setDate(userOutcome.getCreateDate());
 			revenueOrExpenses.add(re);
 		}
 		Collections.sort(revenueOrExpenses, new SortByDate());

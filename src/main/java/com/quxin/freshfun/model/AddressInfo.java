@@ -2,11 +2,11 @@ package com.quxin.freshfun.model;
 
 public class AddressInfo {
 	
-    private Integer address_id;
+    private Integer addressId;
 	
-	private Integer is_default;
+	private Integer isDefault;
 
-	private String user_id;
+	private String userId;
 	
 	private String name;
 	
@@ -16,28 +16,28 @@ public class AddressInfo {
 	
 	private String address;
 
-	public Integer getAddress_id() {
-		return address_id;
+	public Integer getAddressId() {
+		return addressId;
 	}
 
-	public void setAddress_id(Integer address_id) {
-		this.address_id = address_id;
+	public void setAddressId(Integer addressId) {
+		this.addressId = addressId;
 	}
 
-	public Integer getIs_default() {
-		return is_default;
+	public Integer getIsDefault() {
+		return isDefault;
 	}
 
-	public void setIs_default(Integer is_default) {
-		this.is_default = is_default;
+	public void setIsDefault(Integer isDefault) {
+		this.isDefault = isDefault;
 	}
 
-	public String getUser_id() {
-		return user_id;
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
 	public String getName() {
@@ -71,8 +71,4 @@ public class AddressInfo {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	
-
-	
-
 }

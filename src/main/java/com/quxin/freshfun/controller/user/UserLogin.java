@@ -22,20 +22,20 @@ public class UserLogin {
 	@ResponseBody
 	@RequestMapping("/phoneLogin")
 	public String phoneLogin(String phoneNum , String deviceId , HttpServletResponse response){
-		Long user_id =userService.PhoneLogin(phoneNum, deviceId);
-		return user_id.toString();
+		Long userId =userService.PhoneLogin(phoneNum, deviceId);
+		return userId.toString();
 	}
 	@ResponseBody
 	@RequestMapping("/wxLogin")
 	public String wxLogin(WxInfo wxInfo , String deviceId , HttpServletResponse response){
-		Long user_id =userService.WXLogin(wxInfo, deviceId);
-		return user_id.toString();
+		Long userId =userService.WXLogin(wxInfo, deviceId);
+		return userId.toString();
 	}
 	@ResponseBody
 	@RequestMapping("/wzLogin")
 	public String wzLogin(@RequestBody WxInfo wxinfo){
-		Long user_id =userService.WZLogin(wxinfo);
-		return user_id.toString();
+		Long userId =userService.WZLogin(wxinfo);
+		return userId.toString();
 	}
 	
 	@ResponseBody

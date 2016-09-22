@@ -32,7 +32,7 @@ public class HomePageImpl implements HomePageService {
 	@Autowired
 	private SpecialMallMapper specialMall;
 	@Autowired
-	private GoodsTypeMapper goods_type;
+	private GoodsTypeMapper goodsType;
 	@Autowired
 	private ActivityMapper activity;
 	@Autowired
@@ -62,7 +62,7 @@ public class HomePageImpl implements HomePageService {
 	 */
 	@Override
 	public List<GoodsTypePOJO> homeGoodsType() {
-		return goods_type.findAll();
+		return goodsType.findAll();
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class HomePageImpl implements HomePageService {
 	 */
 	@Override
 	public List<GoodsTypePOJO> homeGoodsTypeByType(String type) {
-		List<GoodsTypePOJO> getAllGoods = goods_type.findByType(type);
+		List<GoodsTypePOJO> getAllGoods = goodsType.findByType(type);
 		for (GoodsTypePOJO goodstype : getAllGoods) {
 			List<GtypeVsGid> gtypeVsGid = goodstype.getTypeGids();
 			for (GtypeVsGid goodsType : gtypeVsGid){
@@ -156,7 +156,7 @@ public class HomePageImpl implements HomePageService {
 	@Override
 	public List<GoodsTypePOJO> findTypeGoods() {
 		// TODO Auto-generated method stub
-		List<GoodsTypePOJO> getAllGoods = goods_type.findAllGoods();
+		List<GoodsTypePOJO> getAllGoods = goodsType.findAllGoods();
 		for (GoodsTypePOJO goodstype : getAllGoods) {
 			List<GtypeVsGid> gtypeVsGid = goodstype.getTypeGids();
 			for (GtypeVsGid goodsType : gtypeVsGid){

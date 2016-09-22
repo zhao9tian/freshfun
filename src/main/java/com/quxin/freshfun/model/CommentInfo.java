@@ -2,36 +2,30 @@ package com.quxin.freshfun.model;
 
 public class CommentInfo {
 	
-    private String user_id;
+    private String userId;
 	
-	private String goods_id;
+	private String goodsId;
 	
 	private String content;
 	
-	private String order_id;
+	private String orderId;
 	
-	public String getOrder_id() {
-		return order_id;
+	private String commentLevel;
+
+	public String getUserId() {
+		return userId;
 	}
 
-	public void setOrder_id(String order_id) {
-		this.order_id = order_id;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 
-	public String getUser_id() {
-		return user_id;
+	public String getGoodsId() {
+		return goodsId;
 	}
 
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
-	}
-
-	public String getGoods_id() {
-		return goods_id;
-	}
-
-	public void setGoods_id(String goods_id) {
-		this.goods_id = goods_id;
+	public void setGoodsId(String goodsId) {
+		this.goodsId = goodsId;
 	}
 
 	public String getContent() {
@@ -42,16 +36,19 @@ public class CommentInfo {
 		this.content = content;
 	}
 
-
-	public String getComment_level() {
-		return comment_level;
+	public String getOrderId() {
+		return orderId;
 	}
 
-	public void setComment_level(String comment_level) {
-		this.comment_level = comment_level;
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
 	}
 
-	
-	private String comment_level;
+	public String getCommentLevel() {
+		return commentLevel;
+	}
 
+	public void setCommentLevel(String commentLevel) {
+		this.commentLevel = commentLevel;
+	}
 }

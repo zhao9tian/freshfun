@@ -4,27 +4,27 @@
   <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.UsersPOJO" >
     <id column="id" property="id" jdbcType="INTEGER" />
 	<result column="user_id" property="userId" jdbcType="BIGINT" />
-    <result column="gmt_create" property="gmt_create" jdbcType="BIGINT" />
-    <result column="gmt_modified" property="gmt_modified" jdbcType="BIGINT" />
-    <result column="user_name" property="user_name" jdbcType="VARCHAR" />
-    <result column="user_head_url" property="user_head_url" jdbcType="VARCHAR" />
-    <result column="mobile_phone" property="mobile_phone" jdbcType="VARCHAR" />
-    <result column="device_id" property="device_id" jdbcType="VARCHAR" />
-    <result column="wx_id" property="wx_id" jdbcType="VARCHAR" />
-    <result column="wz_id" property="wz_id" jdbcType="VARCHAR" />
-    <result column="login_method" property="login_method" jdbcType="VARCHAR" />
-    <result column="is_received" property="is_received" jdbcType="TINYINT" />
-    <result column="parent_id" property="parent_id" jdbcType="BIGINT" />
-    <result column="reg_time" property="reg_time" jdbcType="BIGINT" />
-    <result column="user_credit" property="user_credit" jdbcType="TINYINT" />
-    <result column="user_money" property="user_money" jdbcType="INTEGER" />
-    <result column="frozen_money" property="frozen_money" jdbcType="INTEGER" />
-    <result column="user_identify" property="user_identify" jdbcType="TINYINT" />
-    <result column="income_identify" property="income_identify" jdbcType="TINYINT" />
-    <result column="user_enter" property="user_enter" jdbcType="TINYINT" />
-    <result column="user_info_id" property="user_info_id" jdbcType="INTEGER" />
-    <result column="is_deleted" property="is_deleted" jdbcType="TINYINT" />
-    <result column="user_address" property="user_address" jdbcType="INTEGER" />
+    <result column="gmt_create" property="gmtCreate" jdbcType="BIGINT" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="BIGINT" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="user_head_url" property="userHeadUrl" jdbcType="VARCHAR" />
+    <result column="mobile_phone" property="mobilePhone" jdbcType="VARCHAR" />
+    <result column="device_id" property="deviceId" jdbcType="VARCHAR" />
+    <result column="wx_id" property="wxId" jdbcType="VARCHAR" />
+    <result column="wz_id" property="wzId" jdbcType="VARCHAR" />
+    <result column="login_method" property="loginMethod" jdbcType="VARCHAR" />
+    <result column="is_received" property="isReceived" jdbcType="TINYINT" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="reg_time" property="regTime" jdbcType="BIGINT" />
+    <result column="user_credit" property="userCredit" jdbcType="TINYINT" />
+    <result column="user_money" property="userMoney" jdbcType="INTEGER" />
+    <result column="frozen_money" property="frozenMoney" jdbcType="INTEGER" />
+    <result column="user_identify" property="userIdentify" jdbcType="TINYINT" />
+    <result column="income_identify" property="incomeIdentify" jdbcType="TINYINT" />
+    <result column="user_enter" property="userEnter" jdbcType="TINYINT" />
+    <result column="user_info_id" property="userInfoId" jdbcType="INTEGER" />
+    <result column="is_deleted" property="isDeleted" jdbcType="TINYINT" />
+    <result column="user_address" property="userAddress" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
     id, user_id, gmt_create, gmt_modified, user_name, user_head_url, mobile_phone, device_id, 
@@ -50,11 +50,11 @@
   </select>
   
   <select id="findIsMobile" resultMap="BaseResultMap" parameterType="java.lang.Long">
-      select user_id, mobile_phone, user_identify from users where user_id = #{user_id}
+      select user_id, mobile_phone, user_identify from users where user_id = #{userId}
   </select>
   
   <update id="updateUserIdentify" parameterType="java.lang.Long">
-      update users set user_identify = 1 where user_id = #{user_id}
+      update users set user_identify = 1 where user_id = #{userId}
   </update>
   
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -76,14 +76,14 @@
       frozen_money, user_identify, income_identify, 
       user_enter, user_info_id, is_deleted, 
       user_address)
-    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{gmt_create,jdbcType=BIGINT}, #{gmt_modified,jdbcType=BIGINT}, 
-      #{user_name,jdbcType=VARCHAR}, #{user_head_url,jdbcType=VARCHAR}, #{mobile_phone,jdbcType=VARCHAR}, 
-      #{device_id,jdbcType=VARCHAR}, #{wx_id,jdbcType=VARCHAR}, #{wz_id,jdbcType=VARCHAR}, 
-      #{login_method,jdbcType=VARCHAR}, #{is_received,jdbcType=TINYINT}, #{parent_id,jdbcType=BIGINT}, 
-      #{reg_time,jdbcType=BIGINT}, #{user_credit,jdbcType=TINYINT}, #{user_money,jdbcType=INTEGER}, 
-      #{frozen_money,jdbcType=INTEGER}, #{user_identify,jdbcType=TINYINT}, #{income_identify,jdbcType=TINYINT}, 
-      #{user_enter,jdbcType=TINYINT}, #{user_info_id,jdbcType=INTEGER}, #{is_deleted,jdbcType=TINYINT}, 
-      #{user_address})
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
+      #{userName,jdbcType=VARCHAR}, #{userHeadUrl,jdbcType=VARCHAR}, #{mobilePhone,jdbcType=VARCHAR},
+      #{deviceId,jdbcType=VARCHAR}, #{wxId,jdbcType=VARCHAR}, #{wzId,jdbcType=VARCHAR},
+      #{loginMethod,jdbcType=VARCHAR}, #{isReceived,jdbcType=TINYINT}, #{parentId,jdbcType=BIGINT},
+      #{regTime,jdbcType=BIGINT}, #{userCredit,jdbcType=TINYINT}, #{userMoney,jdbcType=INTEGER},
+      #{frozenMoney,jdbcType=INTEGER}, #{userIdentify,jdbcType=TINYINT}, #{incomeIdentify,jdbcType=TINYINT},
+      #{userEnter,jdbcType=TINYINT}, #{userInfoId,jdbcType=INTEGER}, #{isDeleted,jdbcType=TINYINT},
+      #{userAddress})
   </insert>
   <insert id="insertSelective" parameterType="com.quxin.freshfun.model.UsersPOJO" >
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="BEFORE" >
@@ -157,7 +157,7 @@
       <if test="isDeleted != null" >
         is_deleted,
       </if>
-      <if test="user_address != null" >
+      <if test="userAddress != null" >
         user_address,
       </if>
     </trim>
@@ -228,8 +228,8 @@
       <if test="isDeleted != null" >
         #{isDeleted,jdbcType=TINYINT},
       </if>
-            <if test="user_address != null" >
-        #{user_address},
+            <if test="userAddress != null" >
+        #{userAddress},
       </if>
     </trim>
   </insert>
@@ -240,95 +240,95 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.quxin.freshfun.model.UsersPOJO">
     update users
     <set >
-      <if test="gmt_create != null" >
-        gmt_create = #{gmt_create,jdbcType=BIGINT},
+      <if test="gmtCreate != null" >
+        gmt_create = #{gmtCreate,jdbcType=BIGINT},
       </if>
-      <if test="gmt_modified != null" >
-        gmt_modified = #{gmt_modified,jdbcType=BIGINT},
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=BIGINT},
       </if>
-      <if test="user_name != null" >
-        user_name = #{user_name,jdbcType=VARCHAR},
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
       </if>
-      <if test="user_head_url != null" >
-        user_head_url = #{user_head_url,jdbcType=VARCHAR},
+      <if test="userHeadUrl != null" >
+        user_head_url = #{userHeadUrl,jdbcType=VARCHAR},
       </if>
-      <if test="mobile_phone != null" >
-        mobile_phone = #{mobile_phone,jdbcType=VARCHAR},
+      <if test="mobilePhone != null" >
+        mobile_phone = #{mobilePhone,jdbcType=VARCHAR},
       </if>
-      <if test="device_id != null" >
-        device_id = #{device_id,jdbcType=VARCHAR},
+      <if test="deviceId != null" >
+        device_id = #{deviceId,jdbcType=VARCHAR},
       </if>
-      <if test="wx_id != null" >
-        wx_id = #{wx_id,jdbcType=VARCHAR},
+      <if test="wxId != null" >
+        wx_id = #{wxId,jdbcType=VARCHAR},
       </if>
-      <if test="wz_id != null" >
-        wz_id = #{wz_id,jdbcType=VARCHAR},
+      <if test="wzId != null" >
+        wz_id = #{wzId,jdbcType=VARCHAR},
       </if>
-      <if test="login_method != null" >
-        login_method = #{login_method,jdbcType=VARCHAR},
+      <if test="loginMethod != null" >
+        login_method = #{loginMethod,jdbcType=VARCHAR},
       </if>
-      <if test="is_received != null" >
-        is_received = #{is_received,jdbcType=TINYINT},
+      <if test="isReceived != null" >
+        is_received = #{isReceived,jdbcType=TINYINT},
       </if>
-      <if test="parent_id != null" >
-        parent_id = #{parent_id,jdbcType=INTEGER},
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=INTEGER},
       </if>
-      <if test="reg_time != null" >
-        reg_time = #{reg_time,jdbcType=BIGINT},
+      <if test="regTime != null" >
+        reg_time = #{regTime,jdbcType=BIGINT},
       </if>
-      <if test="user_credit != null" >
-        user_credit = #{user_credit,jdbcType=TINYINT},
+      <if test="userCredit != null" >
+        user_credit = #{userCredit,jdbcType=TINYINT},
       </if>
-      <if test="user_money != null" >
-        user_money = #{user_money,jdbcType=INTEGER},
+      <if test="userMoney != null" >
+        user_money = #{userMoney,jdbcType=INTEGER},
       </if>
-      <if test="frozen_money != null" >
-        frozen_money = #{frozen_money,jdbcType=INTEGER},
+      <if test="frozenMoney != null" >
+        frozen_money = #{frozenMoney,jdbcType=INTEGER},
       </if>
-      <if test="user_identify != null" >
-        user_identify = #{user_identify,jdbcType=TINYINT},
+      <if test="userIdentify != null" >
+        user_identify = #{userIdentify,jdbcType=TINYINT},
       </if>
-      <if test="income_identify != null" >
-        income_identify = #{income_identify,jdbcType=TINYINT},
+      <if test="incomeIdentify != null" >
+        income_identify = #{incomeIdentify,jdbcType=TINYINT},
       </if>
-      <if test="user_enter != null" >
-        user_enter = #{user_enter,jdbcType=TINYINT},
+      <if test="userEnter != null" >
+        user_enter = #{userEnter,jdbcType=TINYINT},
       </if>
-      <if test="user_info_id != null" >
-        user_info_id = #{user_info_id,jdbcType=INTEGER},
+      <if test="userInfoId != null" >
+        user_info_id = #{userInfoId,jdbcType=INTEGER},
       </if>
-      <if test="is_deleted != null" >
-        is_deleted = #{is_deleted,jdbcType=TINYINT},
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=TINYINT},
       </if>
-      <if test="user_address != null" >
-        user_address = #{user_address},
+      <if test="userAddress != null" >
+        user_address = #{userAddress},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.quxin.freshfun.model.UsersPOJO" >
     update users
-    set gmt_create = #{gmt_create,jdbcType=BIGINT},
-      gmt_modified = #{gmt_modified,jdbcType=BIGINT},
-      user_name = #{user_name,jdbcType=VARCHAR},
-      user_head_url = #{user_head_url,jdbcType=VARCHAR},
-      mobile_phone = #{mobile_phone,jdbcType=VARCHAR},
-      device_id = #{device_id,jdbcType=VARCHAR},
-      wx_id = #{wx_id,jdbcType=VARCHAR},
-      wz_id = #{wz_id,jdbcType=VARCHAR},
-      login_method = #{login_method,jdbcType=VARCHAR},
-      is_received = #{is_received,jdbcType=TINYINT},
-      parent_id = #{parent_id,jdbcType=INTEGER},
-      reg_time = #{reg_time,jdbcType=BIGINT},
-      user_credit = #{user_credit,jdbcType=TINYINT},
-      user_money = #{user_money,jdbcType=INTEGER},
-      frozen_money = #{frozen_money,jdbcType=INTEGER},
-      user_identify = #{user_identify,jdbcType=TINYINT},
-      income_identify = #{income_identify,jdbcType=TINYINT},
-      user_enter = #{user_enter,jdbcType=TINYINT},
-      user_info_id = #{user_info_id,jdbcType=INTEGER},
-      is_deleted = #{is_deleted,jdbcType=TINYINT},
-      user_address = #{user_address}
+    set gmt_create = #{gmtCreate,jdbcType=BIGINT},
+      gmt_modified = #{gmtModified,jdbcType=BIGINT},
+      user_name = #{userName,jdbcType=VARCHAR},
+      user_head_url = #{userHeadUrl,jdbcType=VARCHAR},
+      mobile_phone = #{mobilePhone,jdbcType=VARCHAR},
+      device_id = #{deviceId,jdbcType=VARCHAR},
+      wx_id = #{wxId,jdbcType=VARCHAR},
+      wz_id = #{wzId,jdbcType=VARCHAR},
+      login_method = #{loginMethod,jdbcType=VARCHAR},
+      is_received = #{isReceived,jdbcType=TINYINT},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      reg_time = #{regTime,jdbcType=BIGINT},
+      user_credit = #{userCredit,jdbcType=TINYINT},
+      user_money = #{userMoney,jdbcType=INTEGER},
+      frozen_money = #{frozenMoney,jdbcType=INTEGER},
+      user_identify = #{userIdentify,jdbcType=TINYINT},
+      income_identify = #{incomeIdentify,jdbcType=TINYINT},
+      user_enter = #{userEnter,jdbcType=TINYINT},
+      user_info_id = #{userInfoId,jdbcType=INTEGER},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      user_address = #{userAddress}
     where id = #{id,jdbcType=INTEGER}
   </update>
   
@@ -356,16 +356,16 @@
   <!-- =============================手机登录========================================== -->
   <!-- 根据手机号查询userId -->
   <select id="getUserIdByPhoneNum" parameterType="java.lang.String" resultType="java.lang.Long">
-  	select user_id from users where mobile_phone = #{mobile_phone}
+  	select user_id from users where mobile_phone = #{mobilePhone}
   </select>
   <!-- 根据手机号查询设备Id -->
   <select id="getDeviceIdByPhoneNum" parameterType="java.lang.String" resultType="java.lang.String">
-  	select device_id from users where mobile_phone = #{mobile_phone}
+  	select device_id from users where mobile_phone = #{mobilePhone}
   </select>
   
   <!-- 根据设备号查询userId -->
   <select id="getUserIdsByDeviceId" parameterType="java.lang.String" resultType="java.lang.Integer">
-  	select count(id) from users where device_id = #{device_id}
+  	select count(id) from users where device_id = #{deviceId}
   </select>
   
   

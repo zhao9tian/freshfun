@@ -5,44 +5,44 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class OrderStatusInfo {
-	private Integer order_status;
+	private Integer orderStatus;
 	
-	private Integer status_counts;
+	private Integer statusCounts;
 	
-	private Integer refund_counts;
+	private Integer refundCounts;
 	
-	private Integer pay_counts;
+	private Integer payCounts;
 
-	public Integer getPay_counts() {
-		return pay_counts;
+
+	public Integer getOrderStatus() {
+		return orderStatus;
 	}
 
-	public void setPay_counts(Integer pay_counts) {
-		this.pay_counts = pay_counts;
+	public void setOrderStatus(Integer orderStatus) {
+		this.orderStatus = orderStatus;
 	}
 
-	public Integer getOrder_status() {
-		return order_status;
+	public Integer getStatusCounts() {
+		return statusCounts;
 	}
 
-	public void setOrder_status(Integer order_status) {
-		this.order_status = order_status;
+	public void setStatusCounts(Integer statusCounts) {
+		this.statusCounts = statusCounts;
 	}
 
-	public Integer getStatus_counts() {
-		return status_counts;
+	public Integer getRefundCounts() {
+		return refundCounts;
 	}
 
-	public void setStatus_counts(Integer status_counts) {
-		this.status_counts = status_counts;
+	public void setRefundCounts(Integer refundCounts) {
+		this.refundCounts = refundCounts;
 	}
 
-	public Integer getRefund_counts() {
-		return refund_counts;
+	public Integer getPayCounts() {
+		return payCounts;
 	}
 
-	public void setRefund_counts(Integer refund_counts) {
-		this.refund_counts = refund_counts;
+	public void setPayCounts(Integer payCounts) {
+		this.payCounts = payCounts;
 	}
-
 }

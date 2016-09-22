@@ -41,19 +41,19 @@ public class UserMessageController {
 	@RequestMapping(value="/usermessage",method={RequestMethod.POST})
 	@ResponseBody
 	public Map<String, Object> UpdateUserDefaultAddress(@RequestBody UserMessageInfo userMessageInfo){
-		Long userID = Long.parseLong(userMessageInfo.getUser_id().replace("\"", ""));
+		Long userId = Long.parseLong(userMessageInfo.getUserId().replace("\"", ""));
 	    String message = userMessageInfo.getMessage();
 	    
-	    System.out.println(userID);
+	    System.out.println(userId);
 	    System.out.println(message);
 	    
 		
 		UserMessage userMessage = new UserMessage();
-		userMessage.setUser_id(userID);
+		userMessage.setUserId(userId);
 		userMessage.setMessage(message);
 		long nowTime = System.currentTimeMillis()/1000;
-		userMessage.setGmt_modified(nowTime);
-		userMessage.setGmt_create(nowTime);
+		userMessage.setGmtModified(nowTime);
+		userMessage.setGmtCreate(nowTime);
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 		int demo = userAddressService.insertUserMessage(userMessage);
 		if (demo == 1){
@@ -74,8 +74,8 @@ public class UserMessageController {
 		Long ui = Long.parseLong(userID.replace("\"", ""));
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 		UsersPOJO userInfo = userAddressService.findIsMobile(ui);
-		String mobile = userInfo.getMobile_phone();
-		Byte identify = userInfo.getUser_identify();
+		String mobile = userInfo.getMobilePhone();
+		Byte identify = userInfo.getUserIdentify();
 		if(mobile == null || mobile == ""){
 			stateMap.put("state", 0);
 		}else if(identify == 0){
@@ -94,23 +94,23 @@ public class UserMessageController {
 	 */
 	@RequestMapping("/addusercomment")
 	@ResponseBody
-	public Map<String, Object> adduserComment(String orderId,String user_id, String goods_id, String content, String comment_level){
+	public Map<String, Object> adduserComment(String orderId,String userId, String goodsId, String content, String commentLevel){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 		CodingTools codingTools = new CodingTools();
 		System.out.println(orderId);
 		System.out.println(codingTools.enCodeStr(content));
 		Comment comment = new Comment();
 		
-		comment.setUser_id(user_id);
-		comment.setGoods_id(goods_id);
-		comment.setOrder_id(orderId);
+		comment.setUserId(userId);
+		comment.setGoodsId(goodsId);
+		comment.setOrderId(orderId);
 		comment.setContent(codingTools.enCodeStr(content));
-		comment.setComment_level(comment_level);
+		comment.setCommentLevel(commentLevel);
 		
 		String nowTime = String.valueOf(System.currentTimeMillis()/1000);
-		comment.setGmt_create(nowTime);
-		comment.setGmt_modified(nowTime);
-		comment.setIs_deleted("0");		
+		comment.setGmtCreate(nowTime);
+		comment.setGmtModified(nowTime);
+		comment.setIsDeleted("0");
 		
 		goodsService.addComment(comment);
 		
@@ -128,8 +128,8 @@ public class UserMessageController {
 	@ResponseBody
 	public List<Comment> searchuserComment(@RequestBody CommentInfo commentInfo){
 		
-		String userID = commentInfo.getUser_id();
-		String goodsID = commentInfo.getGoods_id();
+		String userID = commentInfo.getUserId();
+		String goodsID = commentInfo.getGoodsId();
 		return goodsService.findComment(userID, goodsID);
 	}
 

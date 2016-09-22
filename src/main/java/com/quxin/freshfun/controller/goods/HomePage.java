@@ -65,15 +65,7 @@ public class HomePage {
 		 */
 		
 		List<GoodsTypePOJO> homeSelection = homePage.homeGoodsTypeByType("精选");
-        for (GoodsTypePOJO goodstype : homeSelection) {
-        	System.out.println(goodstype);
-//			for (GoodsPOJO goodsPOJO : goodstype){
-//			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
-//			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarket_price()));
-//			goodsPOJO.setShop_price(null);
-//			goodsPOJO.setMarket_price(null);
-			
-		}
+
 		homePagePOJO.setSelection(homeSelection);
 		
 		/**
