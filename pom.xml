@@ -327,7 +327,7 @@
 					<archive>
 						<addMavenDescriptor>false</addMavenDescriptor>
 					</archive>
-					<warName>book</warName>
+					<warName>FreshFun</warName>
 					<webResources>
 						<resource>
 							<directory>src/main/resources/${env}</directory>

@@ -123,11 +123,17 @@ public class ProxyController {
 	public  Map<String, Object> getIncome(String userId) {
 		Map<String, Object> map = new HashMap<>();
         //总收益
-		int totalRevenue = orders.queryAllIncome(Long.parseLong(userId));
+		Integer totalRevenue = orders.queryAllIncome(Long.parseLong(userId));
+		if(totalRevenue == null){
+			totalRevenue=0;
+		}
 		//已入账收益
-		int earnedRevenue =orders.queryEarnedIncome(Long.parseLong(userId));
+		Integer earnedRevenue =orders.queryEarnedIncome(Long.parseLong(userId));
+		if (earnedRevenue == null){
+			earnedRevenue = 0;
+		}
 		//未入账收益
-		int unbilledRevenue = totalRevenue-earnedRevenue;
+		Integer unbilledRevenue = totalRevenue-earnedRevenue;
 		map.put("totalRevenue", (double)totalRevenue/5);
 		map.put("unbilledRevenue", (double)unbilledRevenue/5);
 		return map;
