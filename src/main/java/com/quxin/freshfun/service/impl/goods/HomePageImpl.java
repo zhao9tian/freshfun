@@ -6,8 +6,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.quxin.freshfun.dao.ActivityMapper;
-import com.quxin.freshfun.dao.GoodsLimitMapper;
 import com.quxin.freshfun.dao.GoodsMapper;
 import com.quxin.freshfun.dao.GoodsTypeMapper;
 import com.quxin.freshfun.dao.GtypeVsGidMapper;
@@ -15,8 +13,6 @@ import com.quxin.freshfun.dao.SpecialMallMapper;
 import com.quxin.freshfun.dao.SpecialThemeMapper;
 import com.quxin.freshfun.dao.StidVsGidMapper;
 import com.quxin.freshfun.dao.UsersMapper;
-import com.quxin.freshfun.model.Activity;
-import com.quxin.freshfun.model.GoodsLimit;
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.GoodsTypePOJO;
 import com.quxin.freshfun.model.GtypeVsGid;
@@ -34,11 +30,7 @@ public class HomePageImpl implements HomePageService {
 	@Autowired
 	private GoodsTypeMapper goodsType;
 	@Autowired
-	private ActivityMapper activity;
-	@Autowired
 	private GtypeVsGidMapper gtypeVsGid;
-	@Autowired
-	private GoodsLimitMapper goodsLimit;
 	@Autowired
 	private StidVsGidMapper stidVsGid;
 	@Autowired
@@ -65,14 +57,7 @@ public class HomePageImpl implements HomePageService {
 		return goodsType.findAll();
 	}
 	
-	/**
-	 * 查询活动详情
-	 */
-	@Override
-	public List<Activity> homeActivity(Byte id) {
-		return activity.findAll(id);
-	}
-	
+
 	/**
 	 * 查看编辑精选
 	 */
@@ -84,44 +69,14 @@ public class HomePageImpl implements HomePageService {
 			for (GtypeVsGid goodsType : gtypeVsGid){
 				GoodsPOJO goods = goodsType.getGoods();
 				if(goods != null){
-					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
+					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 				}
-//				goods.setShop_price(null);
-//				goods.setMarket_price(null);
 			}
 		}
 		return getAllGoods;
 	}
-	
-	/**
-	 * 查看限时商品
-	 */
-	@Override
-	public GoodsLimit homeGoodsNowLimit(long now_time) {
-		GoodsLimit goods = goodsLimit.findIsLimit(now_time);
-		if (goods != null){
-			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
-//			goods.setShop_price(null);
-//			goods.setMarket_price(null);
-		}
-		
-		return goods;
-	}
 
-	@Override
-	public GoodsLimit homeGoodsGoingLimit(long now_time) {
-		
-		GoodsLimit goods = goodsLimit.findIsLimit(now_time);
-		if (goods != null){
-			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
-//			goods.setShop_price(null);
-//			goods.setMarket_price(null);
-		}
-		return goods;
-	}
 
 	@Override
 	public List<SpecialTheme> homeGoodsTheme() {
@@ -131,12 +86,10 @@ public class HomePageImpl implements HomePageService {
 			for (StidVsGid goodsType : stidVsGid){
 				GoodsPOJO goods = goodsType.getGoods();
 				if(goods != null){
-					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
+					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 				}
-				
-//				goods.setShop_price(null);
-//				goods.setMarket_price(null);
+
 			}
 		}
 		return getSpecialGoods;
@@ -162,11 +115,9 @@ public class HomePageImpl implements HomePageService {
 			for (GtypeVsGid goodsType : gtypeVsGid){
 				GoodsPOJO goods = goodsType.getGoods();
 				if(goods != null){
-					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
+					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 				}
-//				goods.setShop_price(null);
-//				goods.setMarket_price(null);
 			}
 			
 			

@@ -13,6 +13,6 @@ public interface ShoppingCartService {
 	/**
 	 * 查询购物车数据数据
 	 */
-	public List<ShoppingCart> findShoppingCart(String userID);
+	public List<ShoppingCart> findShoppingCart(String userId);
 
 }

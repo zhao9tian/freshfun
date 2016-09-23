@@ -9,13 +9,7 @@ public class HomePagePOJO {
 	
 	private List<GoodsTypePOJO> goodsType;
 	
-	private List<Activity> activity;
-	
 	private List<GoodsTypePOJO> selection;
-	
-	private GoodsLimit nowLimit;
-	
-	private GoodsLimit goingLimit;
 	
 	private List<SpecialTheme> specialTheme;
 	
@@ -38,13 +32,6 @@ public class HomePagePOJO {
 		this.goodsType = goodsType;
 	}
 
-	public List<Activity> getActivity() {
-		return activity;
-	}
-
-	public void setActivity(List<Activity> activity) {
-		this.activity = activity;
-	}
 
 	public List<GoodsTypePOJO> getSelection() {
 		return selection;
@@ -54,21 +41,6 @@ public class HomePagePOJO {
 		this.selection = selection;
 	}
 
-	public GoodsLimit getNowLimit() {
-		return nowLimit;
-	}
-
-	public void setNowLimit(GoodsLimit nowLimit) {
-		this.nowLimit = nowLimit;
-	}
-
-	public GoodsLimit getGoingLimit() {
-		return goingLimit;
-	}
-
-	public void setGoingLimit(GoodsLimit goingLimit) {
-		this.goingLimit = goingLimit;
-	}
 
 	public List<SpecialTheme> getSpecialTheme() {
 		return specialTheme;

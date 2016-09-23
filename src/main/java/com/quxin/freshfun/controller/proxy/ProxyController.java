@@ -46,8 +46,8 @@ public class ProxyController {
 		goodsMap.put("pagesize", 20);
 		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
 		for (GoodsPOJO goodsPOJO : goods) {
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
-			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarket_price()));
+			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
+			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
 			goodsPOJO.setSales((int) (Math.random() * 10000));
 			goodsPOJO.setAgencyFees(30000);
 		}
@@ -69,8 +69,8 @@ public class ProxyController {
 		goodsMap.put("pagesize", 20);
 		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
 		for (GoodsPOJO goodsPOJO : goods) {
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
-			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarket_price()));
+			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
+			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
 			goodsPOJO.setSales((int) (Math.random() * 10000));
 			goodsPOJO.setAgencyFees(30000);
 		}
@@ -90,8 +90,8 @@ public class ProxyController {
 		allGoods.setGoodsMongo(goodsMongo);
 		GoodsPOJO goodsMysql = goods.findGoodsMysql(goodsID);
 		goodsMysql.setAgencyFees(30000);
-		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShop_price()));
-		goodsMysql.setMarketMoney(MoneyFormat.priceFormatString(goodsMysql.getMarket_price()));
+		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShopPrice()));
+		goodsMysql.setMarketMoney(MoneyFormat.priceFormatString(goodsMysql.getMarketPrice()));
 		allGoods.setGoodsPOJO(goodsMysql);
 		return allGoods;
 	}
@@ -108,7 +108,7 @@ public class ProxyController {
 		doos.put("mpId", merchantProxyId);
 		List<GoodsPOJO> goodss = goodsService.findProxyGoods(doos);
 		for (GoodsPOJO goodsPOJO : goodss) {
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
+			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
 			int goodsID = goodsPOJO.getId();
 			List<GoodsMongo> goodsMongo = goods.findGoodsMongo(goodsID);
 			String img = goodsMongo.get(0).getDetailImgPath();

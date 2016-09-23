@@ -9,16 +9,13 @@ import java.util.List;
  */
 public class Logistical {
 	
-	private List<LogisticalContent> gtex_traces;
+	private List<LogisticalContent> gtexTraces;
 
-	public List<LogisticalContent> getGtex_traces() {
-		return gtex_traces;
+	public List<LogisticalContent> getGtexTraces() {
+		return gtexTraces;
 	}
 
-	public void setGtex_traces(List<LogisticalContent> gtex_traces) {
-		this.gtex_traces = gtex_traces;
+	public void setGtexTraces(List<LogisticalContent> gtexTraces) {
+		this.gtexTraces = gtexTraces;
 	}
-
-	
-	
 }

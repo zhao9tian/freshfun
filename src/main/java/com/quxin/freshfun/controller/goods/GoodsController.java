@@ -17,8 +17,7 @@ public class GoodsController {
 	private ShareGoods shareGoods;
 	/**
 	 * 记录分享信息
-	 * @param user_id 用户编号
-	 * @param goods_id	商品编号
+	 * @param userId 用户编号
 	 * @param code 编码后的字符串
 	 * @return
 	 */

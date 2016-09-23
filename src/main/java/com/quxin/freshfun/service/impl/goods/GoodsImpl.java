@@ -55,10 +55,8 @@ public class GoodsImpl implements GoodsService {
 		
 		GoodsPOJO oneGoods = goods.findByGoodsId(goodsID);
 		if (oneGoods != null){
-			oneGoods.setGoodsMoney(MoneyFormat.priceFormatString(oneGoods.getShop_price()));
-			oneGoods.setMarketMoney(MoneyFormat.priceFormatString(oneGoods.getMarket_price()));
-//			goods.setShop_price(null);
-//			goods.setMarket_price(null);
+			oneGoods.setGoodsMoney(MoneyFormat.priceFormatString(oneGoods.getShopPrice()));
+			oneGoods.setMarketMoney(MoneyFormat.priceFormatString(oneGoods.getMarketPrice()));
 		}
 		
 		return oneGoods;
@@ -79,10 +77,8 @@ public class GoodsImpl implements GoodsService {
 	public GoodsLimit findLimitGoodsMysql(Integer goodsID) {
 		GoodsLimit goods = goodsLimit.findById(goodsID);
 		if (goods != null){
-			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
-//			goods.setShop_price(null);
-//			goods.setMarket_price(null);
+			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 		}
 		
 		return goods;
@@ -97,12 +93,10 @@ public class GoodsImpl implements GoodsService {
 		for (StidVsGid goodsTheme : stidVsGid){
 			GoodsPOJO goods = goodsTheme.getGoods();
 			if(goods != null){
-				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
+				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 			}
 
-//			goods.setShop_price(null);
-//			goods.setMarket_price(null);
 		}
 		return stidVsGid;
 	}
@@ -117,12 +111,10 @@ public class GoodsImpl implements GoodsService {
 		for (SmidVsGid goodsMall : smidVsGid){
 			GoodsPOJO goods = goodsMall.getGoods();
 			if(goods != null){
-				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShop_price()));
-				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarket_price()));
+				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 			}
 
-//			goods.setShop_price(null);
-//			goods.setMarket_price(null);
 		}
 		return smidVsGid;
 	}

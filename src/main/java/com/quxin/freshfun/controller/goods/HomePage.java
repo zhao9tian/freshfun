@@ -11,9 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
-//import com.quxin.freshfun.model.Activity;
-import com.quxin.freshfun.model.GoodsLimit;
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.GoodsTypePOJO;
 import com.quxin.freshfun.model.HomePagePOJO;
@@ -49,15 +46,7 @@ public class HomePage {
 		 */
 		List<GoodsTypePOJO> homeGoodsType = homePage.homeGoodsType();
 		homePagePOJO.setGoodsType(homeGoodsType);
-		
-//		/**
-//		 * 活动详情
-//		 * @return List<Activity>
-//		 */
-//		Byte enter = homePage.findEnterByID(userID).getUser_enter();
-//		System.out.println(enter);
-//		List<Activity> homeActivity = homePage.homeActivity(enter);
-//		homePagePOJO.setActivity(homeActivity);
+
 		
 		/**
 		 * 分类or精选商品
@@ -67,31 +56,7 @@ public class HomePage {
 		List<GoodsTypePOJO> homeSelection = homePage.homeGoodsTypeByType("精选");
 
 		homePagePOJO.setSelection(homeSelection);
-		
-		/**
-		 * 限时商品
-		 * @return List<GoodsLimit>
-		 */
-		long nowTime = System.currentTimeMillis()/1000;
-		GoodsLimit homeNowLimit = homePage.homeGoodsNowLimit(nowTime);
-		if(homeNowLimit != null){
-			long time = homeNowLimit.getEnd_time() - nowTime;
-			homeNowLimit.setTime(time);
-		}
-		homePagePOJO.setNowLimit(homeNowLimit);
-		
-		/**
-		 * 限时将要上架商品
-		 * @return List<GoodsLimit>
-		 */
-		
-		GoodsLimit homeGoingLimit = homePage.homeGoodsGoingLimit(nowTime);
-		if(homeGoingLimit !=null){
-			long nextTime = homeGoingLimit.getStart_time() - nowTime;
-			homeGoingLimit.setTime(nextTime);
-		}
-		
-		homePagePOJO.setGoingLimit(homeGoingLimit);
+
 		
 		/**
 		 * 专题商品
@@ -111,10 +76,10 @@ public class HomePage {
 		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
         for (GoodsPOJO goodsPOJO : goods) {
 			
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
-			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarket_price()));
-			goodsPOJO.setShop_price(null);
-			goodsPOJO.setMarket_price(null);
+			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
+			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
+			goodsPOJO.setShopPrice(null);
+			goodsPOJO.setMarketPrice(null);
 			
 		}
 		
@@ -144,10 +109,10 @@ public class HomePage {
 		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
 		for (GoodsPOJO goodsPOJO : goods) {
 			
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
-			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarket_price()));
-			goodsPOJO.setShop_price(null);
-			goodsPOJO.setMarket_price(null);
+			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
+			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
+			goodsPOJO.setShopPrice(null);
+			goodsPOJO.setMarketPrice(null);
 			
 		}
 		return goods;
