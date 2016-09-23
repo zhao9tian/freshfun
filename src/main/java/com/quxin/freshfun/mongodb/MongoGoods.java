@@ -9,7 +9,7 @@ import com.quxin.freshfun.model.GoodsMongo;
 @Repository
 public interface MongoGoods {
 	
-	public List<GoodsMongo> findGoodsMongo(Query query);
+	public List<GoodsMongo> findGoodsMongo(Integer goodsId);
 	
 	public List<GoodsMongo> findLimitGoodsMongo(Query query);
 

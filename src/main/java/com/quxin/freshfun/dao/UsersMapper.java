@@ -2,6 +2,8 @@ package com.quxin.freshfun.dao;
 
 import java.util.Map;
 
+import com.quxin.freshfun.model.UserDetailPOJO;
+import com.quxin.freshfun.model.UserInfoPOJO;
 import org.apache.ibatis.annotations.Param;
 
 import com.quxin.freshfun.model.Message;
@@ -63,7 +65,7 @@ public interface UsersMapper {
 	public Integer selectId(Long userId);
 	/**
 	 * 修改用户标记
-	 * @param userId
+	 * @param parentId
 	 * @return
 	 */
 	public Integer updateUserParentId(@Param("parentId") Long parentId,@Param("userId") Integer id);
@@ -135,4 +137,10 @@ public interface UsersMapper {
 	 * @return
 	 */
 	Integer updateUserIdentify(Long user_id);
+
+    /**
+     * 插入用户微信信息
+     * @param userDetailPOJO
+     */
+	void insertUserDetails(UserDetailPOJO userDetailPOJO);
 }

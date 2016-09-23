@@ -44,7 +44,7 @@ public interface UserService {
 	 * status 2  可以绑定,并发送短信
 	 * status 3 手机号已绑定其他用户
 	 * @param userId
-	 * @param PhoneNum
+	 * @param phoneNum
 	 * @return
 	 */
 	public Integer getVerifyCode(String userId , String phoneNum);

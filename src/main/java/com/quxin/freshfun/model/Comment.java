@@ -3,9 +3,9 @@ package com.quxin.freshfun.model;
 public class Comment {
 	private String orderId;
 
-	private String userId;
+	private Long userId;
 	
-	private String goodsId;
+	private Integer goodsId;
 	
 	private String content;
 	
@@ -13,11 +13,11 @@ public class Comment {
 	
 	private String parentId;
 	
-	private String gmtCreate;
+	private Long gmtCreate;
 	
-	private String gmtModified;
+	private Long gmtModified;
 
-	private String isDeleted;
+	private Byte isDeleted;
 
 	private String commentLevel;
 
@@ -29,19 +29,19 @@ public class Comment {
 		this.orderId = orderId;
 	}
 
-	public String getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
-	public String getGoodsId() {
+	public Integer getGoodsId() {
 		return goodsId;
 	}
 
-	public void setGoodsId(String goodsId) {
+	public void setGoodsId(Integer goodsId) {
 		this.goodsId = goodsId;
 	}
 
@@ -69,27 +69,27 @@ public class Comment {
 		this.parentId = parentId;
 	}
 
-	public String getGmtCreate() {
+	public Long getGmtCreate() {
 		return gmtCreate;
 	}
 
-	public void setGmtCreate(String gmtCreate) {
+	public void setGmtCreate(Long gmtCreate) {
 		this.gmtCreate = gmtCreate;
 	}
 
-	public String getGmtModified() {
+	public Long getGmtModified() {
 		return gmtModified;
 	}
 
-	public void setGmtModified(String gmtModified) {
+	public void setGmtModified(Long gmtModified) {
 		this.gmtModified = gmtModified;
 	}
 
-	public String getIsDeleted() {
+	public Byte getIsDeleted() {
 		return isDeleted;
 	}
 
-	public void setIsDeleted(String isDeleted) {
+	public void setIsDeleted(Byte isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 

@@ -101,16 +101,16 @@ public class UserMessageController {
 		System.out.println(codingTools.enCodeStr(content));
 		Comment comment = new Comment();
 		
-		comment.setUserId(userId);
-		comment.setGoodsId(goodsId);
+		comment.setUserId(Long.parseLong(userId));
+		comment.setGoodsId(Integer.parseInt(goodsId));
 		comment.setOrderId(orderId);
 		comment.setContent(codingTools.enCodeStr(content));
 		comment.setCommentLevel(commentLevel);
 		
 		String nowTime = String.valueOf(System.currentTimeMillis()/1000);
-		comment.setGmtCreate(nowTime);
-		comment.setGmtModified(nowTime);
-		comment.setIsDeleted("0");
+		comment.setGmtCreate(System.currentTimeMillis()/1000);
+		comment.setGmtModified(System.currentTimeMillis()/1000);
+		comment.setIsDeleted((byte)0);
 		
 		goodsService.addComment(comment);
 		
@@ -127,7 +127,7 @@ public class UserMessageController {
 	@RequestMapping(value="/searchusercomment",method={RequestMethod.POST})
 	@ResponseBody
 	public List<Comment> searchuserComment(@RequestBody CommentInfo commentInfo){
-		
+
 		String userID = commentInfo.getUserId();
 		String goodsID = commentInfo.getGoodsId();
 		return goodsService.findComment(userID, goodsID);

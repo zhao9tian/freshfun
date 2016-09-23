@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.GoodsDetailsMapper">
+  <select id="selectGoodsDetailByGoodsId" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsMongo">
+    SELECT  id , goods_id , des , standardImgPath ,detailImgPath , carouselImgPath FROM goods_detail
+    WHERE goods_id = #{goodsId}
+  </select>
+</mapper>

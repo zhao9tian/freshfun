@@ -11,7 +11,7 @@ import com.quxin.freshfun.model.Comment;
 public interface MongoComment {
 	
 	public List<Comment> findComment(Query query);
-	
+
 
 	public void addComment(Comment comment);
 

@@ -416,5 +416,11 @@
   <select id="validatePhoneNum" parameterType="Map" resultType="Integer">
   	select count(id) from users where user_id = #{userId} and mobile_phone = #{phoneNum}
   </select>
-  
+
+  <insert id="insertUserDetails" parameterType="com.quxin.freshfun.model.UserDetailPOJO" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO user_info(user_id , province , openid , headimgurl , language , city , country , unionid , nickname , code)
+    VALUES (#{userId} , #{province} ,#{openid} , #{headimgurl} , #{language} , #{city} , #{country} , #{unionid} , #{nickname} , #{code})
+  </insert>
+
+
 </mapper>

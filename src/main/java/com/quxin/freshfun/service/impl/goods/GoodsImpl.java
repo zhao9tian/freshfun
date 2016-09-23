@@ -43,13 +43,9 @@ public class GoodsImpl implements GoodsService {
 	@Autowired
 	private MongoComment mongeComment;
 	
-	
-
 	@Override
 	public List<GoodsMongo> findGoodsMongo(Integer goodsID) {
-		Query query = Query.query(Criteria.where("goodsId").is(goodsID));
-		System.out.println(query);
-		return mongoGoods.findGoodsMongo(query);
+		return mongoGoods.findGoodsMongo(goodsID);
 	}
 
 

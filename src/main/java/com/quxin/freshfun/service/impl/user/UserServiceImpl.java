@@ -3,15 +3,12 @@ package com.quxin.freshfun.service.impl.user;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.quxin.freshfun.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.dao.UsersMapper;
-import com.quxin.freshfun.model.Message;
-import com.quxin.freshfun.model.UserInfoPOJO;
-import com.quxin.freshfun.model.UsersPOJO;
-import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.AESUtil;
 import com.quxin.freshfun.utils.IdGenerate;
@@ -20,7 +17,7 @@ import com.quxin.freshfun.utils.MessageUtils;
  * @author TuZl
  * @time 2016年8月21日下午2:46:07
  */
-@Service
+@Service("userService")
 public class UserServiceImpl implements UserService{
 
 	@Autowired
@@ -81,7 +78,7 @@ public class UserServiceImpl implements UserService{
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
 		if(wxId!=null && wzId != null){
-			UserInfoPOJO userInfo = new UserInfoPOJO();
+
 			//1.判断wxId是否存在数据库中
 			userId = userDao.getUserIdByWxId(wxId);
 			if(userId != null){
@@ -113,10 +110,19 @@ public class UserServiceImpl implements UserService{
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
 				userDao.insert(user);
-				//插入一条用户信息到mongoDB
-				userInfo.setUserId(userId);
-				userInfo.setWxInfo(wxinfo);
-				mongoTemplate.save(userInfo);
+				//插入一条用户信息到DB
+				UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
+				userDetailPOJO.setUserId(userId);
+				userDetailPOJO.setProvince(wxinfo.getProvince());
+				userDetailPOJO.setCity(wxinfo.getCity());
+				userDetailPOJO.setCode(wxinfo.getCode());
+				userDetailPOJO.setCountry(wxinfo.getCountry());
+				userDetailPOJO.setHeadimgurl(wxinfo.getHeadimgurl());
+				userDetailPOJO.setLanguage(wxinfo.getLanguage());
+				userDetailPOJO.setNickname(wxinfo.getNickname());
+				userDetailPOJO.setUnionid(wxinfo.getUnionid());
+				userDetailPOJO.setOpenid(wxinfo.getOpenid());
+				userDao.insertUserDetails(userDetailPOJO);
 			}
 		}
 		return userId;
