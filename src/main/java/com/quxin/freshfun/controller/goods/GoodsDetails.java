@@ -53,10 +53,10 @@ public class GoodsDetails {
 		List<GoodsMongo> goodsMongo = goods.findGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
 		GoodsPOJO goodsMysql = goods.findGoodsMysql(goodsId);
-		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShop_price()));
-		goodsMysql.setMarketMoney(MoneyFormat.priceFormatString(goodsMysql.getMarket_price()));
-		goodsMysql.setShop_price(null);
-		goodsMysql.setMarket_price(null);
+		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShopPrice()));
+		goodsMysql.setMarketMoney(MoneyFormat.priceFormatString(goodsMysql.getMarketPrice()));
+		goodsMysql.setShopPrice(null);
+		goodsMysql.setMarketPrice(null);
 		allGoods.setGoodsPOJO(goodsMysql);
 		return allGoods;
 	}
@@ -84,12 +84,10 @@ public class GoodsDetails {
 	@ResponseBody
 	public List<StidVsGid> findThemeGoods(@RequestBody GoodsThemeInfo goodsThemeIngo){
 		Integer pagetime = goodsThemeIngo.getPagetime();
-		Integer theme_id = goodsThemeIngo.getThemeID();
-		System.out.println(pagetime);
-		System.out.println(theme_id);
+		Integer themeId = goodsThemeIngo.getThemeID();
 		Map<String, Integer> themeMap = new HashMap<String, Integer>(2);
 		Integer page = (pagetime - 1) * 20;
-		themeMap.put("theme_id", theme_id);
+		themeMap.put("themeId", themeId);
 		themeMap.put("page", page);
 		List<StidVsGid> specialTheme = goods.findThemeGoods(themeMap);
 		return specialTheme;
@@ -103,12 +101,12 @@ public class GoodsDetails {
 	@ResponseBody
 	public List<SmidVsGid> findMallGoods(@RequestBody GoodsThemeInfo goodsThemeIngo){
 		Integer pagetime = goodsThemeIngo.getPagetime();
-		Integer theme_id = goodsThemeIngo.getThemeID();
+		Integer themeId = goodsThemeIngo.getThemeID();
 		System.out.println(pagetime);
-		System.out.println(theme_id);
+		System.out.println(themeId);
 		Map<String, Integer> mallMap = new HashMap<String, Integer>(2);
 		Integer page = (pagetime - 1) * 20;
-		mallMap.put("mall_id", theme_id);
+		mallMap.put("mallId", themeId);
 		mallMap.put("page", page);
 		List<SmidVsGid> mallTheme = goods.findMallGoods(mallMap);
 		return mallTheme;

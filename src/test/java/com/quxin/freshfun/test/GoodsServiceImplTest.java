@@ -33,7 +33,7 @@ public class GoodsServiceImplTest extends TestBase{
 
         GoodsPOJO s = goodsService.findGoodsMysql(55);
 
-        logger.info(s.getGoods_name());
+        logger.info(s.getGoodsName());
 
     }
 

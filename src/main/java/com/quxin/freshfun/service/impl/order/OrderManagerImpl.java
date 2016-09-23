@@ -137,8 +137,8 @@ public class OrderManagerImpl implements OrderManager {
 		List<ShoppingCartPOJO> carts = cart.selectShoppingCartByUserId(userId);
 		for (ShoppingCartPOJO sc : carts) {
 			GoodsPOJO goods = sc.getGoods();
-			String shopingMoney = MoneyFormat.priceFormatString(goods.getShop_price());
-			String marketMoney = MoneyFormat.priceFormatString(goods.getMarket_price());
+			String shopingMoney = MoneyFormat.priceFormatString(goods.getShopPrice());
+			String marketMoney = MoneyFormat.priceFormatString(goods.getMarketPrice());
 			goods.setGoodsMoney(shopingMoney);
 			goods.setMarketMoney(marketMoney);
 			String totalMoney = MoneyFormat.priceFormatString(sc.getGoodsTotalsPrice());
@@ -147,10 +147,10 @@ public class OrderManagerImpl implements OrderManager {
 		//推荐商品
 		List<GoodsPOJO> recommendGoods = goods.selectRecommendGoods();
 		for (GoodsPOJO goodsPOJO : recommendGoods) {
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShop_price()));
-			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarket_price()));
-			goodsPOJO.setShop_price(null);
-			goodsPOJO.setMarket_price(null);
+			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
+			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
+			goodsPOJO.setShopPrice(null);
+			goodsPOJO.setMarketPrice(null);
 		}
 		Map<String,Object> map = Maps.newHashMap();
 		map.put("cart", carts);
@@ -171,8 +171,8 @@ public class OrderManagerImpl implements OrderManager {
 		shoppingCart.setUserId(userId);
 		shoppingCart.setGoodsId(goodsId);
 		shoppingCart.setGoodsTotals(1);
-		shoppingCart.setGoodsTotalsPrice(goodsInfo.getShop_price());
-		shoppingCart.setGoodsName(goodsInfo.getGoods_name());
+		shoppingCart.setGoodsTotalsPrice(goodsInfo.getShopPrice());
+		shoppingCart.setGoodsName(goodsInfo.getGoodsName());
 		shoppingCart.setCreateDate(currentDate);
 		shoppingCart.setUpdateDate(currentDate);
 		int status = cart.insertSelective(shoppingCart);
@@ -223,7 +223,7 @@ public class OrderManagerImpl implements OrderManager {
 	
 	/**
      * 确认评价
-     * @param userID
+     * @param orderId
      * @return
      */
 	@Override

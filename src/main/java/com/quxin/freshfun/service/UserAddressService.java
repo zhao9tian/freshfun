@@ -16,9 +16,9 @@ public interface UserAddressService {
 	 * @param userID
 	 * @return
 	 */
-	public List<UserAddress> userAddress(Long userID);
+	public List<UserAddress> userAddress(Long userId);
 	
-	public List<UserAddress> userDefaultAddress(Long userID);
+	public List<UserAddress> userDefaultAddress(Long userId);
 	/**
 	 * 添加用户地址
 	 * @param addressMap
@@ -45,10 +45,10 @@ public interface UserAddressService {
 	public Integer updateUserAddress(UsersPOJO record);
 	/**
 	 * 修改默认地址
-	 * @param userID
+	 * @param userId
 	 * @return
 	 */
-	public Integer updateDefaultAddress(Long userID);
+	public Integer updateDefaultAddress(Long userId);
 	/**
 	 * 添加反馈
 	 * @param userMessage
@@ -63,17 +63,17 @@ public interface UserAddressService {
 	public UserAddress selectByPrimaryKey(Integer id);
 	/**
 	 * 查询手机号
-	 * @param userID
+	 * @param userId
 	 * @return
 	 */
-	public UsersPOJO findIsMobile(Long userID);
+	public UsersPOJO findIsMobile(Long userId);
 	
 	/**
 	 * 成为捕手
-	 * @param user_id
+	 * @param userId
 	 * @return
 	 */
 	
-	public Integer updateUserIdentify(Long userID);
+	public Integer updateUserIdentify(Long userId);
 
 }

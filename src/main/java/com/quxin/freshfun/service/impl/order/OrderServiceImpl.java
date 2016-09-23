@@ -91,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
 			//查询购物车
 			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
 				GoodsPOJO goodsPOJO = goods.selectShoppingInfo(goodsInfo.getGoodsId());
-				payInfo = new OrderPayInfo(goodsPOJO.getGoods_name(), goodsPOJO.getShop_price());
+				payInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice());
 			}else{
 				ShoppingCartPOJO shoppingCart = cart.selectShoppingCart(goodsInfo.getScId());
 				payInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice());
@@ -160,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
 			OrderPayInfo payInfo = null;
 			
 			GoodsLimit goodsPOJO = goodsLimit.selectShoppingInfo(goodsInfo.getGoodsId());
-			payInfo = new OrderPayInfo(goodsPOJO.getGoods_name(), goodsPOJO.getShop_price());
+			payInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice());
 
 			goodsPrice[i] = payInfo.getGoodsPrice();
 			OrderDetailsPOJO orderDetail = makeOrderDetail(payInfo,goodsInfo,orderInfo,orderId);
@@ -172,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
 				throw new RuntimeException();
 			}
 			//生成收入账单
-			//generateBill(payInfo,goodsInfo,orderInfo.getUser_id(),orderDetail.getOrderDetailsId());
+			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderDetailsId());
 			//生成支出账单
 			generateExpensesBill(payInfo,goodsInfo,Long.parseLong(orderInfo.getUserId().replace("\"", "")),orderDetail);
 		}
@@ -362,53 +362,37 @@ public class OrderServiceImpl implements OrderService {
 	 * @param payInfo
 	 */
 	private void generateBill(OrderPayInfo payInfo,OrderDetailsPOJO orderDetail,Long userId,Integer goodsId) {
-//		if(null == goodsInfo.getSignCode() || "".equals(goodsInfo.getSignCode())){
-//			//查询是否有代理商户
-//			GoodsPOJO gp = goods.selectProxyMerchantByGoodsId(goodsInfo.getGoodsId());
-//			if(null != gp.getMerchant_proxy_id() && gp.getMerchant_proxy_id() != 0){
-//				int proxyMerchantMoney = (int) (payInfo.getGoodsPrice() * 0.2);
-//				int merchantMoney = (int) (payInfo.getGoodsPrice() * 0.8);
-//				generateBillDetail(payInfo,goodsInfo,gp.getMerchant_proxy_id(),orderInpieces,proxyMerchantMoney,2);
-//				generateBillDetail(payInfo,goodsInfo,gp.getStore_id(),orderInpieces,merchantMoney,3);
-//
-//			}else{
-//				generateBillDetail(payInfo,goodsInfo,gp.getStore_id(),orderInpieces,payInfo.getGoodsPrice(),3);
-//			}
-//		}else{
 			//查询用户信息
 			UsersPOJO userPOJO = user.selectParentIdByUserId(userId);
 			//解析
-			//String codeVal = getCodeVal(goodsInfo.getSignCode());
-			//String[] splitCode = getSplitCode(codeVal);
-			//Long shareId = Long.parseLong(splitCode[0]);
 			if(null != userPOJO.getParentId() && userPOJO.getParentId() != 0){
 				//修改用户标记
 				
 				//查询是否有代理商户
 				GoodsPOJO gp = goods.selectProxyMerchantByGoodsId(goodsId);
-				if(null != gp.getMerchant_proxy_id() && gp.getMerchant_proxy_id() != 0){
+				if(null != gp.getMerchantProxyId() && gp.getMerchantProxyId() != 0){
 					int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
 					int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
 					int merchantMoney = (int) (orderDetail.getActualPrice() * 0.7);
 					generateBillDetail(payInfo,orderDetail,userPOJO.getParentId(),shareMoney,1);
-					generateBillDetail(payInfo,orderDetail,gp.getMerchant_proxy_id(),proxyMerchantMoney,2);
-					generateBillDetail(payInfo,orderDetail,gp.getStore_id(),merchantMoney,3);
+					generateBillDetail(payInfo,orderDetail,gp.getMerchantProxyId(),proxyMerchantMoney,2);
+					generateBillDetail(payInfo,orderDetail,gp.getStoreId(),merchantMoney,3);
 				}else{
 					int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
 					int merchantMoney = (int) (orderDetail.getActualPrice() * 0.9);
 					generateBillDetail(payInfo,orderDetail,userPOJO.getParentId(),shareMoney,1);
-					generateBillDetail(payInfo,orderDetail,gp.getStore_id(),merchantMoney,3);
+					generateBillDetail(payInfo,orderDetail,gp.getStoreId(),merchantMoney,3);
 				}
 			}else{
 				//查询是否有代理商户
 				GoodsPOJO gp = goods.selectProxyMerchantByGoodsId(goodsId);
-				if(null != gp.getMerchant_proxy_id() && gp.getMerchant_proxy_id() != 0){
+				if(null != gp.getMerchantProxyId() && gp.getMerchantProxyId() != 0){
 					int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
 					int merchantMoney = (int) (orderDetail.getActualPrice() * 0.8);
-					generateBillDetail(payInfo,orderDetail,gp.getMerchant_proxy_id(),proxyMerchantMoney,2);
-					generateBillDetail(payInfo,orderDetail,gp.getStore_id(),merchantMoney,3);
+					generateBillDetail(payInfo,orderDetail,gp.getMerchantProxyId(),proxyMerchantMoney,2);
+					generateBillDetail(payInfo,orderDetail,gp.getStoreId(),merchantMoney,3);
 				}else{
-					generateBillDetail(payInfo,orderDetail,gp.getStore_id(),orderDetail.getActualPrice(),3);
+					generateBillDetail(payInfo,orderDetail,gp.getStoreId(),orderDetail.getActualPrice(),3);
 				}
 			}
 		//}
@@ -545,14 +529,9 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	private OrderInPieces getOrderInPiecesBean(OrdersPOJO order) {
 		//根据订单地址编号查询地址信息
-//		OrderAddress address = getAddressByOrderId(order.getAddress_id());
 		OrderInPieces op = new OrderInPieces();
 		//订单编号
-	//	op.setUserId(order.getUser_id());
-		//op.setOrderId(order.getId());
 		op.setOrderPieceId(UUID.randomUUID().toString());
-//		op.setAddress(address);
-		//op.setPaymentMethod(order.getPayment_method());
 		op.setPayTime(order.getGmtCreate());
 		op.setOrderStatus(0);
 		op.setCommentStatus(0);

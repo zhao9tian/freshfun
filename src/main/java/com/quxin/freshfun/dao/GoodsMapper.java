@@ -72,13 +72,13 @@ public interface GoodsMapper {
      * 查询单个商品
      * @return
      */
-    GoodsPOJO findByGoodsId(Integer goods_id);
+    GoodsPOJO findByGoodsId(Integer goodsId);
     /**
      * 查询单个商品信息
-     * @param goods_id
+     * @param goodsId
      * @return
      */
-    GoodsPOJO selectGoodsById(Integer goods_id);
+    GoodsPOJO selectGoodsById(Integer goodsId);
     /**
      * 根据商品编号查询代理商户信息
      * @param goodsId

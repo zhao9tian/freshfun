@@ -26,13 +26,13 @@ public class UserAddressServiceImpl implements UserAddressService {
 	private UserMessageMapper usersMessageMapper;
 
 	@Override
-	public List<UserAddress> userAddress(Long userID) {
-		return userAddressMapper.selectAllByUserID(userID);
+	public List<UserAddress> userAddress(Long userId) {
+		return userAddressMapper.selectAllByUserID(userId);
 	}
 	
 	@Override
-	public List<UserAddress> userDefaultAddress(Long userID) {
-		return userAddressMapper.selectdefaultByUserID(userID);
+	public List<UserAddress> userDefaultAddress(Long userId) {
+		return userAddressMapper.selectdefaultByUserID(userId);
 	}
 
 	@Override
@@ -56,8 +56,8 @@ public class UserAddressServiceImpl implements UserAddressService {
 	}
 
 	@Override
-	public Integer updateDefaultAddress(Long userID) {
-		return userAddressMapper.updateIsDefault(userID);
+	public Integer updateDefaultAddress(Long userId) {
+		return userAddressMapper.updateIsDefault(userId);
 	}
 
 	@Override
@@ -71,13 +71,13 @@ public class UserAddressServiceImpl implements UserAddressService {
 	}
 
 	@Override
-	public UsersPOJO findIsMobile(Long userID) {
-		return usersMapper.findIsMobile(userID);
+	public UsersPOJO findIsMobile(Long userId) {
+		return usersMapper.findIsMobile(userId);
 	}
 
 	@Override
-	public Integer updateUserIdentify(Long userID) {
-		return usersMapper.updateUserIdentify(userID);
+	public Integer updateUserIdentify(Long userId) {
+		return usersMapper.updateUserIdentify(userId);
 	}
 
 }
