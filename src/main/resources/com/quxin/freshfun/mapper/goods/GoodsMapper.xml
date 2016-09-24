@@ -65,37 +65,37 @@
   </sql>
   <!-- 查詢商品信息 -->
   <select id="selectShoppingInfo" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
-      select shop_price,goods_name from goods where id = #{goodsId} and is_on_sale = 1
+      select shop_price as shopPrice,goods_name as goodsName from goods where id = #{goodsId} and is_on_sale = 1
   </select>
   
   <!-- 根据商品编号查询商户编号 -->
   <select id="selectMerchantByGoodsId" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
-      select store_id,merchant_proxy_id from goods where id = #{goodsId} and is_on_sale = 1
+      select store_id as storeId,merchant_proxy_id as merchantProxyId from goods where id = #{goodsId} and is_on_sale = 1
   </select>
   
   <!-- 根据商品编号查询商品信息 -->
   <select id="selectGoodsById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
-      select id,goods_name,goods_des,goods_img,goods_type,shop_price,market_price,share_url from goods where id = #{goodsId} and is_on_sale = 1
+      select id,goods_name as goodsName,goods_des as goodsDes,goods_img as goodsImg,goods_type as goodsType,shop_price as shopPrice,market_price as marketPrice,share_url as shareUrl from goods where id = #{goodsId} and is_on_sale = 1
   </select>
   <select id="findByLimit" parameterType="map" resultType="com.quxin.freshfun.model.GoodsPOJO">
-      select id, goods_name, goods_img, goods_des, shop_price, market_price,share_url ,merchant_proxy_id , agency_fees from goods where is_on_sale = 1 limit #{page}, #{pagesize}
+      select id, goods_name as goodsName, goods_img as goodsImg, goods_des as goodsDes, shop_price as shopPrice, market_price as marketPrice,share_url as shareUrl ,merchant_proxy_id as merchantProxyId, agency_fees as agencyFees from goods where is_on_sale = 1 limit #{page}, #{pagesize}
   </select>
   <!-- 根据商品编号查询基本信息 -->
   <select id="findByGoodsId" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
-      select id, goods_name, goods_img, goods_des, shop_price, market_price,share_url ,agency_fees, merchant_proxy_id from goods where id=#{goodsId} and is_on_sale = 1
+      select id, goods_name as goodsName, goods_img as goodsImg, goods_des as goodsDes, shop_price as shopPrice, market_price as marketPrice,share_url as shareUrl,agency_fees as agencyFees,merchant_proxy_id as merchantProxyId from goods where id=#{goodsId} and is_on_sale = 1
   </select>
   <!-- 根据商品分类查询商品 -->
   <select id="findByType" parameterType="java.lang.Integer" resultMap="BaseResult">
-      select id, goods_name, goods_img, goods_des, shop_price, market_price,share_url from goods where id=#{goodsId} and is_on_sale = 1
+      select id, goods_name, goods_img, goods_des, shop_price, market_price,share_url  from goods where id=#{goodsId} and is_on_sale = 1
   </select>
     <!-- 根据商品编号查询基本信息 -->
-  <select id="findByGoodsIdLimit" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
+  <select id="findByGoodsIdLimit" parameterType="java.lang.Integer" resultMap="BaseResultMap">
       select id, goods_name, goods_img, goods_des, shop_price, market_price,share_url from goods where id=#{goodsId} and is_on_sale = 1 limit 7
   </select>
-  <select id="selectProxyMerchantByGoodsId" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
+  <select id="selectProxyMerchantByGoodsId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
       select merchant_proxy_id,store_id from goods where id = #{goodsId} and is_on_sale = 1
   </select>
-  <select id="selectShoppingPrice" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
+  <select id="selectShoppingPrice" parameterType="java.lang.Integer" resultMap="BaseResultMap">
       select shop_price,goods_name from goods where id = #{goodsId} and is_on_sale = 1
   </select>
   <!-- 查询推荐商品 -->

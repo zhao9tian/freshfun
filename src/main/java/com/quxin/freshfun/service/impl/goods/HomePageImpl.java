@@ -23,7 +23,7 @@ import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.service.goods.HomePageService;
 import com.quxin.freshfun.utils.MoneyFormat;
 
-@Service
+@Service("homePageService")
 public class HomePageImpl implements HomePageService {
 	@Autowired
 	private SpecialMallMapper specialMall;
@@ -85,7 +85,7 @@ public class HomePageImpl implements HomePageService {
 			List<StidVsGid> stidVsGid = goodstheme.getStidVsGid();
 			for (StidVsGid goodsType : stidVsGid){
 				GoodsPOJO goods = goodsType.getGoods();
-				if(goods != null){
+ 				if(goods != null){
 					goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
 					goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 				}

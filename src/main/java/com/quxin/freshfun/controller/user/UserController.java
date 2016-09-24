@@ -27,8 +27,8 @@ public class UserController {
 	 */
 	@RequestMapping("/useraddress")
 	@ResponseBody
-	public List<UserAddress> FindUserAddress(String userID){
-		Long ui = Long.parseLong(userID.replace("\"", ""));
+	public List<UserAddress> FindUserAddress(String userId){
+		Long ui = Long.parseLong(userId.replace("\"", ""));
 		return userAddressService.userAddress(ui);
 	}
 	
@@ -38,8 +38,8 @@ public class UserController {
 	 */
 	@RequestMapping("/userdefaultaddress")
 	@ResponseBody
-	public List<UserAddress> FindUseDefaultrAddress(String userID){
-		Long ui = Long.parseLong(userID.replace("\"", ""));
+	public List<UserAddress> FindUseDefaultrAddress(String userId){
+		Long ui = Long.parseLong(userId.replace("\"", ""));
 		return userAddressService.userDefaultAddress(ui);
 	}
 	
@@ -108,9 +108,9 @@ public class UserController {
 	 */
 	@RequestMapping("/deleteaddress")
 	@ResponseBody
-	public Map<String, Object> DeleteUserAddress(Integer addressID){
+	public Map<String, Object> DeleteUserAddress(Integer addressId){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		int demo = userAddressService.deleteByPrimaryKey(addressID);
+		int demo = userAddressService.deleteByPrimaryKey(addressId);
 		if (demo == 1){
 			stateMap.put("state", "1");			
 		}else{
