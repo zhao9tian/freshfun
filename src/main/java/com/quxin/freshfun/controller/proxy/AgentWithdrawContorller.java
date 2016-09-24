@@ -59,7 +59,9 @@ public class AgentWithdrawContorller {
 	
 	/**
 	 * 新增用户提现方式
-	 * @param agentWithdrawWay 用户提现方式
+	 * @param userId 用户id
+	 * @param withdrawChannel 用户提现方式
+	 * @param withdrawAccount 用户提现帐号
 	 * @return 结果： 1成功  0失败
 	 */
 	@RequestMapping("/addAgentWithdrawWay")
@@ -81,7 +83,13 @@ public class AgentWithdrawContorller {
 			map.put("result", 0);
 		return map;
 	}
-	
+
+	/**
+	 * 设置用户的默认提现方式
+	 * @param id  提现方式id
+	 * @param userId  用户id
+	 * @return  map结果集
+	 */
 	@RequestMapping("/setDefaultWay")
 	@ResponseBody
 	public Map<String,Object> setDefaultWay(String id,String userId){
@@ -100,8 +108,8 @@ public class AgentWithdrawContorller {
 	}
 	/**
 	 * 获取可提现金额
-	 * @param userId
-	 * @return
+	 * @param userId  用户id
+	 * @return map 结果集
 	 */
 	@RequestMapping("/getTheMoney")
 	@ResponseBody
@@ -122,7 +130,9 @@ public class AgentWithdrawContorller {
 	
 	/**
 	 * 保存商户申请提现
-	 * @param agentWithdraw 申请提现对象
+	 * @param userId 用户id
+	 * @param wayId 提现方式id
+	 * @param money 提现金额
 	 * @return 结果： 1成功  0失败
 	 */
 	@RequestMapping("/addAgentWithdraw")
@@ -159,7 +169,8 @@ public class AgentWithdrawContorller {
 	}
 	/**
 	 * 处理商户申请提现
-	 * @param agentWithdraw 申请提现对象
+	 * @param id 提现对象id
+	 * @param  result  处理结果
 	 * @return 结果： 1成功  0失败
 	 */
 	@RequestMapping("/modifyAgentWithdraw")
