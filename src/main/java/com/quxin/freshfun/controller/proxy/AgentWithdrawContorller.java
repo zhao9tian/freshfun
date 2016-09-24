@@ -37,7 +37,7 @@ public class AgentWithdrawContorller {
 	@ResponseBody
 	public List<AgentWithdrawWayPOJO> findAgentWithdrawWay(String userId){
 		List<AgentWithdrawWayPOJO> listWithdrawWay = null;
-		if(userId!=null||!"".equals(userId)){
+		if(userId!=null&&!"".equals(userId)){
 			listWithdrawWay = agentWithdrawService.queryWithdrawWay(Integer.parseInt(userId));
 		}
 		return listWithdrawWay;
@@ -51,7 +51,7 @@ public class AgentWithdrawContorller {
 	@ResponseBody
 	public AgentWithdrawWayPOJO findDefaultWithdrawWay(String userId){
 		AgentWithdrawWayPOJO withdrawWay = new AgentWithdrawWayPOJO();
-		if(userId!=null||!"".equals(userId)){
+		if(userId!=null&&!"".equals(userId)){
 			withdrawWay = agentWithdrawService.queryDefaultWay(Integer.parseInt(userId));
 		}
 		return withdrawWay;
