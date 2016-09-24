@@ -13,7 +13,7 @@ import com.quxin.freshfun.model.UsersPOJO;
 public interface UserAddressService {
 	/**
 	 * 显示用户地址
-	 * @param userID
+	 * @param userId
 	 * @return
 	 */
 	public List<UserAddress> userAddress(Long userId);

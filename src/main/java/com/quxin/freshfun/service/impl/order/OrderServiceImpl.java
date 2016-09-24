@@ -32,32 +32,32 @@ import com.quxin.freshfun.utils.HttpClientUtil;
 import com.quxin.freshfun.utils.IdGenerate;
 import com.quxin.freshfun.utils.MoneyFormat;
 
-@Service
+@Service("orderService")
 public class OrderServiceImpl implements OrderService {
 	@Autowired
-	private OrdersMapper order;
+	private OrdersMapper ordersMapper;
 	@Autowired
-	private UserOutcomeMapper outcome;
+	private UserOutcomeMapper userOutcomeMapper;
 	@Autowired
-	private UserOutcomeDetailsMapper outcomeDetail;
+	private UserOutcomeDetailsMapper userOutcomeDetailsMapper;
 	@Autowired
 	private AddressManagerMongo orderAddress;
 	@Autowired
-	private OrderDetailsMapper orderDetails;
+	private OrderDetailsMapper orderDetailsMapper;
 	@Autowired
-	private GoodsDeliveryTypeMapper deliveryType;
+	private GoodsDeliveryTypeMapper goodsDeliveryTypeMapper;
 	@Autowired
-	private UsersMapper user;
+	private UsersMapper usersMapper;
 	@Autowired
-	private GoodsMapper goods;
+	private GoodsMapper goodsMapper;
 	@Autowired
-	private GoodsLimitMapper goodsLimit;
+	private GoodsLimitMapper goodsLimitMapper;
 	@Autowired
-	private ShoppingCartMapper cart;
+	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
-	private UserRevenueMapper revenue;
+	private UserRevenueMapper userRevenueMapper;
 	@Autowired
-	private UserRevenueDetailsMapper revenueDetail;
+	private UserRevenueDetailsMapper userRevenueDetailsMapper;
 	@Autowired
 	private MerchantAgentMapper merchantAgentMapper;
 	
@@ -90,16 +90,16 @@ public class OrderServiceImpl implements OrderService {
 			OrderPayInfo payInfo = null;
 			//查询购物车
 			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
-				GoodsPOJO goodsPOJO = goods.selectShoppingInfo(goodsInfo.getGoodsId());
+				GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
 				payInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice());
 			}else{
-				ShoppingCartPOJO shoppingCart = cart.selectShoppingCart(goodsInfo.getScId());
+				ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
 				payInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice());
 			}
 			goodsPrice[i] = payInfo.getGoodsPrice();
 			OrderDetailsPOJO orderDetail = makeOrderDetail(payInfo,goodsInfo,orderInfo,orderId);
 			//生成订单详情
-			int orderDetailStatus = orderDetails.insertSelective(orderDetail);
+			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
 			if(orderDetailStatus <= 0){
 				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
 				throw new BusinessException("订单详情生成失败");
@@ -111,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,goodsPrice,orderId);
-			int insertStatus = order.insertSelective(orderPOJO);
+			int insertStatus = ordersMapper.insertSelective(orderPOJO);
 			if(insertStatus <= 0){
 				resultLogger.error(orderInfo.getUserRedId()+"添加订单失败");
 				throw new BusinessException("订单添加失败");
@@ -125,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
 		//修改支付状态
 		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
-				Integer status = cart.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
+				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
 				if(status <= 0){
 					resultLogger.error(orderInfo.getUserId()+"修改购物车状态失败");
 					throw new BusinessException("修改购物车状态");
@@ -159,14 +159,14 @@ public class OrderServiceImpl implements OrderService {
 			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
 			OrderPayInfo payInfo = null;
 			
-			GoodsLimit goodsPOJO = goodsLimit.selectShoppingInfo(goodsInfo.getGoodsId());
+			GoodsLimit goodsPOJO = goodsLimitMapper.selectShoppingInfo(goodsInfo.getGoodsId());
 			payInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice());
 
 			goodsPrice[i] = payInfo.getGoodsPrice();
 			OrderDetailsPOJO orderDetail = makeOrderDetail(payInfo,goodsInfo,orderInfo,orderId);
 			orderDetail.setIsLimit(1);
 			//生成订单详情
-			int orderDetailStatus = orderDetails.insertSelective(orderDetail);
+			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
 			if(orderDetailStatus <= 0){
 				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
 				throw new RuntimeException();
@@ -178,7 +178,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,goodsPrice,orderId);
 		orderPOJO.setIsLimit(1);
-		int insertStatus = order.insertSelective(orderPOJO);
+		int insertStatus = ordersMapper.insertSelective(orderPOJO);
 		if(insertStatus <= 0){
 			resultLogger.error(orderInfo.getUserRedId()+"添加订单失败");
 			throw new RuntimeException();
@@ -326,7 +326,7 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	@Override
 	public List<OrdersPOJO> findAllOrders() {
-		List<OrdersPOJO> orders = order.findAllOrders();
+		List<OrdersPOJO> orders = ordersMapper.findAllOrders();
 		OrdersPOJO order = orders.get(0);
 		
 		createOrderDetails(order);
@@ -363,13 +363,13 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	private void generateBill(OrderPayInfo payInfo,OrderDetailsPOJO orderDetail,Long userId,Integer goodsId) {
 			//查询用户信息
-			UsersPOJO userPOJO = user.selectParentIdByUserId(userId);
+			UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(userId);
 			//解析
 			if(null != userPOJO.getParentId() && userPOJO.getParentId() != 0){
 				//修改用户标记
 				
 				//查询是否有代理商户
-				GoodsPOJO gp = goods.selectProxyMerchantByGoodsId(goodsId);
+				GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsId);
 				if(null != gp.getMerchantProxyId() && gp.getMerchantProxyId() != 0){
 					int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
 					int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
@@ -385,7 +385,7 @@ public class OrderServiceImpl implements OrderService {
 				}
 			}else{
 				//查询是否有代理商户
-				GoodsPOJO gp = goods.selectProxyMerchantByGoodsId(goodsId);
+				GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsId);
 				if(null != gp.getMerchantProxyId() && gp.getMerchantProxyId() != 0){
 					int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
 					int merchantMoney = (int) (orderDetail.getActualPrice() * 0.8);
@@ -448,35 +448,35 @@ public class OrderServiceImpl implements OrderService {
 	 * @param outDetail
 	 */
 	private void addUserOutcomeDetail(UserOutcomeDetails outDetail) {
-		outcomeDetail.insertSelective(outDetail);
+		userOutcomeDetailsMapper.insertSelective(outDetail);
 	}
 	/**
 	 * 添加用户支出信息
 	 * @param out
 	 */
 	private int addUserOutcome(UserOutcome out) {
-		return outcome.insertSelective(out);
+		return userOutcomeMapper.insertSelective(out);
 	}
 	/**
 	 * 添加用户收入详情信息
 	 * @param UserrevenueDetail
 	 */
 	private void addUserRevenueDetail(UserRevenueDetails UserrevenueDetail) {
-		revenueDetail.insertSelective(UserrevenueDetail);
+		userRevenueDetailsMapper.insertSelective(UserrevenueDetail);
 	}
 	/**
 	 * 添加用户收入信息
 	 * @param UserRevenue
 	 */
 	private int addUserRevenue(UserRevenue UserRevenue) {
-		return revenue.insertSelective(UserRevenue);
+		return userRevenueMapper.insertSelective(UserRevenue);
 	}
 	/**
 	 * 根据订单商品编号查询商品商户编号
 	 * @param goodsId
 	 */
 	private GoodsPOJO findMerchantInfoByGoodsId(Integer goodsId) {
-		return goods.selectMerchantByGoodsId(goodsId);
+		return goodsMapper.selectMerchantByGoodsId(goodsId);
 	}
 	/**
 	 * 修改用户分享标记
@@ -487,7 +487,7 @@ public class OrderServiceImpl implements OrderService {
 		Map<String, Long> map = new HashMap<>();
 		map.put("parentId", parentId);
 		map.put("userId", userId);
-		int sign = user.updateParentIdByUserId(map);
+		int sign = usersMapper.updateParentIdByUserId(map);
 		return sign;
 	}
 	/**
@@ -510,7 +510,7 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	private void createSplitOrder(OrdersPOJO order) {
 		//查询订单的套餐类型
-		GoodsDeliveryTypePOJO deliveryTypePOJO = deliveryType.selectByDeliveryId(4);
+		GoodsDeliveryTypePOJO deliveryTypePOJO = goodsDeliveryTypeMapper.selectByDeliveryId(4);
 		//发货次数
 		int deliveryCount = deliveryTypePOJO.getDeliveryCount();
 		//单次价格
@@ -593,7 +593,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	@Override
 	public OrderDetailsPOJO getOrderLogistic(String orderDetailId) {
-		OrderDetailsPOJO orderDetail = orderDetails.getLogistic(orderDetailId);
+		OrderDetailsPOJO orderDetail = orderDetailsMapper.getLogistic(orderDetailId);
 		return orderDetail;
 	}
 	/**
@@ -619,8 +619,8 @@ public class OrderServiceImpl implements OrderService {
 				Long currentDate = DateUtils.getCurrentDate();
 				String orderId = map.get("attach");
 				if("W".equals(orderId.subSequence(0, 1))){
-					Integer id = orderDetails.selectPayIdByOrderDetailsId(orderId);
-					payStatus = orderDetails.updateOrderDetailPayStatus(currentDate, id);
+					Integer id = orderDetailsMapper.selectPayIdByOrderDetailsId(orderId);
+					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, id);
 					billLogger.info("订单详情支付"+map.get("attach"));
 				}else if("B".equals(orderId.subSequence(0, 1))){
 					//商户代理费支付回调
@@ -629,15 +629,15 @@ public class OrderServiceImpl implements OrderService {
                     //查询商户代理信息
                     MerchantAgent m = merchantAgentMapper.selectMerchantInfo(id);
                     //修改商品的代理状态
-                    int goodsStatus = goods.updateGoodsAgent(m.getMerchantId(),m.getGoodsId());
+                    int goodsStatus = goodsMapper.updateGoodsAgent(m.getMerchantId(),m.getGoodsId());
                     if(goodsStatus <= 0){
                         billLogger.error("修改商品代理状态失败");
                     }
 					billLogger.info("商户编号："+map.get("attach")+"支付状态："+payStatus);
 				}else{
-					List<Integer> payIdList = orderDetails.selectPayId(Long.parseLong(orderId));
+					List<Integer> payIdList = orderDetailsMapper.selectPayId(Long.parseLong(orderId));
 					for (Integer id : payIdList) {
-						payStatus = orderDetails.updateOrderDetailPayStatus(currentDate, id);
+						payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, id);
 						billLogger.info("用户编号："+map.get("attach")+"修改订单状态结果：");
 					}
 				}
@@ -660,7 +660,7 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	@Override
 	public ResponseResult awaitPayOrder(OrderPayPOJO order) {
-		OrderDetailsPOJO detailsPOJO = orderDetails.selectPayOrder(order.getOrderId());
+		OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(order.getOrderId());
 		String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
 		ResponseResult orderPay = orderPay(order.getOrderId(),payMoney,order.getCode(),order.getOpenId());
 		return orderPay;
@@ -696,10 +696,10 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public Integer queryAllIncome(Long id) {
-		return orderDetails.selectAllIncome(id);
+		return orderDetailsMapper.selectAllIncome(id);
 	}
 	@Override
 	public Integer queryEarnedIncome(Long id) {
-		return orderDetails.selectEarnedIncome(id);
+		return orderDetailsMapper.selectEarnedIncome(id);
 	}
 }

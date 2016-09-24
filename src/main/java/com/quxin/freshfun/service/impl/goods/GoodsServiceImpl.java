@@ -23,22 +23,22 @@ import com.quxin.freshfun.mongodb.MongoGoods;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
 @Service("goodsService")
-public class GoodsImpl implements GoodsService {
+public class GoodsServiceImpl implements GoodsService {
 	
 	@Autowired
 	private MongoGoods mongoGoods;
 	
 	@Autowired
-	private GoodsMapper goods;
+	private GoodsMapper goodsMapper;
 	
 	@Autowired
-	private GoodsLimitMapper goodsLimit;
+	private GoodsLimitMapper goodsLimitMapper;
 	
 	@Autowired
-	private StidVsGidMapper specialTheme;
+	private StidVsGidMapper stidVsGidMapper;
 	
 	@Autowired
-	private SmidVsGidMapper specialMall;
+	private SmidVsGidMapper smidVsGidMapper;
 	
 	@Autowired
 	private MongoComment mongeComment;
@@ -53,7 +53,7 @@ public class GoodsImpl implements GoodsService {
 	@Override
 	public GoodsPOJO findGoodsMysql(Integer goodsID) {
 		
-		GoodsPOJO oneGoods = goods.findByGoodsId(goodsID);
+		GoodsPOJO oneGoods = goodsMapper.findByGoodsId(goodsID);
 		if (oneGoods != null){
 			oneGoods.setGoodsMoney(MoneyFormat.priceFormatString(oneGoods.getShopPrice()));
 			oneGoods.setMarketMoney(MoneyFormat.priceFormatString(oneGoods.getMarketPrice()));
@@ -75,7 +75,7 @@ public class GoodsImpl implements GoodsService {
 
 	@Override
 	public GoodsLimit findLimitGoodsMysql(Integer goodsID) {
-		GoodsLimit goods = goodsLimit.findById(goodsID);
+		GoodsLimit goods = goodsLimitMapper.findById(goodsID);
 		if (goods != null){
 			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
 			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
@@ -89,7 +89,7 @@ public class GoodsImpl implements GoodsService {
 	@Override
 	public List<StidVsGid> findThemeGoods(Map<String, Integer> themeMap) {
 		// TODO Auto-generated method stub
-		List<StidVsGid> stidVsGid = specialTheme.selectGoodsLimit(themeMap);
+		List<StidVsGid> stidVsGid = stidVsGidMapper.selectGoodsLimit(themeMap);
 		for (StidVsGid goodsTheme : stidVsGid){
 			GoodsPOJO goods = goodsTheme.getGoods();
 			if(goods != null){
@@ -107,7 +107,7 @@ public class GoodsImpl implements GoodsService {
 	public List<SmidVsGid> findMallGoods(Map<String, Integer> mallMap) {
 		// TODO Auto-generated method stub
 		
-		List<SmidVsGid> smidVsGid = specialMall.selectGoodsLimit(mallMap);
+		List<SmidVsGid> smidVsGid = smidVsGidMapper.selectGoodsLimit(mallMap);
 		for (SmidVsGid goodsMall : smidVsGid){
 			GoodsPOJO goods = goodsMall.getGoods();
 			if(goods != null){
@@ -139,6 +139,6 @@ public class GoodsImpl implements GoodsService {
 
 	@Override
 	public List<GoodsPOJO> findProxyGoods(Map<String, Object> map) {
-		return goods.findProxyGoods(map);
+		return goodsMapper.findProxyGoods(map);
 	}
 }

@@ -23,7 +23,7 @@ import com.quxin.freshfun.utils.MoneyFormat;
 @RequestMapping("/")
 public class HomePage {
 	@Autowired
-	private HomePageService homePage;
+	private HomePageService homePageService;
 	/**
 	 * 首页
 	 * @return List<HomePage>
@@ -36,7 +36,7 @@ public class HomePage {
 		 * 首页banner
 		 * @return List<SpecialMall>
 		 */
-		List<SpecialMall> homeBanner = homePage.homeBanner();
+		List<SpecialMall> homeBanner = homePageService.homeBanner();
 		HomePagePOJO homePagePOJO = new HomePagePOJO();
 		homePagePOJO.setSpecialMall(homeBanner);
 		
@@ -44,7 +44,7 @@ public class HomePage {
 		 * 首页分类
 		 * @return List<SpecialMall>
 		 */
-		List<GoodsTypePOJO> homeGoodsType = homePage.homeGoodsType();
+		List<GoodsTypePOJO> homeGoodsType = homePageService.homeGoodsType();
 		homePagePOJO.setGoodsType(homeGoodsType);
 
 		
@@ -53,7 +53,7 @@ public class HomePage {
 		 * @return List<GoodsTypePOJO>
 		 */
 		
-		List<GoodsTypePOJO> homeSelection = homePage.homeGoodsTypeByType("精选");
+		List<GoodsTypePOJO> homeSelection = homePageService.homeGoodsTypeByType("精选");
 
 		homePagePOJO.setSelection(homeSelection);
 
@@ -63,7 +63,7 @@ public class HomePage {
 		 * @return List<SpecialTheme>
 		 */
 		
-		List<SpecialTheme> homeSpecialTheme = homePage.homeGoodsTheme();
+		List<SpecialTheme> homeSpecialTheme = homePageService.homeGoodsTheme();
 		homePagePOJO.setSpecialTheme(homeSpecialTheme);
 		/**
 		 * 查询商品
@@ -73,7 +73,7 @@ public class HomePage {
 		Integer page = 0;
 		goodsMap.put("page", page);
 		goodsMap.put("pagesize", 20);
-		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
+		List<GoodsPOJO> goods = homePageService.findGoods(goodsMap);
         for (GoodsPOJO goodsPOJO : goods) {
 			
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
@@ -106,7 +106,7 @@ public class HomePage {
 		goodsMap.put("page", page);
 		goodsMap.put("pagesize", 20);
 		System.out.println(goodsMap);
-		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
+		List<GoodsPOJO> goods = homePageService.findGoods(goodsMap);
 		for (GoodsPOJO goodsPOJO : goods) {
 			
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
@@ -125,7 +125,7 @@ public class HomePage {
 	@RequestMapping("/goodstype")
 	@ResponseBody
 	public List<GoodsTypePOJO> findSelection(){
-		List<GoodsTypePOJO> goodsSelection = homePage.findTypeGoods();
+		List<GoodsTypePOJO> goodsSelection = homePageService.findTypeGoods();
 		return goodsSelection;
 	}
 }

@@ -26,7 +26,7 @@ import com.quxin.freshfun.utils.MoneyFormat;
 @RequestMapping("/goods/")
 public class GoodsDetails {
 	@Autowired
-	private GoodsService goods;
+	private GoodsService goodsService;
 	
 	
 	/**
@@ -38,7 +38,7 @@ public class GoodsDetails {
 //	@ResponseBody
 //	public GoodsPOJO findGoods(Integer goodsID,HttpServletResponse response){
 //		response.setHeader("Access-Control-Allow-Origin", "*");
-//		GoodsPOJO goodsMysql = goods.findGoodsMysql(goodsID);
+//		GoodsPOJO goodsMysql = goodsService.findGoodsMysql(goodsID);
 //		return goodsMysql;
 //	}
 	
@@ -50,9 +50,9 @@ public class GoodsDetails {
 	@ResponseBody
 	public AllGoods findMongoGoods(Integer goodsId){
 		AllGoods allGoods = new AllGoods();
-		List<GoodsMongo> goodsMongo = goods.findGoodsMongo(goodsId);
+		List<GoodsMongo> goodsMongo = goodsService.findGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
-		GoodsPOJO goodsMysql = goods.findGoodsMysql(goodsId);
+		GoodsPOJO goodsMysql = goodsService.findGoodsMysql(goodsId);
 		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShopPrice()));
 		goodsMysql.setMarketMoney(MoneyFormat.priceFormatString(goodsMysql.getMarketPrice()));
 		goodsMysql.setShopPrice(null);
@@ -69,9 +69,9 @@ public class GoodsDetails {
 	@ResponseBody
 	public AllGoods findLimitGoods(Integer goodsId){
 		AllGoods allGoods = new AllGoods();
-		List<GoodsMongo> goodsMongo = goods.findLimitGoodsMongo(goodsId);
+		List<GoodsMongo> goodsMongo = goodsService.findLimitGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
-		GoodsLimit goodsMysql = goods.findLimitGoodsMysql(goodsId);
+		GoodsLimit goodsMysql = goodsService.findLimitGoodsMysql(goodsId);
 		allGoods.setGoodsLimit(goodsMysql);
 		return allGoods;
 	}
@@ -89,7 +89,7 @@ public class GoodsDetails {
 		Integer page = (pagetime - 1) * 20;
 		themeMap.put("themeId", themeId);
 		themeMap.put("page", page);
-		List<StidVsGid> specialTheme = goods.findThemeGoods(themeMap);
+		List<StidVsGid> specialTheme = goodsService.findThemeGoods(themeMap);
 		return specialTheme;
 	}
 	
@@ -108,7 +108,7 @@ public class GoodsDetails {
 		Integer page = (pagetime - 1) * 20;
 		mallMap.put("mallId", themeId);
 		mallMap.put("page", page);
-		List<SmidVsGid> mallTheme = goods.findMallGoods(mallMap);
+		List<SmidVsGid> mallTheme = goodsService.findMallGoods(mallMap);
 		return mallTheme;
 	}
 

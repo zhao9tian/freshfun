@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.dao.GoodsMapper;
 import com.quxin.freshfun.dao.GoodsTypeMapper;
-import com.quxin.freshfun.dao.GtypeVsGidMapper;
+
 import com.quxin.freshfun.dao.SpecialMallMapper;
 import com.quxin.freshfun.dao.SpecialThemeMapper;
-import com.quxin.freshfun.dao.StidVsGidMapper;
+
 import com.quxin.freshfun.dao.UsersMapper;
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.GoodsTypePOJO;
@@ -24,21 +24,17 @@ import com.quxin.freshfun.service.goods.HomePageService;
 import com.quxin.freshfun.utils.MoneyFormat;
 
 @Service("homePageService")
-public class HomePageImpl implements HomePageService {
+public class HomePageServiceImpl implements HomePageService {
 	@Autowired
-	private SpecialMallMapper specialMall;
+	private SpecialMallMapper specialMallMapper;
 	@Autowired
-	private GoodsTypeMapper goodsType;
+	private GoodsTypeMapper goodsTypeMapper;
 	@Autowired
-	private GtypeVsGidMapper gtypeVsGid;
+	private SpecialThemeMapper specialThemeMapper;
 	@Autowired
-	private StidVsGidMapper stidVsGid;
+	private GoodsMapper goodsMapper;
 	@Autowired
-	private SpecialThemeMapper specialTheme;
-	@Autowired
-	private GoodsMapper goods;
-	@Autowired
-	private UsersMapper users;
+	private UsersMapper usersMapper;
 	
 
 	/**
@@ -46,7 +42,7 @@ public class HomePageImpl implements HomePageService {
 	 */
 	@Override
 	public List<SpecialMall> homeBanner() {
-		return specialMall.findAll();
+		return specialMallMapper.findAll();
 	}
 	
 	/**
@@ -54,7 +50,7 @@ public class HomePageImpl implements HomePageService {
 	 */
 	@Override
 	public List<GoodsTypePOJO> homeGoodsType() {
-		return goodsType.findAll();
+		return goodsTypeMapper.findAll();
 	}
 	
 
@@ -63,7 +59,7 @@ public class HomePageImpl implements HomePageService {
 	 */
 	@Override
 	public List<GoodsTypePOJO> homeGoodsTypeByType(String type) {
-		List<GoodsTypePOJO> getAllGoods = goodsType.findByType(type);
+		List<GoodsTypePOJO> getAllGoods = goodsTypeMapper.findByType(type);
 		for (GoodsTypePOJO goodstype : getAllGoods) {
 			List<GtypeVsGid> gtypeVsGid = goodstype.getTypeGids();
 			for (GtypeVsGid goodsType : gtypeVsGid){
@@ -80,7 +76,7 @@ public class HomePageImpl implements HomePageService {
 
 	@Override
 	public List<SpecialTheme> homeGoodsTheme() {
-		List<SpecialTheme> getSpecialGoods = specialTheme.findAll();
+		List<SpecialTheme> getSpecialGoods = specialThemeMapper.findAll();
 		for (SpecialTheme goodstheme : getSpecialGoods) {
 			List<StidVsGid> stidVsGid = goodstheme.getStidVsGid();
 			for (StidVsGid goodsType : stidVsGid){
@@ -98,18 +94,17 @@ public class HomePageImpl implements HomePageService {
 
 	@Override
 	public List<GoodsPOJO> findGoods(Map<String, Integer> goodsMap) {
-		return goods.findByLimit(goodsMap);
+		return goodsMapper.findByLimit(goodsMap);
 	}
 	
 	@Override
 	public UsersPOJO findEnterByID(Integer id) {
-		return users.findEnterByID(id);
+		return usersMapper.findEnterByID(id);
 	}
 
 	@Override
 	public List<GoodsTypePOJO> findTypeGoods() {
-		// TODO Auto-generated method stub
-		List<GoodsTypePOJO> getAllGoods = goodsType.findAllGoods();
+		List<GoodsTypePOJO> getAllGoods = goodsTypeMapper.findAllGoods();
 		for (GoodsTypePOJO goodstype : getAllGoods) {
 			List<GtypeVsGid> gtypeVsGid = goodstype.getTypeGids();
 			for (GtypeVsGid goodsType : gtypeVsGid){

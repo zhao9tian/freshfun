@@ -19,16 +19,14 @@ import com.quxin.freshfun.model.ShoppingCartPOJO;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
-@Service
+@Service("orderManager")
 public class OrderManagerImpl implements OrderManager {
 	@Autowired
-	private OrdersMapper order;
+	private OrderDetailsMapper orderDetailsMapper;
 	@Autowired
-	private OrderDetailsMapper orderDetails;
+	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
-	private ShoppingCartMapper cart;
-	@Autowired
-	private GoodsMapper goods;
+	private GoodsMapper goodsMapper;
 
 	/**
 	 * 根据订单编号删除订单信息
@@ -36,7 +34,7 @@ public class OrderManagerImpl implements OrderManager {
 	@Override
 	public int delOrder(String orderId) {
 		Long date = DateUtils.getCurrentDate();
-		return orderDetails.delOrder(date,orderId);
+		return orderDetailsMapper.delOrder(date,orderId);
 	}
 	/**
 	 * 根据用户编号查询所有订单信息
@@ -47,7 +45,7 @@ public class OrderManagerImpl implements OrderManager {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> orderList = orderDetails.selectAll(start, pageSize, orderId);
+		List<OrderDetailsPOJO> orderList = orderDetailsMapper.selectAll(start, pageSize, orderId);
 		for (OrderDetailsPOJO orderDetailsPOJO : orderList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
@@ -62,7 +60,7 @@ public class OrderManagerImpl implements OrderManager {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> orderDetailsList = orderDetails.selectPendingPaymentOrder(start, pageSize,userId);
+		List<OrderDetailsPOJO> orderDetailsList = orderDetailsMapper.selectPendingPaymentOrder(start, pageSize,userId);
 		for (OrderDetailsPOJO orderDetailsPOJO : orderDetailsList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
@@ -77,7 +75,7 @@ public class OrderManagerImpl implements OrderManager {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> goodsReceipt = orderDetails.selectAwaitGoodsReceipt(start, pageSize,userId);
+		List<OrderDetailsPOJO> goodsReceipt = orderDetailsMapper.selectAwaitGoodsReceipt(start, pageSize,userId);
 		for (OrderDetailsPOJO orderDetailsPOJO : goodsReceipt) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
@@ -92,7 +90,7 @@ public class OrderManagerImpl implements OrderManager {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> awaitDeliverOrder = orderDetails.selectAwaitDeliverOrder(start, pageSize,userId);
+		List<OrderDetailsPOJO> awaitDeliverOrder = orderDetailsMapper.selectAwaitDeliverOrder(start, pageSize,userId);
 		for (OrderDetailsPOJO orderDetailsPOJO : awaitDeliverOrder) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
@@ -107,7 +105,7 @@ public class OrderManagerImpl implements OrderManager {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> awaitComment = orderDetails.selectAwaitComment(start, pageSize,userId);
+		List<OrderDetailsPOJO> awaitComment = orderDetailsMapper.selectAwaitComment(start, pageSize,userId);
 		for (OrderDetailsPOJO orderDetailsPOJO : awaitComment) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
@@ -122,7 +120,7 @@ public class OrderManagerImpl implements OrderManager {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> cancelOrder = orderDetails.selectCancelOrder(start, pageSize,userId);
+		List<OrderDetailsPOJO> cancelOrder = orderDetailsMapper.selectCancelOrder(start, pageSize,userId);
 		for (OrderDetailsPOJO orderDetailsPOJO : cancelOrder) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
@@ -134,7 +132,7 @@ public class OrderManagerImpl implements OrderManager {
 	 */
 	@Override
 	public Map<String,Object> selectShoppingCartByUserId(Long userId) {
-		List<ShoppingCartPOJO> carts = cart.selectShoppingCartByUserId(userId);
+		List<ShoppingCartPOJO> carts = shoppingCartMapper.selectShoppingCartByUserId(userId);
 		for (ShoppingCartPOJO sc : carts) {
 			GoodsPOJO goods = sc.getGoods();
 			String shopingMoney = MoneyFormat.priceFormatString(goods.getShopPrice());
@@ -145,7 +143,7 @@ public class OrderManagerImpl implements OrderManager {
 			sc.setGoodsTotalMoney(totalMoney);
 		}
 		//推荐商品
-		List<GoodsPOJO> recommendGoods = goods.selectRecommendGoods();
+		List<GoodsPOJO> recommendGoods = goodsMapper.selectRecommendGoods();
 		for (GoodsPOJO goodsPOJO : recommendGoods) {
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
 			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
@@ -160,13 +158,13 @@ public class OrderManagerImpl implements OrderManager {
 	}
 	@Override
 	public Integer addShoppingCart(Long userId, Integer goodsId) {
-		Integer existeStatus = cart.selectExistedOrder(userId, goodsId);
+		Integer existeStatus = shoppingCartMapper.selectExistedOrder(userId, goodsId);
 		if(existeStatus > 0){
 			return 0;
 		}
 		Long currentDate = DateUtils.getCurrentDate();
 		//查询单个商品价格
-		GoodsPOJO goodsInfo = goods.selectShoppingInfo(goodsId);
+		GoodsPOJO goodsInfo = goodsMapper.selectShoppingInfo(goodsId);
 		ShoppingCartPOJO shoppingCart = new ShoppingCartPOJO();
 		shoppingCart.setUserId(userId);
 		shoppingCart.setGoodsId(goodsId);
@@ -175,31 +173,31 @@ public class OrderManagerImpl implements OrderManager {
 		shoppingCart.setGoodsName(goodsInfo.getGoodsName());
 		shoppingCart.setCreateDate(currentDate);
 		shoppingCart.setUpdateDate(currentDate);
-		int status = cart.insertSelective(shoppingCart);
+		int status = shoppingCartMapper.insertSelective(shoppingCart);
 		return status;
 	}
 	@Override
 	public Integer selectGoodsTotals(Integer scId) {
-		return cart.selectGoodsTotals(scId);
+		return shoppingCartMapper.selectGoodsTotals(scId);
 	}
 	@Override
 	public Integer addGoodsTotals(Integer scId) {
-		Integer totals = cart.selectGoodsTotals(scId);
+		Integer totals = shoppingCartMapper.selectGoodsTotals(scId);
 		if(totals >= 99){
 			return 99;
 		}else{
-			cart.addGoodsTotals(scId);
+			shoppingCartMapper.addGoodsTotals(scId);
 			totals = totals + 1;
 		}
 		return totals;
 	}
 	@Override
 	public Integer reduceGoodsTotals(Integer scId) {
-		Integer totals = cart.selectGoodsTotals(scId);
+		Integer totals = shoppingCartMapper.selectGoodsTotals(scId);
 		if(totals <= 1){
 			return 1;
 		}else{
-			cart.reduceGoodsTotals(scId);
+			shoppingCartMapper.reduceGoodsTotals(scId);
 			totals = totals - 1;
 		}
 		return totals;
@@ -207,7 +205,7 @@ public class OrderManagerImpl implements OrderManager {
 	
 	@Override
 	public OrderDetailsPOJO selectSigleOrder(String orderDetailsId) {
-		List<OrderDetailsPOJO> sigleOrder = orderDetails.selectSigleOrder(orderDetailsId);
+		List<OrderDetailsPOJO> sigleOrder = orderDetailsMapper.selectSigleOrder(orderDetailsId);
 		if(sigleOrder != null && sigleOrder.size() > 0){
 			OrderDetailsPOJO detailsPOJO = sigleOrder.get(0);
 			detailsPOJO.setActualMoney(MoneyFormat.priceFormatString(detailsPOJO.getActualPrice()));
@@ -218,7 +216,7 @@ public class OrderManagerImpl implements OrderManager {
 	}
 	@Override
 	public int confirmGoodsReceipt(String orderId) {
-		return orderDetails.confirmGoodsReceipt(orderId);
+		return orderDetailsMapper.confirmGoodsReceipt(orderId);
 	}
 	
 	/**
@@ -228,7 +226,7 @@ public class OrderManagerImpl implements OrderManager {
      */
 	@Override
 	public int confirmGoodsComment(String orderId) {
-		return orderDetails.confirmGoodsComment(orderId);
+		return orderDetailsMapper.confirmGoodsComment(orderId);
 	}
 	
 	/**
@@ -239,8 +237,7 @@ public class OrderManagerImpl implements OrderManager {
 	
 	@Override
 	public List<OrderStatusInfo> selectStatusCounts(Long userID) {
-		// TODO Auto-generated method stub
-		return orderDetails.selectStatusCounts(userID);
+		return orderDetailsMapper.selectStatusCounts(userID);
 	}
 	
 	/**
@@ -251,7 +248,7 @@ public class OrderManagerImpl implements OrderManager {
 	
 	@Override
 	public List<OrderStatusInfo> selectRefundCounts(Long userID) {
-		return orderDetails.selectRefundCounts(userID);
+		return orderDetailsMapper.selectRefundCounts(userID);
 	}
 	
 	/**
@@ -261,24 +258,24 @@ public class OrderManagerImpl implements OrderManager {
      */
 	@Override
 	public List<OrderStatusInfo> selectPayCounts(Long userID) {
-		return orderDetails.selectPayCounts(userID);
+		return orderDetailsMapper.selectPayCounts(userID);
 	}
 	@Override
 	public Integer confirmReceipt(String orderDetailId) {
 		Map<String , Object> map = new HashMap<String, Object>();
 		map.put("reciveTime", System.currentTimeMillis()/1000);
 		map.put("orderDetailId", orderDetailId);
-		return orderDetails.updateOrderStatus(map);
+		return orderDetailsMapper.updateOrderStatus(map);
 	}
 	
 	@Override
 	public Integer delShoppingCartOrder(Integer scId) {
 		Long currentDate = DateUtils.getCurrentDate();
-		return cart.delShoppingCartOrder(scId, currentDate);
+		return shoppingCartMapper.delShoppingCartOrder(scId, currentDate);
 	}
 	@Override
 	public Integer applyRefund(String orderDetailId) {
-		return orderDetails.applyRefund(orderDetailId);
+		return orderDetailsMapper.applyRefund(orderDetailId);
 	}
 
 }

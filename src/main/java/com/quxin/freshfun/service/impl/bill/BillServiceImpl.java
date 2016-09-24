@@ -21,20 +21,20 @@ import com.quxin.freshfun.model.Withdraw;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
-@Service
+@Service("billService")
 public class BillServiceImpl implements BillService {
 	@Autowired
-	private UserRevenueMapper revenue;
+	private UserRevenueMapper userRevenueMapper;
 	@Autowired
-	private UserOutcomeMapper outcome;
+	private UserOutcomeMapper userOutcomeMapper;
 	@Autowired
-	private WithdrawMapper withdrawals;
+	private WithdrawMapper withdrawMapper;
 
 	@Override
 	public Map<String, String> selectUserBillDetailed(Long userId) {
-		int extractMoney = revenue.selectExtractMoney(userId);
-		int cumulativeMoney = revenue.selectCumulativeMoney(userId);
-		int reezeMoney = revenue.selectRreezeMoney(userId);
+		int extractMoney = userRevenueMapper.selectExtractMoney(userId);
+		int cumulativeMoney = userRevenueMapper.selectCumulativeMoney(userId);
+		int reezeMoney = userRevenueMapper.selectRreezeMoney(userId);
 		String extractMoneyStr = MoneyFormat.priceFormatString(extractMoney);
 		String cumulativeMoneyStr = MoneyFormat.priceFormatString(cumulativeMoney);
 		String reezeMoneyStr = MoneyFormat.priceFormatString(reezeMoney);
@@ -50,7 +50,7 @@ public class BillServiceImpl implements BillService {
 		Withdraw withdraw = new Withdraw();
 		Long uId = Long.parseLong(extractMoney.getUserId().replace("\"", ""));
 		//查询可提现金额
-		int allowExtractMoney = revenue.selectExtractMoney(uId);
+		int allowExtractMoney = userRevenueMapper.selectExtractMoney(uId);
 		int submitMoney = (int) (extractMoney.getMoney()*100);
 		if(submitMoney > allowExtractMoney){
 			return 0;
@@ -68,7 +68,7 @@ public class BillServiceImpl implements BillService {
 		withdraw.setUpdateDate(currentDate);
 		withdraw.setWithdrawType(1);
 		withdraw.setPaymentAccount(extractMoney.getPaymentAccount());
-		int status = withdrawals.insertSelective(withdraw);
+		int status = withdrawMapper.insertSelective(withdraw);
 		
 		if(status > 0){
 			UserRevenue ur = new UserRevenue();
@@ -77,7 +77,7 @@ public class BillServiceImpl implements BillService {
 			ur.setPrice(-submitMoney);
 			ur.setCreateDate(currentDate);
 			ur.setUpdateDate(currentDate);
-			int u = revenue.insertSelective(ur);
+			int u = userRevenueMapper.insertSelective(ur);
 			if(u > 0){
 				return 1;				
 			}
@@ -86,13 +86,13 @@ public class BillServiceImpl implements BillService {
 	}
 	/**
 	 * 查询用户收支明细
-	 * @param userId
-	 * @return
+	 * @param userId  用户id
+	 * @return  结果集
 	 */
 	@Override
 	public List<RevenueOrExpenses> selectIncomeExpenditrueDetails(Long userId){
 		List<RevenueOrExpenses> revenueOrExpenses = new ArrayList<>();
-		List<UserRevenue> revenueBill = revenue.selectRevenueBill(userId);
+		List<UserRevenue> revenueBill = userRevenueMapper.selectRevenueBill(userId);
 		for (UserRevenue userRevenue : revenueBill) {
 			RevenueOrExpenses re = new RevenueOrExpenses();
 			re.setOrderId(userRevenue.getOrderId());
@@ -101,7 +101,7 @@ public class BillServiceImpl implements BillService {
 			re.setDate(userRevenue.getCreateDate());
 			revenueOrExpenses.add(re);
 		}
-		List<UserOutcome> outcomeBill = outcome.selectOutcomeBill(userId);
+		List<UserOutcome> outcomeBill = userOutcomeMapper.selectOutcomeBill(userId);
 		for (UserOutcome userOutcome : outcomeBill) {
 			RevenueOrExpenses re = new RevenueOrExpenses();
 			re.setOrderId(userOutcome.getOrderId());
@@ -125,7 +125,7 @@ public class BillServiceImpl implements BillService {
 
 	@Override
 	public List<UserRevenue> selectExtractDetails(Long userId) {
-		List<UserRevenue> extractDetails = revenue.selectExtractDetails(userId);
+		List<UserRevenue> extractDetails = userRevenueMapper.selectExtractDetails(userId);
 		for (UserRevenue revenue : extractDetails) {
 			revenue.setMoney(MoneyFormat.priceFormatString(revenue.getPrice()));
 			revenue.setPrice(null);
@@ -135,7 +135,7 @@ public class BillServiceImpl implements BillService {
 
 	@Override
 	public List<UserRevenue> selectCumulativeDetails(Long userId) {
-		List<UserRevenue> extractDetails = revenue.selectCumulativeDetails(userId);
+		List<UserRevenue> extractDetails = userRevenueMapper.selectCumulativeDetails(userId);
 		for (UserRevenue revenue : extractDetails) {
 			revenue.setMoney(MoneyFormat.priceFormatString(revenue.getPrice()));
 			revenue.setPrice(null);
@@ -145,7 +145,7 @@ public class BillServiceImpl implements BillService {
 
 	@Override
 	public List<UserRevenue> selectRreezeMoneyDetails(Long userId) {
-		List<UserRevenue> extractDetails = revenue.selectRreezeMoneyDetails(userId);
+		List<UserRevenue> extractDetails = userRevenueMapper.selectRreezeMoneyDetails(userId);
 		for (UserRevenue revenue : extractDetails) {
 			revenue.setMoney(MoneyFormat.priceFormatString(revenue.getPrice()));
 			revenue.setPrice(null);
@@ -155,7 +155,7 @@ public class BillServiceImpl implements BillService {
 
 	@Override
 	public List<Withdraw> selectPresentRecord(Long userId) {
-		List<Withdraw> presentRecord = withdrawals.selectPresentRecord(userId);
+		List<Withdraw> presentRecord = withdrawMapper.selectPresentRecord(userId);
 		for (Withdraw withdraw : presentRecord) {
 			withdraw.setWithdrawMoney(MoneyFormat.priceFormatString(withdraw.getWithdrawPrice()));
 			withdraw.setWithdrawPrice(null);

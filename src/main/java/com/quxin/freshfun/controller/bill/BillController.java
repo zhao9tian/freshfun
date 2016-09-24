@@ -20,7 +20,7 @@ import com.quxin.freshfun.service.bill.BillService;
 @Controller
 public class BillController {
 	@Autowired
-	private BillService bill;
+	private BillService billService;
 	/**
 	 * 查询用户账单详情
 	 * @param userId
@@ -30,7 +30,7 @@ public class BillController {
 	@ResponseBody
 	public Map<String, String> selectUserBillDetailed(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		Map<String, String> map = bill.selectUserBillDetailed(ui);
+		Map<String, String> map = billService.selectUserBillDetailed(ui);
 		return map;
 	}
 	/**
@@ -41,7 +41,7 @@ public class BillController {
 	@RequestMapping(value="/applyExtractMoney",method={RequestMethod.POST})
 	@ResponseBody
 	public Map<String, Integer> applyExtractMoney(@RequestBody ExtractMoney extractMoney){
-		Integer applystatus = bill.addExtractMoney(extractMoney);
+		Integer applystatus = billService.addExtractMoney(extractMoney);
 		Map<String, Integer> map = Maps.newHashMap();
 		map.put("status", applystatus);
 		return map;
@@ -54,7 +54,7 @@ public class BillController {
 	@ResponseBody
 	public List<RevenueOrExpenses> selectIncomeExpenditrueDetails(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return bill.selectIncomeExpenditrueDetails(ui);
+		return billService.selectIncomeExpenditrueDetails(ui);
 	}
 	/**
      * 查詢可提現金額詳情 
@@ -64,7 +64,7 @@ public class BillController {
 	@ResponseBody
     public List<UserRevenue> selectExtractDetails(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-    	return bill.selectExtractDetails(ui);
+    	return billService.selectExtractDetails(ui);
     }
     /**
      * 查詢累計收入詳情
@@ -75,7 +75,7 @@ public class BillController {
 	@ResponseBody
     List<UserRevenue> selectCumulativeDetails(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-    	return bill.selectCumulativeDetails(ui);
+    	return billService.selectCumulativeDetails(ui);
     }
     /**
      * 根据用户查询收入账单
@@ -86,7 +86,7 @@ public class BillController {
 	@ResponseBody
     List<UserRevenue> selectRreezeMoneyDetails(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-    	return bill.selectRreezeMoneyDetails(ui);
+    	return billService.selectRreezeMoneyDetails(ui);
     }
 	/**
 	 * 查询提现记录
@@ -97,7 +97,7 @@ public class BillController {
 	@ResponseBody
 	public List<Withdraw> selectPresentRecord(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return bill.selectPresentRecord(ui);
+		return billService.selectPresentRecord(ui);
 	}
 	
 }

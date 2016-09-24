@@ -33,7 +33,7 @@ import com.quxin.freshfun.utils.BusinessException;
 @RequestMapping("/")
 public class OrderController {
 	@Autowired
-	private OrderService order;
+	private OrderService orderService;
 	@Autowired
 	private OrderManager orderManager;
 	
@@ -251,7 +251,7 @@ public class OrderController {
 		Map<String, ResponseResult> map = Maps.newHashMap();
 		ResponseResult payResult = null;
 		try {
-			payResult = order.addOrder(orderInfo);
+			payResult = orderService.addOrder(orderInfo);
 		} catch (BusinessException e) {
 			resultLogger.error("添加订单失败",e);
 		}
@@ -264,7 +264,7 @@ public class OrderController {
 	public ResponseResult quanMingPay(@RequestBody QuanMingPayInfo payInfo){
 		ResponseResult payResult = null;
 		try{
-			payResult = order.addQuanMingPay(payInfo);
+			payResult = orderService.addQuanMingPay(payInfo);
 		}catch (BusinessException e){
 			resultLogger.error("商户代理信息添加失败",e);
 		}
@@ -276,7 +276,7 @@ public class OrderController {
 	@ResponseBody
 	public Map<String, ResponseResult> awaitPayOrder(@RequestBody OrderPayPOJO orderPay){
 		Map<String, ResponseResult> map = Maps.newHashMap();
-		ResponseResult result = order.awaitPayOrder(orderPay);
+		ResponseResult result = orderService.awaitPayOrder(orderPay);
 		map.put("payResult", result);
 		return map;
 	}
@@ -287,7 +287,7 @@ public class OrderController {
 	@ResponseBody
 	public Map<String, ResponseResult> createLimitOrder(@RequestBody OrderInfo orderInfo){
 		Map<String, ResponseResult> map = Maps.newHashMap();
-		ResponseResult payResult = order.addLimitOrder(orderInfo);
+		ResponseResult payResult = orderService.addLimitOrder(orderInfo);
 		map.put("payResult", payResult);
 		return map;
 	}
@@ -298,7 +298,7 @@ public class OrderController {
 			InputStream in = null;
 			try {
 				in = request.getInputStream();
-				int callbackStatus = order.PayCallback(in);
+				int callbackStatus = orderService.PayCallback(in);
 				if(callbackStatus <= 0){
 					return "FAIL";
 				}
@@ -310,7 +310,7 @@ public class OrderController {
 	
 	/**
 	 * 查询订单数量
-	 * @param userId
+	 * @param userID
 	 * @return
 	 */
 	@RequestMapping("/selectordercounts")

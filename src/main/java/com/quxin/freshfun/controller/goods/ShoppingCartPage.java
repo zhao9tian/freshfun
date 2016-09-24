@@ -19,7 +19,7 @@ import com.quxin.freshfun.service.ShoppingCartService;
 @RequestMapping("/shoppingcart")
 public class ShoppingCartPage {
 	@Autowired
-	private ShoppingCartService shoppingCart;
+	private ShoppingCartService shoppingCartService;
 	
 	/**
 	 * 查询购物车信息
@@ -31,7 +31,7 @@ public class ShoppingCartPage {
 	public List<ShoppingCart> findAllGoods(String userID,HttpServletResponse response){
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		System.out.println(userID);
-		return shoppingCart.findShoppingCart(userID);
+		return shoppingCartService.findShoppingCart(userID);
 	}
 	
 

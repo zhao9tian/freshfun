@@ -7,16 +7,16 @@ import com.quxin.freshfun.dao.RefundMapper;
 import com.quxin.freshfun.model.RefundPOJO;
 import com.quxin.freshfun.service.refund.RefundService;
 
-@Service
+@Service("refundService")
 public class RefundServiceImpl implements RefundService{
 
 	@Autowired
-	private RefundMapper refundDao;
+	private RefundMapper refundMapper;
 	
 	@Override
 	public Integer save(RefundPOJO refund) {
-		refundDao.save(refund);
-		refundDao.updateRefundStatus(refund.getOrderDetailsId());
+		refundMapper.save(refund);
+		refundMapper.updateRefundStatus(refund.getOrderDetailsId());
 		return refund.getId();
 	}
 

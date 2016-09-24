@@ -13,7 +13,7 @@ import com.quxin.freshfun.model.UserAddress;
 import com.quxin.freshfun.model.UserMessage;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.service.UserAddressService;
-@Service
+@Service("userAddressService")
 public class UserAddressServiceImpl implements UserAddressService {
 	
 	@Autowired

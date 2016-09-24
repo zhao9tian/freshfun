@@ -24,7 +24,7 @@ public class ProxyController {
 	@Autowired
 	private GoodsService goodsService;
 	@Autowired
-	private HomePageService homePage;
+	private HomePageService homePageService;
 	@Autowired
 	private GoodsService goods;
 	@Autowired
@@ -44,7 +44,7 @@ public class ProxyController {
 		Integer page = 0;
 		goodsMap.put("page", page);
 		goodsMap.put("pagesize", 20);
-		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
+		List<GoodsPOJO> goods = homePageService.findGoods(goodsMap);
 		for (GoodsPOJO goodsPOJO : goods) {
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
 			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
@@ -67,7 +67,7 @@ public class ProxyController {
 		Integer page = (pagetime) * 20;
 		goodsMap.put("page", page);
 		goodsMap.put("pagesize", 20);
-		List<GoodsPOJO> goods = homePage.findGoods(goodsMap);
+		List<GoodsPOJO> goods = homePageService.findGoods(goodsMap);
 		for (GoodsPOJO goodsPOJO : goods) {
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
 			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));

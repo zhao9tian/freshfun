@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Maps;
-import com.quxin.freshfun.service.goods.ShareGoods;
+import com.quxin.freshfun.service.goods.ShareGoodsService;
 
 @Controller
 @RequestMapping("/")
 public class GoodsController {
 	@Autowired
-	private ShareGoods shareGoods;
+	private ShareGoodsService shareGoodsService;
 	/**
 	 * 记录分享信息
 	 * @param userId 用户编号
@@ -24,7 +24,7 @@ public class GoodsController {
 	@RequestMapping(value="/recordShareInfo")
 	@ResponseBody
 	public Map<String, Integer> recordShareInfo(String userId,String code){
-		Integer shareStatus = shareGoods.recordShareInfo(userId,code);
+		Integer shareStatus = shareGoodsService.recordShareInfo(userId,code);
 		Map<String, Integer> map = Maps.newHashMap();
 		map.put("status", shareStatus);
 		return map;

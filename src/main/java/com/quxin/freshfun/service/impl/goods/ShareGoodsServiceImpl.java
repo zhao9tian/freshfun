@@ -7,11 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.model.Share;
-import com.quxin.freshfun.mongodb.MongoCRUD;
 import com.quxin.freshfun.mongodb.MongoShare;
-import com.quxin.freshfun.service.goods.ShareGoods;
-@Service
-public class ShareGoodsImpl implements ShareGoods {
+import com.quxin.freshfun.service.goods.ShareGoodsService;
+@Service("shareGoods")
+public class ShareGoodsServiceImpl implements ShareGoodsService {
 	@Autowired
 	private MongoShare mongoShare;
 	/**

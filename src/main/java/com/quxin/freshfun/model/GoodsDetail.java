@@ -1,6 +1,6 @@
 package com.quxin.freshfun.model;
 
-public class goodsDetail {
+public class GoodsDetail {
 	private String id;
 	private Integer goodsId;
 	private String des;
