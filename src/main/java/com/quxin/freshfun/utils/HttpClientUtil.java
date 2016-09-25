@@ -186,7 +186,7 @@ public class HttpClientUtil {
 	 * 发送 Post请求
 	 * 
 	 * @param url
-	 * @param reqXml
+	 * @param url
 	 * @return
 	 */
 	public static String defaultPost(String url, String data) {

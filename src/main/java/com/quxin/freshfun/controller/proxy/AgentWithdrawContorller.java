@@ -122,9 +122,17 @@ public class AgentWithdrawContorller {
 		for(AgentWithdrawPOJO awp : withdrawList){
 			moneyAll+=awp.getWithdrawMoney();
 		}
+		if(earnedIncome==null){
+			earnedIncome = 0;
+		}
+
 		double theMoney = ((double)earnedIncome)*0.2-moneyAll*100;
 		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#.00");
-		map.put("theMoney",df.format(theMoney/100) );
+		if(moneyAll==0){
+			map.put("theMoney",0.0);
+		}else{
+			map.put("theMoney",df.format(theMoney/100) );
+		}
 		return map;
 	}
 	
