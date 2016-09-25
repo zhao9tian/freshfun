@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
@@ -133,7 +132,7 @@ public class HttpClientUtil {
 			// 设置客户端编码
 			if (httpClient == null) {
 				// Create HttpClient Object
-				httpClient = new DefaultHttpClient();
+				httpClient = HttpClients.createDefault();
 			}
 			httpClient.getParams().setParameter(
 					"http.protocol.content-charset", HTTP.UTF_8);
@@ -265,7 +264,7 @@ public static void configureHttpClient2(HttpClientBuilder clientBuilder)
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			X509TrustManager tm = new X509TrustManager()
 			{
-				public void checkClientTrusted(X509Certificate[] chain,  String authType) throws CertificateException
+				public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
 				{
 
 				}
@@ -296,21 +295,6 @@ public static void configureHttpClient2(HttpClientBuilder clientBuilder)
 	public static String getnowDate(String dateFormat) {
 		SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
 		return sdf.format(new Date());
-	}
-	public static void main(String[] args) {
-		try {
-//			String urla="http://restapi.amap.com/v3/geocode/geo?key=f550980bdc75e235d36d12329fc923a0&address=&city=北京";
-			String urla="http://restapi.amap.com/v3/geocode/geo?key=f550980bdc75e235d36d12329fc923a0&address=双桥东郊批发市场B厅86号&city=北京";
-			String aa = HttpClientUtil.get(urla, null);
-			//Gson gson = new Gson();
-//			GeoBean bb = gson.fromJson(aa, GeoBean.class);
-//			System.out.println(bb.getStatus());
-//			System.out.println(bb.getGeocodes().get(0).getLocation());
-			
-			System.out.println(aa);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }
