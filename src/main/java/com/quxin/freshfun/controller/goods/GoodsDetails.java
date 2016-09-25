@@ -28,20 +28,6 @@ public class GoodsDetails {
 	@Autowired
 	private GoodsService goodsService;
 	
-	
-	/**
-	 * 商品详情页
-	 * @return Goods
-	 */
-	
-//	@RequestMapping("/goods1")
-//	@ResponseBody
-//	public GoodsPOJO findGoods(Integer goodsID,HttpServletResponse response){
-//		response.setHeader("Access-Control-Allow-Origin", "*");
-//		GoodsPOJO goodsMysql = goodsService.findGoodsMysql(goodsID);
-//		return goodsMysql;
-//	}
-	
 	/**
 	 * 商品详情页
 	 * @return List<GoodsMongo>
@@ -61,21 +47,7 @@ public class GoodsDetails {
 		return allGoods;
 	}
 	
-	/**
-	 * 限时商品详情页
-	 * @return List<GoodsMongo>
-	 */
-	@RequestMapping("/goodslimit")
-	@ResponseBody
-	public AllGoods findLimitGoods(Integer goodsId){
-		AllGoods allGoods = new AllGoods();
-		List<GoodsMongo> goodsMongo = goodsService.findLimitGoodsMongo(goodsId);
-		allGoods.setGoodsMongo(goodsMongo);
-		GoodsLimit goodsMysql = goodsService.findLimitGoodsMysql(goodsId);
-		allGoods.setGoodsLimit(goodsMysql);
-		return allGoods;
-	}
-	
+
 	/**
 	 * 专题商品
 	 * @return List<GoodsMongo>

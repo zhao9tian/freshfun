@@ -23,5 +23,4 @@
 	<import resource="classpath*:config/spring-mvc.xml" />
 	<import resource="classpath*:config/spring-mybatis.xml" />
 	<import resource="classpath*:config/spring.xml" />
-	<import resource="classpath*:config/mongodb-context.xml"/>
 </beans>

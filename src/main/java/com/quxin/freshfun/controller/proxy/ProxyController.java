@@ -1,14 +1,5 @@
 package com.quxin.freshfun.controller.proxy;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.quxin.freshfun.model.AllGoods;
 import com.quxin.freshfun.model.GoodsMongo;
 import com.quxin.freshfun.model.GoodsPOJO;
@@ -17,6 +8,14 @@ import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.goods.HomePageService;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.MoneyFormat;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/proxy")

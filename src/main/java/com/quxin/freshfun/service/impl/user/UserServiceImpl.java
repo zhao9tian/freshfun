@@ -1,21 +1,19 @@
 package com.quxin.freshfun.service.impl.user;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.quxin.freshfun.dao.UsersMapper;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.service.user.UserService;
+import com.quxin.freshfun.utils.AESUtil;
 import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.IdGenerate;
+import com.quxin.freshfun.utils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
-import com.quxin.freshfun.dao.UsersMapper;
-import com.quxin.freshfun.service.user.UserService;
-import com.quxin.freshfun.utils.AESUtil;
-import com.quxin.freshfun.utils.IdGenerate;
-import com.quxin.freshfun.utils.MessageUtils;
+import java.util.HashMap;
+import java.util.Map;
 /**
  * @author TuZl
  * @time 2016年8月21日下午2:46:07
@@ -25,10 +23,8 @@ public class UserServiceImpl implements UserService{
 
 	@Autowired
 	public UsersMapper userDao;
-	@Autowired
-	private MongoTemplate mongoTemplate;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	@Override
 	public int insertUser(UsersPOJO user) {
 		return userDao.insert(user);
@@ -172,7 +168,6 @@ public class UserServiceImpl implements UserService{
 				userDao.insert(user);
 				//插入一条用户信息到mongoDB
 				userInfo.setUserId(userId);
-				mongoTemplate.save(userInfo);
 			}
 		}
 		return userId;

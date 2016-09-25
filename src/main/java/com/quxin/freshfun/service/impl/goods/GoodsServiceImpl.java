@@ -1,33 +1,20 @@
 package com.quxin.freshfun.service.impl.goods;
 
-import java.util.List;
-import java.util.Map;
-
 import com.quxin.freshfun.dao.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
-
-import com.quxin.freshfun.model.Comment;
-import com.quxin.freshfun.model.GoodsLimit;
-import com.quxin.freshfun.model.GoodsMongo;
-import com.quxin.freshfun.model.GoodsPOJO;
-import com.quxin.freshfun.model.SmidVsGid;
-import com.quxin.freshfun.model.StidVsGid;
-import com.quxin.freshfun.mongodb.MongoComment;
-import com.quxin.freshfun.mongodb.MongoGoods;
+import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.service.CommentService;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 @Service("goodsService")
 public class GoodsServiceImpl implements GoodsService {
 	
 	@Autowired
-	private MongoGoods mongoGoods;
-	
-	@Autowired
 	private GoodsMapper goodsMapper;
-	private GoodsMapper goods;
 
 	@Autowired
 	private GoodsDetailsMapper goodsDetailsMapper;
@@ -42,14 +29,12 @@ public class GoodsServiceImpl implements GoodsService {
 	private SmidVsGidMapper smidVsGidMapper;
 	
 	@Autowired
-	private MongoComment mongeComment;
-	
+	private CommentService mongeComment;
+
 	@Override
 	public List<GoodsMongo> findGoodsMongo(Integer goodsID) {
 		return goodsDetailsMapper.selectGoodsDetailByGoodsId(goodsID);
 	}
-
-
 
 	@Override
 	public GoodsPOJO findGoodsMysql(Integer goodsID) {
@@ -61,15 +46,6 @@ public class GoodsServiceImpl implements GoodsService {
 		}
 		
 		return oneGoods;
-	}
-
-
-
-	@Override
-	public List<GoodsMongo> findLimitGoodsMongo(Integer goodsID) {
-		Query query = Query.query(Criteria.where("goodsId").is(goodsID));
-		System.out.println(query);
-		return mongoGoods.findLimitGoodsMongo(query);
 	}
 
 
@@ -121,14 +97,6 @@ public class GoodsServiceImpl implements GoodsService {
 	}
 
 
-
-	@Override
-	public List<Comment> findComment(String userID, String goodsID) {
-		// TODO Auto-generated method stub
-		Query query = Query.query(Criteria.where("goodsId").is(goodsID).and("user_id").is(userID));
-		System.out.println(query);
-		return mongeComment.findComment(query);
-	}
 
 
 
