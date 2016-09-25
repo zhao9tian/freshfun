@@ -7,6 +7,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,15 +26,22 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.google.gson.Gson;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 public class HttpClientUtil {
 
-	private static HttpClient httpClient = new DefaultHttpClient();
+	private static HttpClient httpClient = HttpClients.createDefault();
+	//CloseableHttpClient httpClient = HttpClients.createDefault();
 
 	/**
 	 * 发送Get请求
@@ -75,7 +85,7 @@ public class HttpClientUtil {
 	        String content = null;  
 	        try {  
 	            // 定义HttpClient  
-	            HttpClient client = new DefaultHttpClient();  
+	            HttpClient client = HttpClients.createDefault();
 	            // 实例化HTTP方法  
 	            HttpGet request = new HttpGet();  
 	            request.setURI(new URI(url));  
@@ -184,14 +194,14 @@ public class HttpClientUtil {
 		try {
 			// 设置客户端编码
 			if (httpClient == null) {
-				httpClient = new DefaultHttpClient();
+				httpClient = HttpClients.createDefault();
 			}
 			// Post请求
 			HttpPost httppost = new HttpPost(url);
 			// 设置参数
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
 			params.add(new BasicNameValuePair("data", data)); 
-			httppost.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+			httppost.setEntity(new UrlEncodedFormEntity(params,"UTF-8"));
 			// 设置报文头
 			httppost.setHeader("Content-Type", "text/xml;charset=UTF-8");
 			// 发送请求
@@ -216,21 +226,19 @@ public class HttpClientUtil {
 	 * 发送 Post请求<br/> 直接发送JSON
 	 * 
 	 * @param url
-	 * @param reqXml
+	 * @param
 	 * @return
 	 */
 	public static String jsonToPost(String url, String data) {
 		String body = null;
 		try {
-			// 设置客户端编码
-			if (httpClient == null) {
-				httpClient = new DefaultHttpClient();
-			}
+			HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+			configureHttpClient2(httpClientBuilder);
+			httpClient = httpClientBuilder.build();
 			HttpPost httppost=new HttpPost(url);
 			StringEntity params =new StringEntity(data,"UTF-8");
-//			List<NameValuePair> list=URLEncodedUtils.parse(params);
-			httppost.addHeader("content-type", "application/json");  
-			httppost.setEntity(params);  
+			httppost.addHeader("content-type", "application/json");
+			httppost.setEntity(params);
 			// 发送请求
 			HttpResponse httpresponse = httpClient.execute(httppost);
 			// 获取返回数据
@@ -247,6 +255,36 @@ public class HttpClientUtil {
 			e.printStackTrace();
 		}
 		return body;
+	}
+
+
+public static void configureHttpClient2(HttpClientBuilder clientBuilder)
+	{
+		try
+		{
+			SSLContext ctx = SSLContext.getInstance("TLS");
+			X509TrustManager tm = new X509TrustManager()
+			{
+				public void checkClientTrusted(X509Certificate[] chain,  String authType) throws CertificateException
+				{
+
+				}
+				public void checkServerTrusted(X509Certificate[] chain,  String authType) throws CertificateException
+				{
+
+				}
+				public X509Certificate[] getAcceptedIssuers()
+				{
+					return null;
+				}
+			};
+			ctx.init(null, new TrustManager[]{tm}, null);
+			clientBuilder.setSslcontext(ctx);
+
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	/**

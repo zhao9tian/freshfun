@@ -6,12 +6,12 @@ public class GoodsThemeInfo {
 	
 	private Integer pagetime;
 
-	public Integer getThemeID() {
+	public Integer getThemeId() {
 		return ThemeId;
 	}
 
-	public void setThemeID(Integer themeID) {
-		ThemeId = themeID;
+	public void setThemeId(Integer themeId) {
+		ThemeId = themeId;
 	}
 
 	public Integer getPagetime() {
@@ -21,5 +21,4 @@ public class GoodsThemeInfo {
 	public void setPagetime(Integer pagetime) {
 		this.pagetime = pagetime;
 	}
-
 }

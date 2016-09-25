@@ -3,15 +3,12 @@ package com.quxin.freshfun.service.impl.goods;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.dao.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
-import com.quxin.freshfun.dao.GoodsLimitMapper;
-import com.quxin.freshfun.dao.GoodsMapper;
-import com.quxin.freshfun.dao.SmidVsGidMapper;
-import com.quxin.freshfun.dao.StidVsGidMapper;
 import com.quxin.freshfun.model.Comment;
 import com.quxin.freshfun.model.GoodsLimit;
 import com.quxin.freshfun.model.GoodsMongo;
@@ -30,7 +27,11 @@ public class GoodsServiceImpl implements GoodsService {
 	
 	@Autowired
 	private GoodsMapper goodsMapper;
-	
+	private GoodsMapper goods;
+
+	@Autowired
+	private GoodsDetailsMapper goodsDetailsMapper;
+
 	@Autowired
 	private GoodsLimitMapper goodsLimitMapper;
 	
@@ -45,7 +46,7 @@ public class GoodsServiceImpl implements GoodsService {
 	
 	@Override
 	public List<GoodsMongo> findGoodsMongo(Integer goodsID) {
-		return mongoGoods.findGoodsMongo(goodsID);
+		return goodsDetailsMapper.selectGoodsDetailByGoodsId(goodsID);
 	}
 
 

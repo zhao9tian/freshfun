@@ -84,7 +84,7 @@ public class GoodsDetails {
 	@ResponseBody
 	public List<StidVsGid> findThemeGoods(@RequestBody GoodsThemeInfo goodsThemeIngo){
 		Integer pagetime = goodsThemeIngo.getPagetime();
-		Integer themeId = goodsThemeIngo.getThemeID();
+		Integer themeId = goodsThemeIngo.getThemeId();
 		Map<String, Integer> themeMap = new HashMap<String, Integer>(2);
 		Integer page = (pagetime - 1) * 20;
 		themeMap.put("themeId", themeId);
@@ -101,7 +101,7 @@ public class GoodsDetails {
 	@ResponseBody
 	public List<SmidVsGid> findMallGoods(@RequestBody GoodsThemeInfo goodsThemeIngo){
 		Integer pagetime = goodsThemeIngo.getPagetime();
-		Integer themeId = goodsThemeIngo.getThemeID();
+		Integer themeId = goodsThemeIngo.getThemeId();
 		System.out.println(pagetime);
 		System.out.println(themeId);
 		Map<String, Integer> mallMap = new HashMap<String, Integer>(2);

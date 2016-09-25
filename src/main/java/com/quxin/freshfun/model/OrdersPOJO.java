@@ -2,7 +2,7 @@ package com.quxin.freshfun.model;
 
 public class OrdersPOJO {
 
-    private Integer id;
+    private Long id;
     
     private Long orderId;
 
@@ -38,11 +38,11 @@ public class OrdersPOJO {
     //
     private OrderInfo orderInfo;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

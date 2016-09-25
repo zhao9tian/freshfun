@@ -315,8 +315,8 @@ public class OrderController {
 	 */
 	@RequestMapping("/selectordercounts")
 	@ResponseBody
-	public Map<String, Object> selectOrderCounts(String userID){
-		Long ui = Long.parseLong(userID.replace("\"", ""));
+	public Map<String, Object> selectOrderCounts(String userId){
+		Long ui = Long.parseLong(userId.replace("\"", ""));
 		List<OrderStatusInfo> statusCounts = orderManager.selectStatusCounts(ui);
 		
 		List<OrderStatusInfo> refundCounts = orderManager.selectRefundCounts(ui);
@@ -398,7 +398,7 @@ public class OrderController {
 	public List<OrderDetailsPOJO> setGoodsList(List<OrderDetailsPOJO> orders  , Integer rukou){
 		if(rukou != null && rukou == 1){
 			for(OrderDetailsPOJO order : orders){
-				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getOrderDetailsId());
+				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getId().toString());
 				//限时页面倒计时
 				Long createTime = od.getCreateDate();
 				Long now = System.currentTimeMillis();

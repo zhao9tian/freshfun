@@ -60,4 +60,11 @@ public interface UserAddressMapper {
     int insertNewAddress(Map<String, Object> addressMap);
     
     int updateIsDefault(Long userID);
+
+    /**
+     * 根据地址编号查询地址快照信息
+     * @param addressId
+     * @return
+     */
+    UserAddress selectAddressById(Integer addressId);
 }

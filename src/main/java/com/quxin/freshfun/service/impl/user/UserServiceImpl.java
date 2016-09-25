@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.utils.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ public class UserServiceImpl implements UserService{
 	public UsersMapper userDao;
 	@Autowired
 	private MongoTemplate mongoTemplate;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	@Override
 	public int insertUser(UsersPOJO user) {
@@ -73,7 +77,7 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public Long WZLogin(WxInfo wxinfo) {
+	public Long WZLogin(WxInfo wxinfo) throws BusinessException {
 		Long userId = null;
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
@@ -92,9 +96,6 @@ public class UserServiceImpl implements UserService{
 			}else{
 				//2.插入新用户
 				UsersPOJO user = new UsersPOJO();
-				IdGenerate idGenerate = new IdGenerate();			
-				userId = idGenerate.nextId();
-				user.setUserId(userId);
 				user.setWxId(wxId);
 				user.setWzId(wzId);
 				if(null != wxinfo.getCode() && !"".equals(wxinfo.getCode())){
@@ -109,7 +110,13 @@ public class UserServiceImpl implements UserService{
 				user.setUserIdentify((byte)1);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
-				userDao.insert(user);
+				int status = userDao.insert(user);
+				if(status <= 0){
+					logger.error("用户添加失败");
+					throw new BusinessException("用户添加失败");
+				}else{
+					userId = user.getId();
+				}
 				//插入一条用户信息到DB
 				UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
 				userDetailPOJO.setUserId(userId);
@@ -123,6 +130,7 @@ public class UserServiceImpl implements UserService{
 				userDetailPOJO.setUnionid(wxinfo.getUnionid());
 				userDetailPOJO.setOpenid(wxinfo.getOpenid());
 				userDao.insertUserDetails(userDetailPOJO);
+
 			}
 		}
 		return userId;

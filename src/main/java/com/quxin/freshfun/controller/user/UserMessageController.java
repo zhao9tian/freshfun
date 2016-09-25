@@ -70,8 +70,8 @@ public class UserMessageController {
 	 */
 	@RequestMapping("/userismobile")
 	@ResponseBody
-	public Map<String, Object> FindUserIsMobile(String userID){
-		Long ui = Long.parseLong(userID.replace("\"", ""));
+	public Map<String, Object> FindUserIsMobile(String userId){
+		Long ui = Long.parseLong(userId.replace("\"", ""));
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 		UsersPOJO userInfo = userAddressService.findIsMobile(ui);
 		String mobile = userInfo.getMobilePhone();

@@ -174,7 +174,7 @@ public interface OrderDetailsMapper {
 	 * @param orderId
 	 * @return
 	 */
-	Integer updateOrderDetailPayStatus(@Param("date") Long date,@Param("orderId") Integer orderId);
+	Integer updateOrderDetailPayStatus(@Param("date") Long date,@Param("orderId") Long orderId);
 
 	/**
 	 * 修改成功将状态改为3
@@ -186,7 +186,7 @@ public interface OrderDetailsMapper {
 	 * 查询支付订单编号
 	 * @return
 	 */
-	List<Integer> selectPayId(Long orderId);
+	List<Long> selectPayId(Long orderId);
 	/**
 	 * 批量修改订单状态
 	 * @param orderDetails

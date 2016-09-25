@@ -142,5 +142,5 @@ public interface UsersMapper {
      * 插入用户微信信息
      * @param userDetailPOJO
      */
-	void insertUserDetails(UserDetailPOJO userDetailPOJO);
+	int insertUserDetails(UserDetailPOJO userDetailPOJO);
 }

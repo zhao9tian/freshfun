@@ -21,7 +21,7 @@
   </sql>
   
   <select id="selectGoodsLimit" parameterType="map" resultMap="BaseResultMap">
-      select goods_id from stid_vs_gid where theme_id = #{theme_id} limit #{page}, 20
+      select goods_id from stid_vs_gid where theme_id = #{themeId} limit #{page}, 20
   </select>
   
   <select id="selectGoodsByStid" parameterType="java.lang.Integer" resultMap="BaseResultMap">

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class UsersPOJO {
-    private Integer id;
+    private Long id;
 
     private Long gmtCreate;
 
@@ -51,11 +51,11 @@ public class UsersPOJO {
 
     private Long userId;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

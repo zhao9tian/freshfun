@@ -3,6 +3,8 @@ package com.quxin.freshfun.service.user;
 import com.quxin.freshfun.model.Message;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.WxInfo;
+import com.quxin.freshfun.utils.BusinessException;
+
 /**
  * @author TuZl
  * @time 2016年8月21日下午2:45:41
@@ -35,7 +37,7 @@ public interface UserService {
 	 * @param wxinfo
 	 * @return
 	 */
-	public Long WZLogin(WxInfo wxinfo);
+	public Long WZLogin(WxInfo wxinfo) throws BusinessException;
 	
 	/**
 	 * 绑定手机号

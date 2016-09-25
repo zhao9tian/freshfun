@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.quxin.freshfun.dao.UsersMapper" >
   <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.UsersPOJO" >
-    <id column="id" property="id" jdbcType="INTEGER" />
+    <id column="id" property="id" jdbcType="BIGINT" />
 	<result column="user_id" property="userId" jdbcType="BIGINT" />
     <result column="gmt_create" property="gmtCreate" jdbcType="BIGINT" />
     <result column="gmt_modified" property="gmtModified" jdbcType="BIGINT" />
@@ -42,7 +42,7 @@
   </update>
   
   <select id="selectParentIdByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.UsersPOJO">
-      select parent_id,user_identify from users where user_id = #{userId}
+      select parent_id as parentId,user_identify as userIdentify from users where id = #{userId}
   </select>
   
   <select id="findEnterByID" resultMap="BaseResultMap" parameterType="java.lang.Integer">
@@ -50,11 +50,11 @@
   </select>
   
   <select id="findIsMobile" resultMap="BaseResultMap" parameterType="java.lang.Long">
-      select user_id, mobile_phone, user_identify from users where user_id = #{userId}
+      select user_id, mobile_phone, user_identify from users where id = #{userId}
   </select>
   
   <update id="updateUserIdentify" parameterType="java.lang.Long">
-      update users set user_identify = 1 where user_id = #{userId}
+      update users set user_identify = 1 where id = #{userId}
   </update>
   
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -76,7 +76,7 @@
       frozen_money, user_identify, income_identify, 
       user_enter, user_info_id, is_deleted, 
       user_address)
-    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=BIGINT}, #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
+    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
       #{userName,jdbcType=VARCHAR}, #{userHeadUrl,jdbcType=VARCHAR}, #{mobilePhone,jdbcType=VARCHAR},
       #{deviceId,jdbcType=VARCHAR}, #{wxId,jdbcType=VARCHAR}, #{wzId,jdbcType=VARCHAR},
       #{loginMethod,jdbcType=VARCHAR}, #{isReceived,jdbcType=TINYINT}, #{parentId,jdbcType=BIGINT},
@@ -163,7 +163,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
     <if test="id != null" >
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="userId != null" >
         #{userId,jdbcType=BIGINT},
@@ -304,7 +304,7 @@
         user_address = #{userAddress},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.quxin.freshfun.model.UsersPOJO" >
     update users
@@ -329,7 +329,7 @@
       user_info_id = #{userInfoId,jdbcType=INTEGER},
       is_deleted = #{isDeleted,jdbcType=TINYINT},
       user_address = #{userAddress}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   
   
@@ -372,7 +372,7 @@
   <!-- =============================微站登录========================================== -->
   <!-- 根据微信Id查询userId -->
   <select id="getUserIdByWxId" parameterType="java.lang.String" resultType="java.lang.Long">
-  	select user_id from users where wx_id = #{wxId}
+  	select id from users where wx_id = #{wxId}
   </select>
   <!-- 根据微信Id查询wzId -->
   <select id="getWzIdBywxId" parameterType="java.lang.String" resultType="java.lang.String">

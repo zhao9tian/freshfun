@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.quxin.freshfun.dao.OrderDetailsMapper">
   <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.OrderDetailsPOJO">
-    <id column="id" jdbcType="INTEGER" property="id" />
+    <id column="id" jdbcType="BIGINT" property="id" />
     <result column="user_id" jdbcType="BIGINT" property="userId"/>
     <result column="order_id" jdbcType="BIGINT" property="orderId" />
     <result column="order_details_id" jdbcType="VARCHAR" property="orderDetailsId" />
@@ -27,18 +27,22 @@
     <result column="delivery_name" jdbcType="VARCHAR" property="deliveryName"/>
     <result column="is_limit" jdbcType="INTEGER" property="isLimit"/>
     <result column="recive_time" jdbcType="INTEGER" property="reciveTime"/>
+    <result column="name" jdbcType="VARCHAR" property="name"/>
+    <result column="tel" jdbcType="VARCHAR" property="tel"/>
+    <result column="city" jdbcType="VARCHAR" property="city"/>
+    <result column="address" jdbcType="VARCHAR" property="address"/>
     <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsMapper.selectGoodsById"></association>
   </resultMap>
   
-  <resultMap id="PayResultId" type="java.lang.Integer">
+  <resultMap id="PayResultId" type="java.lang.Long">
       <result column="id" jdbcType="INTEGER" property="id"/>
   </resultMap>
   
   <resultMap id="BaseResultInfo" type="com.quxin.freshfun.model.OrderStatusInfo">
-      <result column="order_status" jdbcType="INTEGER" property="order_status" />
-      <result column="status_counts" jdbcType="INTEGER" property="status_counts" />
-      <result column="refund_counts" jdbcType="INTEGER" property="refund_counts" />
-      <result column="pay_counts" jdbcType="INTEGER" property="pay_counts" />
+      <result column="order_status" jdbcType="INTEGER" property="orderStatus" />
+      <result column="status_counts" jdbcType="INTEGER" property="statusCounts" />
+      <result column="refund_counts" jdbcType="INTEGER" property="refundCounts" />
+      <result column="pay_counts" jdbcType="INTEGER" property="payCounts" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -61,54 +65,54 @@
   </select>
   <!-- 查询单个商品 -->
   <select id="selectSigleOrder" parameterType="java.lang.String" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,pay_time,create_date,update_date,pay_status,count,order_status,refund_status,comment_status,actual_price,delivery_num , is_limit ,recive_time from order_details where order_details_id = #{orderDetailsId} and is_deleted = 0
+      select id,address_id,goods_id,pay_time,create_date,update_date,pay_status,count,order_status,refund_status,comment_status,actual_price,delivery_num , is_limit ,recive_time,name,tel,city,address from order_details where id = #{orderDetailsId} and is_deleted = 0
   </select>
   <!-- 查询代支付订单 -->
   <select id="selectPayOrder" parameterType="java.lang.String" resultMap="BaseResultMap">
-      select actual_price from order_details where order_details_id = #{orderDetailsId} and is_deleted = 0 and pay_status = 0
+      select actual_price from order_details where id = #{orderDetailsId} and is_deleted = 0 and pay_status = 0
   </select>
   
  <!-- 根据用户编号分页查询所有订单 -->
   <select id="selectAll" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,pay_status,count,order_status,refund_status,comment_status,actual_price,delivery_num , is_limit from order_details where user_id = #{userId} and is_deleted = 0 and refund_status = 0 limit #{currentPage},#{pageSize}
+      select id,address_id,goods_id,pay_status,count,order_status,refund_status,comment_status,actual_price,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and is_deleted = 0 and refund_status = 0 limit #{currentPage},#{pageSize}
   </select>
     <!-- 查询待发货订单 -->
   <select id="selectAwaitDeliverOrder" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,actual_price,count,delivery_num , is_limit from order_details where user_id = #{userId} and order_status in (0,1) and is_deleted = 0 and pay_status = 1 and refund_status = 0 limit #{currentPage},#{pageSize}
+      select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and order_status in (0,1) and is_deleted = 0 and pay_status = 1 and refund_status = 0 limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待付款订单 -->
   <select id="selectPendingPaymentOrder" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,actual_price,count,delivery_num , is_limit from order_details where user_id = #{userId} and pay_status = 0 and is_deleted = 0
+      select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and pay_status = 0 and is_deleted = 0
       and  (create_date + 150*60 - unix_timestamp(now())) <![CDATA[>]]> 0  
       limit #{currentPage},#{pageSize}
   </select>
   <!-- 待收货 -->
   <select id="selectAwaitGoodsReceipt" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,actual_price,count,delivery_num , is_limit from order_details where user_id = #{userId} and order_status = 2 and is_deleted = 0 limit #{currentPage},#{pageSize}
+      select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and order_status = 2 and is_deleted = 0 limit #{currentPage},#{pageSize}
   </select>
   <!-- 待评价 -->
   <select id="selectAwaitComment" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,pay_time,create_date,update_date,actual_price,count,delivery_num , is_limit from order_details where user_id = #{userId} and comment_status = 0 and is_deleted = 0 and order_status = 3 and refund_status = 0 limit #{currentPage},#{pageSize}
+      select id,address_id,goods_id,pay_time,create_date,update_date,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and comment_status = 0 and is_deleted = 0 and order_status = 3 and refund_status = 0 limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询退货 -->
   <select id="selectCancelOrder" resultMap="BaseResultMap">
-      select id,order_id,address_id,order_details_id,goods_id,actual_price,count,delivery_num,refund_status , is_limit from order_details where user_id = #{userId} and refund_status != 0 and is_deleted = 0 limit #{currentPage},#{pageSize}
+      select id,address_id,goods_id,actual_price,count,delivery_num,refund_status , is_limit,name,tel,city,address from order_details where user_id = #{userId} and refund_status != 0 and is_deleted = 0 limit #{currentPage},#{pageSize}
   </select>
   <!-- 删除一条订单信息 -->
   <update id="delOrder">
-      update order_details set is_deleted = 1 where order_details_id = #{orderId}
+      update order_details set is_deleted = 1 where id = #{orderId}
   </update>
   <!-- 修改订单支付状态 -->
   <update id="updatePayStatus" parameterType="java.lang.Long" useGeneratedKeys="true" keyProperty="id">
-      update order_details set order_status = 1 where order_details_id = #{orderId}
+      update order_details set order_status = 1 where id = #{orderId}
   </update>
   <!-- 确认收货 -->
   <update id="confirmGoodsReceipt" parameterType="java.lang.String">
-      update order_details set order_status = 3 where order_details_id = #{orderId}
+      update order_details set order_status = 3 where id = #{orderId}
   </update>
   <!-- 确认评价 -->
   <update id="confirmGoodsComment" parameterType="java.lang.String">
-      update order_details set comment_status = 1 where order_details_id = #{orderId}
+      update order_details set comment_status = 1 where id = #{orderId}
   </update>
   <!-- 查询未退款订单数量 -->
   <select id="selectStatusCounts" parameterType="java.lang.Long" resultMap="BaseResultInfo">
@@ -136,7 +140,7 @@
   </select>
   <!-- 查询付款编号 -->
   <select id="selectPayIdByOrderDetailsId" parameterType="java.lang.String" resultMap="PayResultId">
-      select id from order_details where order_details_id = #{orderId}
+      select id from order_details where id = #{orderId}
   </select>
   <!-- 根据订单编号修改订单详情支付状态 -->
   <update id="updateOrderDetailPayStatus">
@@ -245,9 +249,21 @@
       <if test="reciveTime != null">
         recive_time,
       </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="tel != null">
+        tel,
+      </if>
+      <if test="city != null">
+        city,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-       #{id,jdbcType=INTEGER},
+       #{id,jdbcType=BIGINT},
        #{userId},
       <if test="orderId != null">
         #{orderId,jdbcType=INTEGER},
@@ -307,6 +323,18 @@
       </if>
       <if test="reciveTime != null">
         #{recive_time},
+      </if>
+      <if test="name != null">
+        #{name},
+      </if>
+      <if test="tel != null">
+        #{tel},
+      </if>
+      <if test="city != null">
+        #{city},
+      </if>
+      <if test="address != null">
+        #{address},
       </if>
     </trim>
   </insert>
@@ -368,11 +396,11 @@
         reserved_field = #{reservedField,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.quxin.freshfun.model.OrderDetailsPOJO">
     update order_details
-    set order_id = #{orderId,jdbcType=INTEGER},
+    set order_id = #{orderId,jdbcType=BIGINT},
       order_details_id = #{orderDetailsId,jdbcType=VARCHAR},
       goods_id = #{goodsId,jdbcType=INTEGER},
       actual_price = #{actualPrice,jdbcType=INTEGER},
@@ -400,11 +428,11 @@
     <result column="create_date" jdbcType="BIGINT" property="createDate" />
   </resultMap>
   <select id="getLogistic" parameterType="java.lang.String" resultMap="LogisticRM" >
-  	select delivery_num , delivery_name , create_date from order_details where order_details_id = #{orderDetailId}
+  	select delivery_num , delivery_name , create_date from order_details where id = #{orderDetailId}
   </select>
   
   <update id="updateOrderStatus" parameterType="java.util.Map" >
-  	update order_details set order_status = 3 , recive_time = #{reciveTime} where order_details_id = #{orderDetailId}
+  	update order_details set order_status = 3 , recive_time = #{reciveTime} where id = #{orderDetailId}
   </update>
 
   <select id="applyRefund" parameterType="java.lang.String" >
