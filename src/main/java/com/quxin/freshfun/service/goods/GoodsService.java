@@ -27,11 +27,7 @@ public interface GoodsService {
 	public GoodsPOJO findGoodsMysql(Integer goodsID);
 	
 	
-	/**
-	 * 查询mongoDB中限时商品信息
-	 */
-	public List<GoodsMongo> findLimitGoodsMongo(Integer goodsID);
-	
+
 	/**
 	 * 查询mysql中限时商品信息
 	 */
@@ -46,11 +42,6 @@ public interface GoodsService {
 	 * 查询banner商品
 	 */
 	public List<SmidVsGid> findMallGoods(Map<String, Integer> mallMap);
-	
-	/**
-	 * 查询评论
-	 */
-	public List<Comment> findComment(String userID, String goodsID);
 	
 	/**
 	 * 添加评论

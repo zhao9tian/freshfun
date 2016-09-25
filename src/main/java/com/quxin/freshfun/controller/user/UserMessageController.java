@@ -47,7 +47,6 @@ public class UserMessageController {
 	    System.out.println(userId);
 	    System.out.println(message);
 	    
-		
 		UserMessage userMessage = new UserMessage();
 		userMessage.setUserId(userId);
 		userMessage.setMessage(message);
@@ -106,31 +105,14 @@ public class UserMessageController {
 		comment.setOrderId(orderId);
 		comment.setContent(codingTools.enCodeStr(content));
 		comment.setCommentLevel(commentLevel);
-		
 		String nowTime = String.valueOf(System.currentTimeMillis()/1000);
 		comment.setGmtCreate(System.currentTimeMillis()/1000);
 		comment.setGmtModified(System.currentTimeMillis()/1000);
 		comment.setIsDeleted((byte)0);
-		
 		goodsService.addComment(comment);
-		
 		orderManager.confirmGoodsComment(orderId);
-		
-		
 		stateMap.put("state", "chenggong");
 		return stateMap;
-	}
-	/**
-	 * 查询用户留言
-	 * @return
-	 */
-	@RequestMapping(value="/searchusercomment",method={RequestMethod.POST})
-	@ResponseBody
-	public List<Comment> searchuserComment(@RequestBody CommentInfo commentInfo){
-
-		String userID = commentInfo.getUserId();
-		String goodsID = commentInfo.getGoodsId();
-		return goodsService.findComment(userID, goodsID);
 	}
 
 }

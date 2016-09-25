@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.quxin.freshfun.mongodb.AddressManagerMongo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.AESUtil;
 import com.quxin.freshfun.utils.BusinessException;
@@ -40,8 +39,6 @@ public class OrderServiceImpl implements OrderService {
 	private UserOutcomeMapper userOutcomeMapper;
 	@Autowired
 	private UserOutcomeDetailsMapper userOutcomeDetailsMapper;
-	@Autowired
-	private AddressManagerMongo orderAddress;
 	@Autowired
 	private OrderDetailsMapper orderDetailsMapper;
 	@Autowired
