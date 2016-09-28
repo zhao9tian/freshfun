@@ -96,7 +96,12 @@ public class HomePageServiceImpl implements HomePageService {
 	public List<GoodsPOJO> findGoods(Map<String, Integer> goodsMap) {
 		return goodsMapper.findByLimit(goodsMap);
 	}
-	
+
+	@Override
+	public List<GoodsPOJO> findGoodsOfB(Map<String, Integer> goodsMap) {
+		return goodsMapper.findByLimitOfB(goodsMap);
+	}
+
 	@Override
 	public UsersPOJO findEnterByID(Integer id) {
 		return usersMapper.findEnterByID(id);

@@ -41,6 +41,10 @@ public interface HomePageService {
 	 * 查询商品
 	 */
 	public List<GoodsPOJO> findGoods(Map<String, Integer> goodsMap);
+	/**
+	 * 查询商品
+	 */
+	public List<GoodsPOJO> findGoodsOfB(Map<String, Integer> goodsMap);
 
 	/**
 	 * 查询用户活动权限

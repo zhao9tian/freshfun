@@ -66,6 +66,12 @@ public interface GoodsMapper {
      * @return
      */
     List<GoodsPOJO> findByLimit(Map<String, Integer> goodsMap);
+
+    /**
+     * 查询所有商品
+     * @return
+     */
+    List<GoodsPOJO> findByLimitOfB(Map<String, Integer> goodsMap);
     
     
     /**

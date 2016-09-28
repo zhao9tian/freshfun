@@ -80,6 +80,9 @@
   <select id="findByLimit" parameterType="map" resultType="com.quxin.freshfun.model.GoodsPOJO">
       select id, goods_name as goodsName, goods_img as goodsImg, goods_des as goodsDes, shop_price as shopPrice, market_price as marketPrice,share_url as shareUrl ,merchant_proxy_id as merchantProxyId, agency_fees as agencyFees from goods where is_on_sale = 1 limit #{page}, #{pagesize}
   </select>
+  <select id="findByLimitOfB" parameterType="map" resultType="com.quxin.freshfun.model.GoodsPOJO">
+    select id, goods_name as goodsName, goods_img as goodsImg, goods_des as goodsDes, shop_price as shopPrice, market_price as marketPrice,share_url as shareUrl ,merchant_proxy_id as merchantProxyId, agency_fees as agencyFees from goods where is_on_sale = 1 and is_on_agent=2 limit #{page}, #{pagesize}
+  </select>
   <!-- 根据商品编号查询基本信息 -->
   <select id="findByGoodsId" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
       select id, goods_name as goodsName, goods_img as goodsImg, goods_des as goodsDes, shop_price as shopPrice, market_price as marketPrice,share_url as shareUrl,agency_fees as agencyFees,merchant_proxy_id as merchantProxyId from goods where id=#{goodsId} and is_on_sale = 1
@@ -364,7 +367,7 @@
     select
     <include refid="Base_Column_List" />
     from goods
-    where merchant_proxy_id = #{mpId}
+    where merchant_proxy_id = #{mpId} and is_on_sale = 1
 
   </select>
 
