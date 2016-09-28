@@ -182,6 +182,8 @@ public interface OrderDetailsMapper {
 	 * @return
 	 */
 	Integer updateOrderStatus(Map<String , Object> condition);
+
+    void updateInState(String orderId);
 	/**
 	 * 查询支付订单编号
 	 * @return

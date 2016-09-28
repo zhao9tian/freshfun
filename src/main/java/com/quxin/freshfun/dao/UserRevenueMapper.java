@@ -93,4 +93,38 @@ public interface UserRevenueMapper {
      * @return
      */
     List<UserRevenue> selectRreezeMoneyDetails(Long userId);
+
+    /**
+     * 根据订单编号查询账单编号
+     * @param orderId
+     * @return
+     */
+    List<Integer> selectIdByOrderId(String orderId);
+
+    /**
+     * 根据账单编号修改账单状态
+     * @return
+     */
+    Integer updateBillPayStatus(Integer id);
+
+    /**
+     * 查询代理商户的总收益
+     * @param userId
+     * @return
+     */
+    Integer selectAgentsIncome(Long userId);
+
+    /**
+     * 代理商户的未入账收益
+     * @param userId
+     * @return
+     */
+    int selectAgentsRreezeMoney(Long userId);
+
+    /**
+     * 查询代理商户可提现金额
+     * @param userId
+     * @return
+     */
+    int selectAgentExtractMoney(Long userId);
 }

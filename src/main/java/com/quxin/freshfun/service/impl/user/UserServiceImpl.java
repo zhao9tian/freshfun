@@ -83,7 +83,8 @@ public class UserServiceImpl implements UserService{
 			userId = userDao.getUserIdByWxId(wxId);
 			if(userId != null){
 				//3.判断wzId是否在用户表里面,wzId唯一
-				if(userDao.getWzIdBywxId(wxId) == null || "".equals(userDao.getWzIdBywxId(wxId))){
+				String wzIdDB = userDao.getWzIdBywxId(wxId);
+				if( wzIdDB!= null && !wxId.equals(wzIdDB)){
 					Map<String, Object> map = new HashMap<>();
 					map.put("userId", userId);
 					map.put("wzId", wzId);
@@ -118,7 +119,6 @@ public class UserServiceImpl implements UserService{
 				userDetailPOJO.setUserId(userId);
 				userDetailPOJO.setProvince(wxinfo.getProvince());
 				userDetailPOJO.setCity(wxinfo.getCity());
-				userDetailPOJO.setCode(wxinfo.getCode());
 				userDetailPOJO.setCountry(wxinfo.getCountry());
 				userDetailPOJO.setHeadimgurl(wxinfo.getHeadimgurl());
 				userDetailPOJO.setLanguage(wxinfo.getLanguage());

@@ -64,7 +64,7 @@ public interface ShoppingCartMapper {
      * 查询已存在订单
      * @return
      */
-    Integer selectExistedOrder(@Param("userId") Long userId,@Param("goodsId") Integer goodsId);
+    List<Integer> selectExistedOrder(@Param("userId") Long userId,@Param("goodsId") Integer goodsId);
     /**
      * 查询购物车信息
      * @param scId

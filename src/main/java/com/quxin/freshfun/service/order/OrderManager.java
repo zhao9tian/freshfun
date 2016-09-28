@@ -91,7 +91,7 @@ public interface OrderManager {
      * @param orderId
      * @return
      */
-    int confirmGoodsReceipt(String orderId);
+    Integer confirmGoodsReceipt(String orderId);
     /**
      * 刪除訂單
      * @param scId

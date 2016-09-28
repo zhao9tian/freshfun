@@ -17,6 +17,9 @@
     <result column="is_delete" jdbcType="INTEGER" property="isDelete" />
     <result column="delivery_type" jdbcType="INTEGER" property="deliveryType"/>
   </resultMap>
+  <resultMap id="IdResult" type="java.lang.Integer">
+    <result column="id" jdbcType="INTEGER" property="id"/>
+  </resultMap>
   <sql id="Base_Column_List">
     <!--
       WARNING - @mbggenerated
@@ -24,6 +27,13 @@
     -->
     id, user_id, order_id, price, in_state, create_date, update_date, is_delete
   </sql>
+  <select id="selectIdByOrderId" parameterType="java.lang.String" resultMap="IdResult">
+    select `id` from user_revenue where order_id = #{orderId} and in_state = 0
+  </select>
+  <!--支付后修改账单状态为已支付-->
+  <update id="updateBillPayStatus" parameterType="java.lang.Integer">
+    update user_revenue set in_state = 1 where id = #{id}
+  </update>
   <!-- 查询用户的可提现金额 -->
   <select id="selectExtractMoney" parameterType="java.lang.Long" resultType="java.lang.Integer">
       select ifnull(sum(price),0) from user_revenue where user_id = #{userId} and in_state = 1 and is_delete = 0
@@ -52,6 +62,26 @@
   <select id="selectRevenueBill" parameterType="java.lang.Long" resultMap="BaseResultMap">
       select order_id,price,revenue_name,create_date from user_revenue where user_id = #{userId} and is_delete = 0
   </select>
+
+  <!-- 查询代理商户的总收益 -->
+  <select id="selectAgentsIncome" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select ifnull(sum(price),0) from user_revenue where user_id = #{userId} and in_state in (1,2) and is_delete = 0 and delivery_type=2
+  </select>
+
+
+  <!-- 代理商户的未入账金额 -->
+  <select id="selectAgentsRreezeMoney" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select ifnull(sum(price),0) from user_revenue where user_id = #{userId} and in_state = 1 and is_delete = 0 and delivery_type=2
+  </select>
+
+  <!--查询代理商户可提现金额-->
+  <select id="selectAgentExtractMoney" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select ifnull(sum(price),0) from user_revenue where user_id = #{user_id} and in_state = 2 and is_delete = 0 and delivery_type=2
+  </select>
+
+
+
+
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--
       WARNING - @mbggenerated

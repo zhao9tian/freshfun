@@ -37,11 +37,7 @@ public class AgentWithdrawServiceImpl implements AgentWithdrawService {
 	public int addWithdraw(AgentWithdrawPOJO agentWithdraw) {
 		return withdrawMapper.insertSelective(agentWithdraw);
 	}
-
-	@Override
-	public int modifyWithdraw(AgentWithdrawPOJO agentWithdraw) {
-		return withdrawMapper.updateByPrimaryKeySelective(agentWithdraw);
-	}
+	
 
 	@Override
 	public int modifyEscDefaultWay(Integer userId) {

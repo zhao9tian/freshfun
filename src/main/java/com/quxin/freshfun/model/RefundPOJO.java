@@ -5,9 +5,9 @@ public class RefundPOJO {
 
     private String orderDetailsId;
 
-    private Integer serviceType;
+    private String serviceType;
 
-    private Integer returnReason;
+    private String returnReason;
 
     private Integer returnMoney;
 
@@ -33,19 +33,19 @@ public class RefundPOJO {
         this.orderDetailsId = orderDetailsId == null ? null : orderDetailsId.trim();
     }
 
-    public Integer getServiceType() {
+    public String getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(Integer serviceType) {
+    public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
     }
 
-    public Integer getReturnReason() {
+    public String getReturnReason() {
         return returnReason;
     }
 
-    public void setReturnReason(Integer returnReason) {
+    public void setReturnReason(String returnReason) {
         this.returnReason = returnReason;
     }
 

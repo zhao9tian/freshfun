@@ -18,6 +18,9 @@
     <result column="update_date" jdbcType="BIGINT" property="updateDate"/>
     <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsMapper.selectGoodsById"></association>
   </resultMap>
+  <resultMap id="IdResultMap" type="java.lang.Integer">
+    <result column="sc_id" jdbcType="INTEGER" property="scId"/>
+  </resultMap>
   
   <sql id="Base_Column_List">
     <!--
@@ -27,8 +30,8 @@
     sc_id, user_id, goods_id, goods_totals, goods_name, goods_totals_price,pay_status
   </sql>
   <!-- 查询购物车是否存在订单 -->
-  <select id="selectExistedOrder" resultType="java.lang.Integer">
-      select count(sc_id) from shopping_cart where user_id = #{userId} and goods_id = #{goodsId} and is_delete = 0
+  <select id="selectExistedOrder" resultMap="IdResultMap">
+      select sc_id from shopping_cart where user_id = #{userId} and goods_id = #{goodsId} and pay_status = 0 and is_delete = 0
   </select>
   <!-- 根据用户编号查询购物车信息 -->
   <select id="selectShoppingCartByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">

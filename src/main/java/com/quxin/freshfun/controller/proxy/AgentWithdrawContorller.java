@@ -3,9 +3,14 @@ package com.quxin.freshfun.controller.proxy;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.model.parm.AgentExtractMoney;
+import com.quxin.freshfun.service.bill.BillService;
+import com.quxin.freshfun.utils.MoneyFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.common.collect.Maps;
@@ -28,6 +33,9 @@ public class AgentWithdrawContorller {
 	
 	@Autowired
 	private OrderService orderService;   //order service
+
+	@Autowired
+	private BillService billService;
 	
 	/**
 	 * 根据userId查询
@@ -116,86 +124,34 @@ public class AgentWithdrawContorller {
 	public Map<String,Object> getTheMoney(String userId){
 		Map<String,Object> map = Maps.newHashMap();
 		//判断商户可提现金额
-		Integer earnedIncome = orderService.queryEarnedIncome(Long.parseLong(userId));
-		List<AgentWithdrawPOJO> withdrawList = agentWithdrawService.queryWithdraw(Integer.parseInt(userId));
-		double moneyAll = 0.0;
-		for(AgentWithdrawPOJO awp : withdrawList){
-			moneyAll+=awp.getWithdrawMoney();
-		}
-		if(earnedIncome==null){
-			earnedIncome = 0;
-		}
-
-		double theMoney = ((double)earnedIncome)*0.2-moneyAll*100;
-		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#.00");
-		if(moneyAll==0){
-			map.put("theMoney",0.0);
-		}else{
-			map.put("theMoney",df.format(theMoney/100) );
-		}
+		Integer money = billService.selectAgentExtractMoney(Long.parseLong(userId));
+		String extractMoney = MoneyFormat.priceFormatString(money);
+//		double moneyAll = 0.0;
+//		java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#.00");
+//		extractMoney = df.format(extractMoney);
+//		String theMoney = extractMoney;
+//		moneyAll = Double.valueOf(theMoney);
+//		if(moneyAll==0){
+//			map.put("theMoney",0.0);
+//		}else{
+			map.put("theMoney",extractMoney);
+//		}
 		return map;
 	}
-	
+
 	/**
 	 * 保存商户申请提现
-	 * @param userId 用户id
-	 * @param wayId 提现方式id
-	 * @param money 提现金额
+	 * @param extractMoney 提现参数对象
 	 * @return 结果： 1成功  0失败
 	 */
-	@RequestMapping("/addAgentWithdraw")
+	@RequestMapping(value="/addAgentWithdraw",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String,Object> addAgentWithdraw(String userId,String wayId,String money){
-		Map<String,Object> map = Maps.newHashMap();
-		//判断商户可提现金额
-		Integer earnedIncome = orderService.queryEarnedIncome(Long.parseLong(userId));
-		List<AgentWithdrawPOJO> withdrawList = agentWithdrawService.queryWithdraw(Integer.parseInt(userId));
-		double moneyAll = 0.0;
-		for(AgentWithdrawPOJO awp : withdrawList){
-			moneyAll+=awp.getWithdrawMoney();
-		}
-		Integer cha = earnedIncome-(int)(moneyAll*100);
-		if(cha<0){
-			map.put("result", 0);//失败
-			return map;
-		}
-		//提现申请对象赋值
-		AgentWithdrawPOJO agentWithdraw = new AgentWithdrawPOJO();
-		agentWithdraw.setMerchantProxyId(Integer.parseInt(userId));
-		agentWithdraw.setWithdrawId(Integer.parseInt(wayId));
-		agentWithdraw.setWithdrawMoney(Double.valueOf(money));
-		agentWithdraw.setWithdrawSchedule(0);
-		agentWithdraw.setGetCreate(DateUtils.getCurrentDate());
-		agentWithdraw.setGmtModified(DateUtils.getCurrentDate());
-		//执行保存方法
-		int result = agentWithdrawService.addWithdraw(agentWithdraw);
-		if(result==1)
-			map.put("result", 1);//成功
-		else
-			map.put("result", 0);//失败
+	public Map<String,Object> addAgentWithdraw(@RequestBody AgentExtractMoney extractMoney) {
+		Long money = Math.round(Double.valueOf(extractMoney.getMoney())*100);
+		Map<String, Object> map = Maps.newHashMap();
+		Integer extractmoney = billService.selectAgentExtractMoney(Long.parseLong(extractMoney.getUserId()));
+		String result = billService.addAgentWithdraw(Integer.parseInt(extractMoney.getUserId()),Integer.parseInt(extractMoney.getWayId()),money,extractmoney.longValue());
+		map.put("result",result);
 		return map;
 	}
-	/**
-	 * 处理商户申请提现
-	 * @param id 提现对象id
-	 * @param  result  处理结果
-	 * @return 结果： 1成功  0失败
-	 */
-	@RequestMapping("/modifyAgentWithdraw")
-	@ResponseBody
-	public Map<String,Object> modifyAgentWithdraw(String id , String result){
-		AgentWithdrawPOJO agentWithdraw = new AgentWithdrawPOJO();
-		agentWithdraw.setId(Integer.parseInt(id));
-		agentWithdraw.setWithdrawSchedule(Integer.parseInt(result));
-		agentWithdraw.setGmtModified(DateUtils.getCurrentDate());
-		Map<String,Object> map = Maps.newHashMap();
-		int result1 = agentWithdrawService.modifyWithdraw(agentWithdraw);
-		if(result1==1)
-			map.put("result", 1);
-		else
-			map.put("result", 0);
-		return map;
-	}
-	
-	
 }

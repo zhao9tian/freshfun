@@ -9,7 +9,7 @@ public class AgentWithdrawPOJO {
 
     private Integer merchantProxyId;
 
-    private Double withdrawMoney;
+    private Long withdrawMoney;
 
     private Integer withdrawId;
 
@@ -47,11 +47,11 @@ public class AgentWithdrawPOJO {
         this.merchantProxyId = merchantProxyId;
     }
 
-    public Double getWithdrawMoney() {
+    public Long getWithdrawMoney() {
         return withdrawMoney;
     }
 
-    public void setWithdrawMoney(Double withdrawMoney) {
+    public void setWithdrawMoney(Long withdrawMoney) {
         this.withdrawMoney = withdrawMoney;
     }
 

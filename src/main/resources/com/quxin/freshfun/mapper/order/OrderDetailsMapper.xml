@@ -108,7 +108,11 @@
   </update>
   <!-- 确认收货 -->
   <update id="confirmGoodsReceipt" parameterType="java.lang.String">
-      update order_details set order_status = 3 where id = #{orderId}
+      update order_details set order_status = 3 , recive_time = #{reciveTime} where id = #{orderDetailId}
+  </update>
+  <!-- 确认收货修改账单表 -->
+  <update id="updateInState" parameterType="java.lang.String">
+      update user_revenue set in_state = 2  where order_id = #{orderId}
   </update>
   <!-- 确认评价 -->
   <update id="confirmGoodsComment" parameterType="java.lang.String">

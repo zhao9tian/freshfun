@@ -34,7 +34,7 @@
   </sql>
   <!-- 查询用户的编号 -->
   <select id="selectId" parameterType="java.lang.Long" resultType="java.lang.Integer">
-      select id from users where user_id = #{userId}
+      select id from users where id = #{userId}
   </select>
   <!-- 修改用户标记 -->
   <update id="updateUserParentId">
@@ -76,7 +76,7 @@
       frozen_money, user_identify, income_identify, 
       user_enter, user_info_id, is_deleted, 
       user_address)
-    values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
+    values (#{id,jdbcType=BIGINT}, #{id,jdbcType=BIGINT}, #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
       #{userName,jdbcType=VARCHAR}, #{userHeadUrl,jdbcType=VARCHAR}, #{mobilePhone,jdbcType=VARCHAR},
       #{deviceId,jdbcType=VARCHAR}, #{wxId,jdbcType=VARCHAR}, #{wzId,jdbcType=VARCHAR},
       #{loginMethod,jdbcType=VARCHAR}, #{isReceived,jdbcType=TINYINT}, #{parentId,jdbcType=BIGINT},
@@ -345,12 +345,12 @@
   <update id="updateUser" parameterType="Map">
   		update users
 			    <set> 
-			    	user_id = #{userId}, 
+			    	id = #{userId},
 			        <if test="deviceId != null">device_id=#{deviceId},</if>  
 			        <if test="wzId != null">wz_id=#{wzId},</if>
 			        <if test="phoneNum != null">mobile_phone=#{phoneNum}</if>  
 			    </set>  
-			    where user_id = #{userId}
+			    where id = #{userId}
   </update>
   
   <!-- =============================手机登录========================================== -->
@@ -410,16 +410,16 @@
   <!-- =============================绑定手机号============================================ -->
   <!-- 验证是否绑定手机号 -->
   <select id="validateExistPhoneNum" resultType="Integer">
-  	select count(id) from users where user_id = #{userId} and mobile_phone is not null
+  	select count(id) from users where id = #{userId} and mobile_phone is not null
   </select>
   <!-- 验证绑定的手机号是否是该手机号 -->
   <select id="validatePhoneNum" parameterType="Map" resultType="Integer">
-  	select count(id) from users where user_id = #{userId} and mobile_phone = #{phoneNum}
+  	select count(id) from users where id = #{userId} and mobile_phone = #{phoneNum}
   </select>
 
   <insert id="insertUserDetails" parameterType="com.quxin.freshfun.model.UserDetailPOJO" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO user_info(user_id , province , openid , headimgurl , language , city , country , unionid , nickname , code)
-    VALUES (#{userId} , #{province} ,#{openid} , #{headimgurl} , #{language} , #{city} , #{country} , #{unionid} , #{nickname} , #{code})
+    INSERT INTO user_info(user_id , province , openid , headimgurl , language , city , country , unionid , nickname )
+    VALUES (#{userId} , #{province} ,#{openid} , #{headimgurl} , #{language} , #{city} , #{country} , #{unionid} , #{nickname} )
   </insert>
 
 

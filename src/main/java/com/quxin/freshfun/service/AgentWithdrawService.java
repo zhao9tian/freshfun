@@ -55,10 +55,5 @@ public interface AgentWithdrawService {
 	 * @return 结果   1成功   0失败
 	 */
 	int addWithdraw(AgentWithdrawPOJO agentWithdraw);
-	/**
-	 * 修改商户提现申请
-	 * @param agentWithdraw  商户提现申请
-	 * @return 结果   1成功   0失败
-	 */
-	int modifyWithdraw(AgentWithdrawPOJO agentWithdraw);
+
 }

@@ -53,4 +53,34 @@ public interface BillService {
      * @return
      */
     List<Withdraw> selectPresentRecord(Long userId);
+    /**
+     * 查询代理商户的总收益
+     * @param userId
+     * @return
+     */
+    String selectAgentsIncome(Long userId);
+
+    /**
+     * 代理商户的未入账收益
+     * @param userId
+     * @return
+     */
+    String selectAgentsRreezeMoney(Long userId);
+
+    /**
+     * 查询代理商户可提现金额
+     * @param userId
+     * @return
+     */
+    Integer selectAgentExtractMoney(Long userId);
+
+    /**
+     * 新增代理商户体现申请
+     * @param userId
+     * @param wayId
+     * @param money
+     * @param extractMoney
+     * @return
+     */
+    String addAgentWithdraw(Integer userId ,Integer wayId,Long money ,Long extractMoney);
 }

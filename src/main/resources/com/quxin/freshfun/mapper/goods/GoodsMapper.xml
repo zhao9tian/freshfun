@@ -100,7 +100,7 @@
   </select>
   <!-- 查询推荐商品 -->
   <select id="selectRecommendGoods" resultMap="BaseResultMap">
-      select id, goods_name, goods_img, goods_des, shop_price, market_price from goods where id >= ((select max(id) from goods)-(select min(id) from goods)) * rand() + (select min(id) from goods) limit 10
+    select id, goods_name, goods_img, goods_des, shop_price, market_price from goods where gmt_create >= ((select max(gmt_create) from goods)-(select min(gmt_create) from goods)) * rand() + (select min(gmt_create) from goods) limit 10;
   </select>
 
   <!--修改商品代理商户-->

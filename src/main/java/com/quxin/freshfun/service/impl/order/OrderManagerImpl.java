@@ -158,9 +158,18 @@ public class OrderManagerImpl implements OrderManager {
 	}
 	@Override
 	public Integer addShoppingCart(Long userId, Integer goodsId) {
-		Integer existeStatus = shoppingCartMapper.selectExistedOrder(userId, goodsId);
-		if(existeStatus > 0){
-			return 0;
+		List<Integer> list = shoppingCartMapper.selectExistedOrder(userId, goodsId);
+		if(list.size() > 0){
+			//修改购物车数量
+			for (Integer id: list) {
+				System.out.println(id);
+				int status = shoppingCartMapper.addGoodsTotals(id);
+				if(status <= 0){
+					return 0;
+				}else{
+					return 1;
+				}
+			}
 		}
 		Long currentDate = DateUtils.getCurrentDate();
 		//查询单个商品价格
@@ -215,8 +224,13 @@ public class OrderManagerImpl implements OrderManager {
 		return null;
 	}
 	@Override
-	public int confirmGoodsReceipt(String orderId) {
-		return orderDetailsMapper.confirmGoodsReceipt(orderId);
+	public Integer confirmGoodsReceipt(String orderId) {
+		Map<String , Object> map = new HashMap<String, Object>();
+		map.put("reciveTime", System.currentTimeMillis()/1000);
+		map.put("orderDetailId", orderId);
+		Integer returnNum = orderDetailsMapper.updateOrderStatus(map);
+		orderDetailsMapper.updateInState(orderId);
+		return returnNum;
 	}
 	
 	/**

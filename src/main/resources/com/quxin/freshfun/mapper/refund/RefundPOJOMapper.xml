@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="refund" >
+<mapper namespace="com.quxin.freshfun.dao.RefundMapper" >
   <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.RefundPOJO" >
     <id column="id" property="id" jdbcType="INTEGER" />
     <result column="order_details_id" property="orderDetailsId" jdbcType="VARCHAR" />
-    <result column="service_type" property="serviceType" jdbcType="INTEGER" />
-    <result column="return_reason" property="returnReason" jdbcType="INTEGER" />
+    <result column="service_type" property="serviceType" jdbcType="VARCHAR" />
+    <result column="return_reason" property="returnReason" jdbcType="VARCHAR" />
     <result column="return_money" property="returnMoney" jdbcType="INTEGER" />
     <result column="return_des" property="returnDes" jdbcType="VARCHAR" />
     <result column="gmt_create" property="gmtCreate" jdbcType="BIGINT" />
@@ -19,9 +19,9 @@
     insert into refund (id, order_details_id, service_type, 
       return_reason, return_money, return_des, 
       gmt_create, gmt_modified)
-    values (#{id,jdbcType=INTEGER}, #{orderDetailsId,jdbcType=VARCHAR}, #{serviceType,jdbcType=INTEGER}, 
-      #{returnReason,jdbcType=INTEGER}, #{returnMoney,jdbcType=INTEGER}, #{returnDes,jdbcType=VARCHAR}, 
-      #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT})
+    values (#{id}, #{orderDetailsId}, #{serviceType},
+      #{returnReason}, #{returnMoney}, #{returnDes},
+      #{gmtCreate}, #{gmtModified})
   </insert>
   <update id="updateRefundStatus" parameterType="java.lang.String">
   	update order_details 
@@ -29,7 +29,7 @@
   		refund_status = 1
   	</set>
   	<where>
-  		order_details_id = #{orderDetailId}
+  		id = #{orderDetailId}
   	</where>
   </update>
 </mapper>

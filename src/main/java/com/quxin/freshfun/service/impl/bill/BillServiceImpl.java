@@ -7,17 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.dao.AgentWithdrawMapper;
+import com.quxin.freshfun.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.dao.UserOutcomeMapper;
 import com.quxin.freshfun.dao.UserRevenueMapper;
 import com.quxin.freshfun.dao.WithdrawMapper;
-import com.quxin.freshfun.model.ExtractMoney;
-import com.quxin.freshfun.model.RevenueOrExpenses;
-import com.quxin.freshfun.model.UserOutcome;
-import com.quxin.freshfun.model.UserRevenue;
-import com.quxin.freshfun.model.Withdraw;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
@@ -29,6 +26,8 @@ public class BillServiceImpl implements BillService {
 	private UserOutcomeMapper userOutcomeMapper;
 	@Autowired
 	private WithdrawMapper withdrawMapper;
+	@Autowired
+	private AgentWithdrawMapper agentWithdrawMapper;
 
 	@Override
 	public Map<String, String> selectUserBillDetailed(Long userId) {
@@ -161,6 +160,74 @@ public class BillServiceImpl implements BillService {
 			withdraw.setWithdrawPrice(null);
 		}
 		return presentRecord;
+	}
+	/**
+	 * 商户总收益
+	 * @param userId
+	 * @return
+	 */
+	@Override
+	public String selectAgentsIncome(Long userId) {
+		Integer agentsIncome = userRevenueMapper.selectAgentsIncome(userId);
+		String money = MoneyFormat.priceFormatString(agentsIncome);
+		return money;
+
+	}
+
+	/**
+	 * 未入账收入
+	 * @param userId
+	 * @return
+	 */
+	@Override
+	public String selectAgentsRreezeMoney(Long userId) {
+		Integer unbilledRevenue = userRevenueMapper.selectAgentsRreezeMoney(userId);
+		String money = MoneyFormat.priceFormatString(unbilledRevenue);
+		return money;
+	}
+
+	/**
+	 * 可提现收入
+	 * @param userId
+	 * @return
+	 */
+	@Override
+	public Integer selectAgentExtractMoney(Long userId) {
+		Integer agentExtractMoney = userRevenueMapper.selectAgentExtractMoney(userId);
+		return agentExtractMoney;
+	}
+	@Override
+	public String addAgentWithdraw(Integer userId ,Integer wayId,Long money ,Long extractMoney){
+		if(money<=extractMoney){
+			//提现申请对象赋值
+			AgentWithdrawPOJO agentWithdraw = new AgentWithdrawPOJO();
+			agentWithdraw.setMerchantProxyId(userId);
+			agentWithdraw.setWithdrawId(wayId);
+			agentWithdraw.setWithdrawMoney(money);
+			agentWithdraw.setWithdrawSchedule(0);
+			agentWithdraw.setGetCreate(DateUtils.getCurrentDate());
+			agentWithdraw.setGmtModified(DateUtils.getCurrentDate());
+			//执行保存方法
+			int result = agentWithdrawMapper.insertSelective(agentWithdraw);
+			if(result > 0){
+				UserRevenue ur = new UserRevenue();
+				ur.setUserId(Long.valueOf(userId));
+				ur.setRevenueName("提现金额");
+				ur.setPrice(Integer.valueOf(money.toString())*(-1));
+				ur.setDeliveryType(2);
+				ur.setInState(2);
+				ur.setCreateDate(DateUtils.getCurrentDate());
+				ur.setUpdateDate(DateUtils.getCurrentDate());
+				int u = userRevenueMapper.insertSelective(ur);
+				if(u > 0){
+					return "1";
+				}else{
+					return "0";
+				}
+			}
+			return "1";
+		}
+		return "0";
 	}
 	
 }
