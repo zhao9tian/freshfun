@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.FlowMapper">
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.quxin.freshfun.model.parm.FlowParam">
+    insert into
+      flow
+        (user_id,
+        order_id,
+        agent_flow,
+        fetcher_flow,
+        agent_balance,
+        fetcher_balance,
+        created,
+        updated,
+        is_deleted)
+    values
+        (#{userId},
+        #{orderId},
+        #{agentFlow},
+        #{fetcherFlow},
+        #{agentBalance},
+        #{fetcherBalance},
+        #{created},
+        #{updated},
+        #{isDeleted})
+  </insert>
+
+  <select id="selectFlowListByUserId" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.FlowPOJO">
+    SELECT
+      id ,
+      user_id as userId,
+      order_id as orderId,
+      agent_flow as agentFlow,
+      fetcher_flow as fetcherFlow,
+      agent_balance as agentBalance,
+      fetcher_balance as fetcherBalance,
+      created,
+      updated,
+      is_deleted as isDeleted
+    FROM
+      flow
+    WHERE
+      user_id = #{userId}
+      and is_deleted = 0
+      order by id desc
+      limit #{start} , #{pageSize}
+  </select>
+
+  <select id="selectFlowByOrderId" parameterType="Long" resultType="com.quxin.freshfun.model.pojo.FlowPOJO">
+    SELECT
+      id ,
+      user_id as userId,
+      order_id as orderId,
+      agent_flow as agentFlow,
+      fetcher_flow as fetcherFlow,
+      agent_balance as agentBalance,
+      fetcher_balance as fetcherBalance,
+      created,
+      updated,
+      is_deleted as isDeleted
+    FROM
+      flow
+    WHERE
+      order_id = #{orderId}
+      and is_deleted = 0
+  </select>
+
+  <select id="getCount" parameterType="Long" resultType="Integer">
+    select
+      count(*)
+    from
+      flow
+    WHERE
+      user_id = #{userId}
+      and is_deleted = 0
+    limit 1
+  </select>
+
+</mapper>
