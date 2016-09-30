@@ -21,7 +21,7 @@ public interface FlowMapper {
      * @param map
      * @return
      */
-    List<FlowPOJO> selectFlowListByUserId(Map map);
+    List<FlowPOJO> selectFlowListByUserId(Map<String, Object> map);
 
     /**
      * 通过单号查询流水明细

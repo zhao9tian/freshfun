@@ -11,7 +11,6 @@ import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
 import com.quxin.freshfun.utils.ReflectionUtils;
 import com.quxin.freshfun.utils.ValidateUtil;
-import com.sun.tools.javac.comp.Flow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,7 @@ public class FlowServiceImpl implements FlowService {
 			pageSize = 10;
 		}
 
-		Map map = new HashMap();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("userId",userId);
 		map.put("start",start);
 		map.put("pageSize",pageSize);
