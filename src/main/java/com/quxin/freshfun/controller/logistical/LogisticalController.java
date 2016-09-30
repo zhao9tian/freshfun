@@ -2,6 +2,13 @@ package com.quxin.freshfun.controller.logistical;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.quxin.freshfun.model.LogisticalContent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +20,11 @@ import com.quxin.freshfun.model.Logistical;
 import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.GtexMd5B32Util;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 物流接口
@@ -38,11 +50,24 @@ public class LogisticalController {
 		OrderDetailsPOJO orderDetails = orderService.getOrderLogistic(orderDetailId);
 		String waybill = orderDetails.getDeliveryNum();
 		String company = orderDetails.getDeliveryName();
-		
-		String result=GtexMd5B32Util.insertPostHttp(waybill,company);
-		Gson gson = new Gson();
 		Logistical logistical = new Logistical();
-		logistical = gson.fromJson(result, Logistical.class);
+		String result=GtexMd5B32Util.insertPostHttp(waybill,company);
+
+		Map map = JSON.parseObject(result,java.util.Map.class);
+		JSONArray jsonArray = (JSONArray) map.get("gtex_traces");
+		Object[] objArr = jsonArray.toArray();
+
+		List<LogisticalContent> list = new ArrayList<LogisticalContent>();
+		for(int i=0;i<objArr.length;i++) {
+			LogisticalContent p = new LogisticalContent();
+			Map ma =  (Map)objArr[0];
+			System.out.println(ma.get("content"));
+			System.out.println(ma.get("time"));
+			p.setContent(ma.get("content").toString());
+			p.setTime(ma.get("time").toString());
+			list.add(p);
+		}
+		logistical.setGtexTraces(list);
 		return logistical;
 	}
 	

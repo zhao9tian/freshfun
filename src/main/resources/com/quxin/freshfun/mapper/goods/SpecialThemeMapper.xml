@@ -30,7 +30,7 @@
   
   <select id="findAll" resultMap="BaseResultMap">
       select id, theme_des, theme_img, theme_info_img, theme_content, theme_info_content, share_url
-    from special_theme where is_deleted = 0 
+    from special_theme where is_deleted = 0 ORDER BY gmt_modified DESC
   </select>
   
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
