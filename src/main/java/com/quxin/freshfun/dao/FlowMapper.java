@@ -31,6 +31,20 @@ public interface FlowMapper {
     FlowPOJO selectFlowByOrderId(Long orderId);
 
     /**
+     * 获取最新一条的用户id
+     * @param userId
+     * @return
+     */
+    int selectLastedFlowByUserId(Long userId);
+
+    /**
+     * 通过主键查询流水明细
+     * @param id
+     * @return
+     */
+    FlowPOJO selectFlowById(Integer id);
+
+    /**
      * 查询总数
      * @param userId
      * @return

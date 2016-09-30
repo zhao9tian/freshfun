@@ -11,6 +11,7 @@ import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
 import com.quxin.freshfun.utils.ReflectionUtils;
 import com.quxin.freshfun.utils.ValidateUtil;
+import com.sun.tools.javac.comp.Flow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +38,20 @@ public class FlowServiceImpl implements FlowService {
 			return false;
 		}
 
-		int id = flowMapper.insert(flowParam);
-		if (id == 0) {
+		Long userId = flowParam.getUserId();
+
+		// 查询这个用户最新的流水
+		int id = flowMapper.selectLastedFlowByUserId(userId);
+
+		// 查询流水详情
+		FlowPOJO lastedFlowDetail = flowMapper.selectFlowById(id);
+
+		// 余额 = 最新一条的余额 + 本次的flow
+		flowParam.setFetcherBalance(lastedFlowDetail.getFetcherBalance() + flowParam.getFetcherFlow());
+		flowParam.setAgentBalance(lastedFlowDetail.getAgentBalance() + flowParam.getAgentFlow());
+
+		int insertId = flowMapper.insert(flowParam);
+		if (insertId == 0) {
 			logger.error("添加流水失败 入参:" + JSON.toJSONString(flowParam));
 			return false;
 		}

@@ -39,12 +39,12 @@ public class FlowServiceImplTest extends TestBase{
         long agentBalance = 100l;
         long orderId = 13565665;
         FlowParam flowParam = new FlowParam();
-        flowParam.setUserId(556677);
+        flowParam.setUserId(556677l);
         flowParam.setOrderId(13565665l);
         flowParam.setAgentBalance(agentBalance);
-        flowParam.setAgentFlow(10l);
+        flowParam.setAgentFlow(-10l);
         flowParam.setFetcherBalance(200l);
-        flowParam.setFetcherFlow(20l);
+        flowParam.setFetcherFlow(-20l);
 
         flowParam.setCreated(now);
         flowParam.setUpdated(now);

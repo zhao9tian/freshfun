@@ -66,6 +66,37 @@
       and is_deleted = 0
   </select>
 
+  <select id="selectLastedFlowByUserId" parameterType="Long" resultType="Integer">
+    SELECT
+      max(id)
+    FROM
+      flow
+    WHERE
+      user_id = #{userId}
+      and is_deleted = 0
+    limit 1
+  </select>
+
+  <select id="selectFlowById" parameterType="Integer" resultType="com.quxin.freshfun.model.pojo.FlowPOJO">
+    SELECT
+    id ,
+    user_id as userId,
+    order_id as orderId,
+    agent_flow as agentFlow,
+    fetcher_flow as fetcherFlow,
+    agent_balance as agentBalance,
+    fetcher_balance as fetcherBalance,
+    created,
+    updated,
+    is_deleted as isDeleted
+    FROM
+    flow
+    WHERE
+    id = #{id}
+    and is_deleted = 0
+  </select>
+
+
   <select id="getCount" parameterType="Long" resultType="Integer">
     select
       count(*)
