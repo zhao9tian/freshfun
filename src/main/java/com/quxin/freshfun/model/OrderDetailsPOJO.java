@@ -18,43 +18,91 @@ public class OrderDetailsPOJO {
     private Long payTime;
     private Integer count;
     private Integer orderStatus;
-    private Integer refundStatus;
-    private Integer commentStatus;
+    /**
+     * 商户编号
+     */
+    private Long agentId;
+    /**
+     * 商户单笔订单提成
+     */
+    private Integer agentPrice;
+    /**
+     * 捕手编号
+     */
+    private Long fetcherId;
+    /**
+     * 捕手单笔订单提成
+     */
+    private Integer fetcherPrice;
+    /**
+     * 流量来源
+     */
     private Integer payPlateform;
     private Integer isDeleted;
     private Long createDate;
     private Long updateDate;
     private Integer payStatus;
+    /**
+     * 发货时间
+     */
+    private Long deliveryTime;
+    /**
+     * 商品成本价
+     */
+    private Integer goodsCost;
     private String name;
     private String tel;
     private String city;
     private String address;
-//    private GoodsPOJO goods;
+    /**
+     * 备注
+     */
+    private String remark;
+    /**
+     * 发货备注
+     */
+    private String deliveryRemark;
+    /**
+     * 扩展信息
+     */
+    private String extra;
+
+    //    private GoodsPOJO goods;
     private Object goods;
     private String deliveryName;
+    /**
+     * 用于前端价格显示
+     */
     private String actualMoney;
     /**
      * 是否是限时商品
      */
     private Integer isLimit;
-	public Integer getIsLimit() {
-		return isLimit;
-	}
+    public Integer getIsLimit() {
+        return isLimit;
+    }
 
-	public void setIsLimit(Integer isLimit) {
-		this.isLimit = isLimit;
-	}
-    
+    public void setIsLimit(Integer isLimit) {
+        this.isLimit = isLimit;
+    }
+
     public String getActualMoney() {
-		return actualMoney;
-	}
+        return actualMoney;
+    }
 
-	public void setActualMoney(String actualMoney) {
-		this.actualMoney = actualMoney;
-	}
+    public void setActualMoney(String actualMoney) {
+        this.actualMoney = actualMoney;
+    }
 
+    public String getExtra() {
+        return extra;
+    }
 
-	/**
+    public void setExtra(String extra) {
+        this.extra = extra;
+    }
+
+    /**
      * 是否可以申请退款
      */
     private Integer isRefund;
@@ -62,24 +110,72 @@ public class OrderDetailsPOJO {
      * 确认收货时间
      */
     private Long reciveTime;
-    
+
+    public Integer getGoodsCost() {
+        return goodsCost;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public Integer getAgentPrice() {
+        return agentPrice;
+    }
+
+    public void setAgentPrice(Integer agentPrice) {
+        this.agentPrice = agentPrice;
+    }
+
+    public Integer getFetcherPrice() {
+        return fetcherPrice;
+    }
+
+    public void setFetcherPrice(Integer fetcherPrice) {
+        this.fetcherPrice = fetcherPrice;
+    }
+
+    public String getDeliveryRemark() {
+        return deliveryRemark;
+    }
+
+    public void setDeliveryRemark(String deliveryRemark) {
+        this.deliveryRemark = deliveryRemark;
+    }
+
+    public void setGoodsCost(Integer goodsCost) {
+        this.goodsCost = goodsCost;
+    }
+
+    public Long getDeliveryTime() {
+        return deliveryTime;
+    }
+
+    public void setDeliveryTime(Long deliveryTime) {
+        this.deliveryTime = deliveryTime;
+    }
+
     public Long getReciveTime() {
-		return reciveTime;
-	}
+        return reciveTime;
+    }
 
-	public void setReciveTime(Long reciveTime) {
-		this.reciveTime = reciveTime;
-	}
+    public void setReciveTime(Long reciveTime) {
+        this.reciveTime = reciveTime;
+    }
 
-	public Integer getIsRefund() {
-		return isRefund;
-	}
+    public Integer getIsRefund() {
+        return isRefund;
+    }
 
-	public void setIsRefund(Integer isRefund) {
-		this.isRefund = isRefund;
-	}
+    public void setIsRefund(Integer isRefund) {
+        this.isRefund = isRefund;
+    }
 
-	public Integer getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -120,20 +216,20 @@ public class OrderDetailsPOJO {
     }
 
     public Object getGoods() {
-		return goods;
-	}
+        return goods;
+    }
 
-	public void setGoods(Object goods) {
-		this.goods = goods;
-	}
+    public void setGoods(Object goods) {
+        this.goods = goods;
+    }
 
-	public Long getUserId() {
-		return userId;
-	}
+    public Long getUserId() {
+        return userId;
+    }
 
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
     public Long getOrderId() {
         return orderId;
     }
@@ -208,14 +304,14 @@ public class OrderDetailsPOJO {
     public void setPayTime(Long payTime) {
         this.payTime = payTime;
     }
-    
-    public Integer getCount() {
-		return count;
-	}
 
-	public void setCount(Integer count) {
-		this.count = count;
-	}
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
 
     public Integer getOrderStatus() {
         return orderStatus;
@@ -225,20 +321,20 @@ public class OrderDetailsPOJO {
         this.orderStatus = orderStatus;
     }
 
-    public Integer getRefundStatus() {
-        return refundStatus;
+    public Long getAgentId() {
+        return agentId;
     }
 
-    public void setRefundStatus(Integer refundStatus) {
-        this.refundStatus = refundStatus;
+    public void setAgentId(Long agentId) {
+        this.agentId = agentId;
     }
 
-    public Integer getCommentStatus() {
-        return commentStatus;
+    public Long getFetcherId() {
+        return fetcherId;
     }
 
-    public void setCommentStatus(Integer commentStatus) {
-        this.commentStatus = commentStatus;
+    public void setFetcherId(Long fetcherId) {
+        this.fetcherId = fetcherId;
     }
 
     public Integer getPayPlateform() {
@@ -273,35 +369,35 @@ public class OrderDetailsPOJO {
         this.updateDate = updateDate;
     }
 
-	public Integer getPayStatus() {
-		return payStatus;
-	}
+    public Integer getPayStatus() {
+        return payStatus;
+    }
 
-	public void setPayStatus(Integer payStatus) {
-		this.payStatus = payStatus;
-	}
+    public void setPayStatus(Integer payStatus) {
+        this.payStatus = payStatus;
+    }
 
-	public String getDeliveryName() {
-		return deliveryName;
-	}
+    public String getDeliveryName() {
+        return deliveryName;
+    }
 
-	public void setDeliveryName(String deliveryName) {
-		this.deliveryName = deliveryName;
-	}
-	
-	/***********************************************显示倒计时时间戳*********************************************************/
-	
-	/**
-	 * 倒计时还有多久
-	 */
-	private Long outTimeStamp;
+    public void setDeliveryName(String deliveryName) {
+        this.deliveryName = deliveryName;
+    }
 
-	public Long getOutTimeStamp() {
-		return outTimeStamp;
-	}
+    /***********************************************显示倒计时时间戳*********************************************************/
 
-	public void setOutTimeStamp(Long outTimeStamp) {
-		this.outTimeStamp = outTimeStamp;
-	}	
-    
+    /**
+     * 倒计时还有多久
+     */
+    private Long outTimeStamp;
+
+    public Long getOutTimeStamp() {
+        return outTimeStamp;
+    }
+
+    public void setOutTimeStamp(Long outTimeStamp) {
+        this.outTimeStamp = outTimeStamp;
+    }
+
 }

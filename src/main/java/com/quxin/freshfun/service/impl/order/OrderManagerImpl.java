@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Maps;
 import com.quxin.freshfun.dao.GoodsMapper;
 import com.quxin.freshfun.dao.OrderDetailsMapper;
-import com.quxin.freshfun.dao.OrdersMapper;
 import com.quxin.freshfun.dao.ShoppingCartMapper;
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.OrderDetailsPOJO;
@@ -41,7 +40,7 @@ public class OrderManagerImpl implements OrderManager {
 	 */
 	@Override
 	public List<OrderDetailsPOJO> findAll(Long orderId, int currentPage,
-			int pageSize) {
+										  int pageSize) {
 		if(currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
@@ -153,7 +152,7 @@ public class OrderManagerImpl implements OrderManager {
 		Map<String,Object> map = Maps.newHashMap();
 		map.put("cart", carts);
 		map.put("recommendGoods", recommendGoods);
-		
+
 		return map;
 	}
 	@Override
@@ -211,7 +210,7 @@ public class OrderManagerImpl implements OrderManager {
 		}
 		return totals;
 	}
-	
+
 	@Override
 	public OrderDetailsPOJO selectSigleOrder(String orderDetailsId) {
 		List<OrderDetailsPOJO> sigleOrder = orderDetailsMapper.selectSigleOrder(orderDetailsId);
@@ -223,56 +222,69 @@ public class OrderManagerImpl implements OrderManager {
 		}
 		return null;
 	}
+
+	/**
+	 * 确认收货
+	 * @param orderId
+	 * @return
+	 */
 	@Override
 	public Integer confirmGoodsReceipt(String orderId) {
 		Map<String , Object> map = new HashMap<String, Object>();
 		map.put("reciveTime", System.currentTimeMillis()/1000);
 		map.put("orderDetailId", orderId);
+		//修改订单状态
 		Integer returnNum = orderDetailsMapper.updateOrderStatus(map);
-		orderDetailsMapper.updateInState(orderId);
+
+		// TODO 记录账单信息
 		return returnNum;
 	}
-	
+
+	/*@Override
+	public Integer autoConfirmDelivery(){
+
+	}*/
+
 	/**
-     * 确认评价
-     * @param orderId
-     * @return
-     */
+	 * 确认评价
+	 * @param orderId
+	 * @return
+	 */
 	@Override
 	public int confirmGoodsComment(String orderId) {
 		return orderDetailsMapper.confirmGoodsComment(orderId);
 	}
-	
+
 	/**
-     * 查询所有未退款订单状态数量
-     * @param userID
-     * @return
-     */
-	
+	 * 查询所有未退款订单状态数量
+	 * @param userId
+	 * @return
+	 */
+
 	@Override
-	public List<OrderStatusInfo> selectStatusCounts(Long userID) {
-		return orderDetailsMapper.selectStatusCounts(userID);
+	public List<OrderStatusInfo> selectStatusCounts(Long userId) {
+		return orderDetailsMapper.selectStatusCounts(userId);
 	}
-	
+
 	/**
-     * 查询退款订单数量
-     * @param userID
-     * @return
-     */
-	
+	 * 查询退款订单数量
+	 * @param userId
+	 * @return
+	 */
+
 	@Override
-	public List<OrderStatusInfo> selectRefundCounts(Long userID) {
-		return orderDetailsMapper.selectRefundCounts(userID);
+	public List<OrderStatusInfo> selectRefundCounts(Long userId) {
+		return orderDetailsMapper.selectRefundCounts(userId);
 	}
-	
+
 	/**
-     * 查询未付款订单数量
-     * @param userID
-     * @return
-     */
+	 * 查询未付款订单数量
+	 * @param userId
+	 * @return
+	 */
 	@Override
-	public List<OrderStatusInfo> selectPayCounts(Long userID) {
-		return orderDetailsMapper.selectPayCounts(userID);
+	public List<OrderStatusInfo> selectPayCounts(Long userId) {
+		return orderDetailsMapper.selectPayCounts(userId);
 	}
 	@Override
 	public Integer confirmReceipt(String orderDetailId) {
@@ -281,7 +293,7 @@ public class OrderManagerImpl implements OrderManager {
 		map.put("orderDetailId", orderDetailId);
 		return orderDetailsMapper.updateOrderStatus(map);
 	}
-	
+
 	@Override
 	public Integer delShoppingCartOrder(Integer scId) {
 		Long currentDate = DateUtils.getCurrentDate();
@@ -291,5 +303,91 @@ public class OrderManagerImpl implements OrderManager {
 	public Integer applyRefund(String orderDetailId) {
 		return orderDetailsMapper.applyRefund(orderDetailId);
 	}
+
+
+
+	//订单后台
+	@Override
+	public List<OrderDetailsPOJO> selectBackstageOrderClose(int currentPage, int pageSize) {
+		return orderDetailsMapper.selectBackstageOrderClose(currentPage,pageSize);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectBackstageOrders(int currentPage, int pageSize) {
+		return orderDetailsMapper.selectBackstageOrders(currentPage,pageSize);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectBackstagePendingPaymentOrder(int currentPage, int pageSize) {
+		return orderDetailsMapper.selectBackstagePendingPaymentOrder(currentPage,pageSize);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectBackstageAwaitDeliverOrder(int currentPage, int pageSize) {
+		return orderDetailsMapper.selectBackstageAwaitDeliverOrder(currentPage,pageSize);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectBackstageAwaitGoodsReceipt(int currentPage, int pageSize) {
+		return orderDetailsMapper.selectBackstageAwaitGoodsReceipt(currentPage,pageSize);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectFinishOrder(int currentPage, int pageSize) {
+		return orderDetailsMapper.selectFinishOrder(currentPage,pageSize);
+	}
+
+	@Override
+	public Integer selectBackstageOrderCloseCount() {
+		return orderDetailsMapper.selectBackstageOrderCloseCount();
+	}
+
+	@Override
+	public Integer selectBackstageOrdersCount() {
+		return orderDetailsMapper.selectBackstageOrdersCount();
+	}
+
+	@Override
+	public Integer selectBackstagePendingPaymentOrderCount() {
+		return orderDetailsMapper.selectBackstagePendingPaymentOrderCount();
+	}
+
+	@Override
+	public Integer selectBackstageAwaitDeliverOrderCount() {
+		return orderDetailsMapper.selectBackstageAwaitDeliverOrderCount();
+	}
+
+	@Override
+	public Integer selectBackstageAwaitGoodsReceiptCount() {
+		return orderDetailsMapper.selectBackstageAwaitGoodsReceiptCount();
+	}
+
+	@Override
+	public Integer selectFinishOrderCount() {
+		return orderDetailsMapper.selectFinishOrderCount();
+	}
+
+	@Override
+	public Integer deliverOrder(OrderDetailsPOJO order) {
+		Long currentDate = DateUtils.getCurrentDate();
+		Map<String,Object> map = Maps.newHashMap();
+		map.put("orderId",order.getOrderId());
+		map.put("deliveryNum",order.getDeliveryNum());
+		map.put("deliveryName",order.getDeliveryName());
+		map.put("deliveryTime",currentDate);
+		Double goodsCost = Double.parseDouble(order.getActualMoney())*100;
+		map.put("goodsCost",goodsCost.intValue());
+		map.put("deliveryRemark",order.getDeliveryRemark());
+		return orderDetailsMapper.deliverOrder(map);
+	}
+
+	@Override
+	public Integer orderRemark(Long orderId,String remark) {
+		Map<String,Object> map = Maps.newHashMap();
+		map.put("remark",remark);
+		map.put("orderId",orderId);
+		return orderDetailsMapper.orderRemark(map);
+	}
+
 
 }

@@ -16,11 +16,11 @@ public interface OrderManager {
 	 */
 	int delOrder(String orderId);
 	/**
-     * 根据订单编号查询订单
-     * @param orderDetailsId
-     * @return
-     */
-   OrderDetailsPOJO selectSigleOrder(String orderDetailsId);
+	 * 根据订单编号查询订单
+	 * @param orderDetailsId
+	 * @return
+	 */
+	OrderDetailsPOJO selectSigleOrder(String orderDetailsId);
 	/**
 	 * 根据用户编号查询所有订单信息
 	 * @param userId
@@ -70,77 +70,169 @@ public interface OrderManager {
 	 */
 	Integer addShoppingCart(Long userId,Integer goodsId);
 	/**
-     * 查询商品数量
-     * @return
-     */
-    Integer selectGoodsTotals(Integer scId);
-    /**
-     * 添加商品数量
-     * @param scId
-     * @return
-     */
-    Integer addGoodsTotals(Integer scId);
-    /**
-     * 减少商品数量
-     * @param scId
-     * @return
-     */
-    Integer reduceGoodsTotals(Integer scId);
-    /**
-     * 确认收货
-     * @param orderId
-     * @return
-     */
-    Integer confirmGoodsReceipt(String orderId);
-    /**
-     * 刪除訂單
-     * @param scId
-     * @return
-     */
-    Integer delShoppingCartOrder(Integer scId);
-    
-    /**
-     * 确认评价
-     * @param orderId
-     * @return
-     */
-    int confirmGoodsComment(String orderId);
-	
-	
+	 * 查询商品数量
+	 * @return
+	 */
+	Integer selectGoodsTotals(Integer scId);
 	/**
-     * 查询所有未退款订单状态数量
-     * @param userID
-     * @return
-     */
+	 * 添加商品数量
+	 * @param scId
+	 * @return
+	 */
+	Integer addGoodsTotals(Integer scId);
+	/**
+	 * 减少商品数量
+	 * @param scId
+	 * @return
+	 */
+	Integer reduceGoodsTotals(Integer scId);
+	/**
+	 * 确认收货
+	 * @param orderId
+	 * @return
+	 */
+	Integer confirmGoodsReceipt(String orderId);
+	/**
+	 * 刪除訂單
+	 * @param scId
+	 * @return
+	 */
+	Integer delShoppingCartOrder(Integer scId);
+
+	/**
+	 * 确认评价
+	 * @param orderId
+	 * @return
+	 */
+	int confirmGoodsComment(String orderId);
+
+
+	/**
+	 * 查询所有未退款订单状态数量
+	 * @param userID
+	 * @return
+	 */
 	List<OrderStatusInfo> selectStatusCounts(Long userID);
-	
+
 	/**
-     * 查询退款订单数量
-     * @param userID
-     * @return
-     */
+	 * 查询退款订单数量
+	 * @param userID
+	 * @return
+	 */
 	List<OrderStatusInfo> selectRefundCounts(Long userID);
-	
+
 	/**
-     * 查询未付款订单数量
-     * @param userID
-     * @return
-     */
+	 * 查询未付款订单数量
+	 * @param userID
+	 * @return
+	 */
 	List<OrderStatusInfo> selectPayCounts(Long userID);
-	
+
 	/**
 	 * 根据订单ID修改订单状态
 	 * @param orderDetailId
 	 * @return
 	 */
 	Integer confirmReceipt(String orderDetailId);
-	
+
 	/**
 	 * 申请退款
 	 * @param orderDetailId
 	 * @return
 	 */
 	Integer applyRefund(String orderDetailId);
-	
-	
+
+	//订单后台
+
+	/**
+	 * 查询关闭订单
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	List<OrderDetailsPOJO> selectBackstageOrderClose(int currentPage,int pageSize);
+
+	/**
+	 * 所有订单
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	List<OrderDetailsPOJO>  selectBackstageOrders(int currentPage,int pageSize);
+
+	/**
+	 * 待支付订单
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	List<OrderDetailsPOJO> selectBackstagePendingPaymentOrder(int currentPage,int pageSize);
+
+	/**
+	 * 待发货
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	List<OrderDetailsPOJO> selectBackstageAwaitDeliverOrder(int currentPage,int pageSize);
+
+	/**
+	 * 待收货订单
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	List<OrderDetailsPOJO> selectBackstageAwaitGoodsReceipt(int currentPage,int pageSize);
+
+	/**
+	 * 已完成订单
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
+	List<OrderDetailsPOJO> selectFinishOrder(int currentPage,int pageSize);
+
+	/**
+	 * 查询关闭订单数量
+	 * @return
+	 */
+	Integer selectBackstageOrderCloseCount();
+
+	/**
+	 * 查询所有订单总数量
+	 * @return
+	 */
+	Integer selectBackstageOrdersCount();
+	/**
+	 * 查询待付款数量
+	 * @return
+	 */
+	Integer selectBackstagePendingPaymentOrderCount();
+	/**
+	 * 查询代发货数量
+	 * @return
+	 */
+	Integer selectBackstageAwaitDeliverOrderCount();
+	/**
+	 * 查询待收货数量
+	 * @return
+	 */
+	Integer selectBackstageAwaitGoodsReceiptCount();
+	/**
+	 * 查询已完成订单数量
+	 * @return
+	 */
+	Integer selectFinishOrderCount();
+
+	/**
+	 * 发货
+	 * @param order
+	 * @return
+	 */
+	Integer deliverOrder(OrderDetailsPOJO order);
+	/**
+	 * 订单备注
+	 * @return
+	 */
+	Integer orderRemark(Long orderId,String remark);
 }
