@@ -1,6 +1,6 @@
 package com.quxin.freshfun.service.flow;
 
-import com.quxin.freshfun.model.parm.FlowParam;
+import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.pojo.FlowPOJO;
 import org.springframework.stereotype.Service;
 

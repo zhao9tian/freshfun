@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.quxin.freshfun.dao.WithdrawMapper" >
+    <!--查询可提现金额B -->
+    <select id="selectWithdrawCashB" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT agent_balance FROM flow where  id =
+        (select max(id) from flow where user_id = #{userId} and is_deleted = 0)
+    </select>
+
+    <!--查询可提现金额C -->
+    <select id="selectWithdrawCashC" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT fetcher_balance FROM flow where id =
+        (select max(id) from flow where user_id = #{userId} and is_deleted = 0)
+    </select>
+
+    <!--查询B总收益 -->
+    <select id="selectTotalMoneyB" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT sum(`agent_price`) as totalMoney FROM order_details where agent_id = #{userId} and order_status <![CDATA[>=]]>30
+        and order_status <![CDATA[<=]]> 100 and is_deleted = 0
+    </select>
+    <!--查询C累计入账  已打款 -->
+    <select id="selectTotalMoneyC" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT sum(`fetcher_price`) as totalMoney FROM order_details where fetcher_id = #{userId} and order_status <![CDATA[>=]]>30
+        and order_status = 100 and is_deleted = 0
+    </select>
+
+    <!--查询B未入账收益 -->
+    <select id="selectUnrecordMoneyB" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT sum(`agent_price`) as unrecordMoney FROM order_details where agent_id = #{userId} and order_status <![CDATA[>=]]>30
+        and order_status <![CDATA[<]]> 100 and is_deleted = 0
+    </select>
+    <!--查询C未入账收益 -->
+    <select id="selectUnrecordMoneyC" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT sum(`fetcher_price`) as unrecordMoney FROM order_details where fetcher_id = #{userId} and order_status <![CDATA[>=]]>30
+        and order_status <![CDATA[<]]> 100 and is_deleted = 0
+    </select>
+
+    <!--查询B提现记录金额 -->
+    <select id="selectWithdrawRecordMoneyB" parameterType="java.lang.String" resultType="java.lang.Integer" >
+        select sum(withdraw_price) from withdraw where user_id = #{userId} and withdraw_source = 20 and state != 2 and is_delete = 0
+    </select>
+    <!--查询C提现记录金额 -->
+    <select id="selectWithdrawRecordMoneyC"  parameterType="java.lang.String" resultType="java.lang.Integer" >
+        select sum(withdraw_price) from withdraw where user_id = #{userId} and withdraw_source = 10 and state != 2 and is_delete = 0
+    </select>
+
+    <!--记录申请 -->
+    <insert id="insertWithdraw" parameterType="com.quxin.freshfun.model.pojo.WithdrawPOJO" useGeneratedKeys="true" keyProperty="id">
+        insert into withdraw(id , user_id , withdraw_price , withdraw_type , payment_account ,withdraw_source , create_date )
+        values (#{id} , #{userId} , #{withDrawPrice} , #{withDrawType} , #{paymentAccount} , #{withdrawSource} , #{createDate})
+    </insert>
+
+    <!--查询提现记录 -->
+    <select id="selectWithdrawList" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
+        SELECT   `withdraw_price` as `price`, `create_date` as `time`
+        FROM withdraw where user_id = #{userId} and withdraw_source = 10 and is_delete = 0 order by create_date desc
+    </select>
+
+    <!--查询收入记录 -->
+    <select id="selectIncomeRecords" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
+        SELECT  `goods_name` as `goodsName` , `actual_price` as `price`, `create_date` as `time`
+        FROM goods g, order_details o where g.id = o.goods_id and o.user_id = #{userId} and o.order_status = 100 and o.is_deleted = 0
+        order by create_date desc
+    </select>
+
+    <!--查询累计入账收益记录  ？是不是就是收入记录 -->
+    <select id="selectRecordDetails" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
+        SELECT  `goods_name` as `goodsName` , `actual_price` as `price`, `create_date` as `time`
+        FROM goods g, order_details o where g.id = o.goods_id and o.user_id = #{userId} and o.order_status = 100 and o.is_deleted = 0
+        order by create_date desc
+    </select>
+
+    <!--查询未入账收益记录 -->
+    <select id="selectUnrecordDetails" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
+        SELECT  `goods_name` as `goodsName` , `actual_price` as `price`, `create_date` as `time`
+        FROM goods g, order_details o where g.id = o.goods_id and o.user_id = #{userId} and order_status <![CDATA[>=]]>30
+        and order_status <![CDATA[<]]> 100 and o.is_deleted = 0  order by create_date desc
+    </select>
+
+</mapper>

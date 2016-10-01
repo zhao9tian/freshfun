@@ -2,11 +2,9 @@ package com.quxin.freshfun.test;
 
 
 import com.alibaba.fastjson.JSON;
-import com.quxin.freshfun.model.parm.FlowParam;
+import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.pojo.FlowPOJO;
 import com.quxin.freshfun.service.flow.FlowService;
-import com.quxin.freshfun.service.goods.GoodsService;
-import com.quxin.freshfun.service.goods.HomePageService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

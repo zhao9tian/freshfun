@@ -1,6 +1,6 @@
 package com.quxin.freshfun.dao;
 
-import com.quxin.freshfun.model.parm.FlowParam;
+import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.pojo.FlowPOJO;
 
 import java.util.List;

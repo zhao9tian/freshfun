@@ -1,4 +1,4 @@
-package com.quxin.freshfun.model.parm;
+package com.quxin.freshfun.model.param;
 
 import com.quxin.freshfun.model.entity.BaseEntity;
 

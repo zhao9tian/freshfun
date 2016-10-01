@@ -7,7 +7,6 @@ import com.quxin.freshfun.model.HomePagePOJO;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.goods.HomePageService;
-import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DataFormatException;
 
 @Controller
 @RequestMapping("/proxy")
@@ -28,8 +26,6 @@ public class ProxyController {
 	private HomePageService homePageService;
 	@Autowired
 	private GoodsService goods;
-	@Autowired
-	private OrderService orders;
 	@Autowired
 	private BillService billService;
 
@@ -140,4 +136,7 @@ public class ProxyController {
 		map.put("unbilledRevenue",Double.valueOf(unbilledRevenue));
 		return map;
 	}
+
+
+
 }

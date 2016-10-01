@@ -2,6 +2,7 @@ package com.quxin.freshfun.dao;
 
 import java.util.List;
 
+import com.quxin.freshfun.model.pojo.WithdrawPOJO;
 import org.apache.ibatis.annotations.Param;
 
 import com.quxin.freshfun.model.AgentWithdrawPOJO;
@@ -30,4 +31,18 @@ public interface AgentWithdrawMapper {
 	 * @return 受影响行数
 	 */
 	int updateByPrimaryKeySelective(AgentWithdrawPOJO agentWithdraw);
+
+	/**
+	 * 根据用户Id查询用户可提现金额--收益流水表 account_statement
+	 * @param userId
+	 * @return 返回用户可提现金额
+	 */
+	Integer selectWithdrawMoney(long userId);
+
+	/**
+	 * 插入提现记录
+	 * @param withdrawPOJO
+	 * @return 返回插入条数 不成功就返回null
+	 */
+	Integer insertWithdraw(WithdrawPOJO withdrawPOJO);
 }

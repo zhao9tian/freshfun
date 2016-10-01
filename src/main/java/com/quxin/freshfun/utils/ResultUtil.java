@@ -85,7 +85,7 @@ public class ResultUtil {
         goods.setGoodsId(123);
         goods.setDes("aa");
 
-//        System.out.println(BeanUtil.success(goods));
-//        System.out.println(BeanUtil.fail(4004,"呵呵哒"));
+        System.out.println(ResultUtil.success(goods));
+        System.out.println(ResultUtil.fail(4004,"呵呵哒"));
     }
 }
