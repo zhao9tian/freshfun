@@ -5,6 +5,7 @@ import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.service.flow.FlowService;
 import com.quxin.freshfun.service.order.OrderManager;
+import com.quxin.freshfun.service.user.VerifiedCodeService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class AutoConfirmTask {
     private BillService billService;
     @Autowired
     private FlowService flowService;
+
+    @Autowired
+    private VerifiedCodeService verifiedCodeService;
 
     /**
      * 7天自动确认收货时添加账单信息
@@ -62,4 +66,10 @@ public class AutoConfirmTask {
     public void autoConfirmRecording() throws BusinessException {
         billService.autoConfirmRecording();
     }
+
+    @Scheduled(cron="0 0 1 * * ? ")
+    public void deleteVerifyCode(){
+        verifiedCodeService.removeVerifyCode();
+    }
+
 }

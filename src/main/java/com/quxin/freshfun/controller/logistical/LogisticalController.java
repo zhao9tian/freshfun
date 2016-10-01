@@ -60,9 +60,7 @@ public class LogisticalController {
 		List<LogisticalContent> list = new ArrayList<LogisticalContent>();
 		for(int i=0;i<objArr.length;i++) {
 			LogisticalContent p = new LogisticalContent();
-			Map ma =  (Map)objArr[0];
-			System.out.println(ma.get("content"));
-			System.out.println(ma.get("time"));
+			Map ma =  (Map)objArr[i];
 			p.setContent(ma.get("content").toString());
 			p.setTime(ma.get("time").toString());
 			list.add(p);

@@ -26,41 +26,41 @@ public class WithdrawContorllerTest extends TestBase{
     }
     @Test
     public void getAllMoneyB() throws Exception {
-        System.out.println(withdrawController.getAllMoneyB("556677"));
+        System.out.println(withdrawController.getAllMoneyB("552233"));
     }
     @Test
     public void getAllMoneyC() throws Exception {
-        System.out.println(withdrawController.getAllMoneyC("556677"));
+        System.out.println(withdrawController.getAllMoneyC("553344"));
     }
 
     @Test
     public void getWithdrawRecord() {
-        System.out.println(withdrawController.withdrawRecords("556677"));
+        System.out.println(withdrawController.withdrawRecords("553344"));
     }
 
     @Test
     public void addWithdraw() throws Exception {
         WithdrawParam withdrawParam = new WithdrawParam();
-        withdrawParam.setUserId("556677");
-        withdrawParam.setMoney("0.5");
+        withdrawParam.setUserId("553344");
+        withdrawParam.setMoney("6.0");
         withdrawParam.setPayway("银行卡");
-        withdrawParam.setAccount("6286549251531515315");
-        System.out.println(withdrawController.applyWithdrawB(withdrawParam));
+        withdrawParam.setAccount("6286549251531o15315");
+//        System.out.println(withdrawController.applyWithdrawB(withdrawParam));
         System.out.println(withdrawController.applyWithdrawC(withdrawParam));
     }
 
 
     @Test
     public void getAllList(){
-        System.out.println(withdrawController.inOutDetails("556677"));
+        System.out.println(withdrawController.inOutDetails("553344"));
     }
     @Test
     public void getRecordList(){
-        System.out.println(withdrawController.getRecordList("556677"));
+        System.out.println(withdrawController.getRecordList("553344"));
     }
     @Test
     public void getUnrecordList(){
-        System.out.println(withdrawController.getUnrecordList("556677"));
+        System.out.println(withdrawController.getUnrecordList("553344"));
     }
 
 }

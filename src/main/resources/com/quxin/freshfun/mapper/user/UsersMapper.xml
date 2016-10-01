@@ -417,10 +417,15 @@
   	select count(id) from users where id = #{userId} and mobile_phone = #{phoneNum}
   </select>
 
+  <!--插入用户详情 -->
   <insert id="insertUserDetails" parameterType="com.quxin.freshfun.model.UserDetailPOJO" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO user_info(user_id , province , openid , headimgurl , language , city , country , unionid , nickname )
     VALUES (#{userId} , #{province} ,#{openid} , #{headimgurl} , #{language} , #{city} , #{country} , #{unionid} , #{nickname} )
   </insert>
 
+  <!--删除验证码-->
+  <delete id="deleteVerifyCode" >
+ 		DELETE from identified_code where	UNIX_TIMESTAMP(now())> (date + 120) ;
+  </delete>
 
 </mapper>

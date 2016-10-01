@@ -143,4 +143,10 @@ public interface UsersMapper {
      * @param userDetailPOJO
      */
 	int insertUserDetails(UserDetailPOJO userDetailPOJO);
+
+	/**
+	 * 定时删除验证码
+	 * @return
+	 */
+	Integer deleteVerifyCode();
 }

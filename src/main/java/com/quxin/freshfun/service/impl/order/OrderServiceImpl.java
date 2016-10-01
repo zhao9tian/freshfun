@@ -1,17 +1,13 @@
 package com.quxin.freshfun.service.impl.order;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.utils.*;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
@@ -21,16 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.quxin.freshfun.service.order.OrderService;
-import com.quxin.freshfun.utils.AESUtil;
-import com.quxin.freshfun.utils.BusinessException;
-import com.quxin.freshfun.utils.DateUtils;
-import com.quxin.freshfun.utils.HttpClientUtil;
-import com.quxin.freshfun.utils.IdGenerate;
-import com.quxin.freshfun.utils.MoneyFormat;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 @Service("orderService")
 public class OrderServiceImpl implements OrderService {
@@ -38,8 +27,6 @@ public class OrderServiceImpl implements OrderService {
 	private OrdersMapper ordersMapper;
 	@Autowired
 	private UserOutcomeMapper userOutcomeMapper;
-	@Autowired
-	private UserOutcomeDetailsMapper userOutcomeDetailsMapper;
 	@Autowired
 	private OrderDetailsMapper orderDetailsMapper;
 	@Autowired
@@ -54,8 +41,6 @@ public class OrderServiceImpl implements OrderService {
 	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
 	private UserRevenueMapper userRevenueMapper;
-	@Autowired
-	private UserRevenueDetailsMapper userRevenueDetailsMapper;
 	@Autowired
 	private MerchantAgentMapper merchantAgentMapper;
 	@Autowired

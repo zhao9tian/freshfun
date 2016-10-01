@@ -4,7 +4,6 @@ import com.quxin.freshfun.model.AllGoods;
 import com.quxin.freshfun.model.GoodsMongo;
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.HomePagePOJO;
-import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.goods.HomePageService;
 import com.quxin.freshfun.utils.MoneyFormat;
@@ -26,8 +25,8 @@ public class ProxyController {
 	private HomePageService homePageService;
 	@Autowired
 	private GoodsService goods;
-	@Autowired
-	private BillService billService;
+//	@Autowired
+//	private BillService billService;
 
 	/**
 	 * 查询商品
@@ -117,25 +116,25 @@ public class ProxyController {
 	}
 
 
-	@RequestMapping("/getIncome")
-	@ResponseBody
-	public  Map<String, Object> getIncome(String userId) {
-		Map<String, Object> map = new HashMap<>();
-        //总收益
-//		Integer totalRevenue = orders.queryAllIncome(Long.parseLong(userId));
-		String totalRevenue = billService.selectAgentsIncome(Long.parseLong(userId));
-		if(totalRevenue == null){
-			totalRevenue = "0";
-		}
-		//未入账收益
-		String unbilledRevenue = billService.selectAgentsRreezeMoney(Long.parseLong(userId));
-		if (unbilledRevenue == null){
-			unbilledRevenue = "0";
-		}
-		map.put("totalRevenue", Double.valueOf(totalRevenue));
-		map.put("unbilledRevenue",Double.valueOf(unbilledRevenue));
-		return map;
-	}
+//	@RequestMapping("/getIncome")
+//	@ResponseBody
+//	public  Map<String, Object> getIncome(String userId) {
+//		Map<String, Object> map = new HashMap<>();
+//        //总收益
+////		Integer totalRevenue = orders.queryAllIncome(Long.parseLong(userId));
+//		String totalRevenue = billService.selectAgentsIncome(Long.parseLong(userId));
+//		if(totalRevenue == null){
+//			totalRevenue = "0";
+//		}
+//		//未入账收益
+//		String unbilledRevenue = billService.selectAgentsRreezeMoney(Long.parseLong(userId));
+//		if (unbilledRevenue == null){
+//			unbilledRevenue = "0";
+//		}
+//		map.put("totalRevenue", Double.valueOf(totalRevenue));
+//		map.put("unbilledRevenue",Double.valueOf(unbilledRevenue));
+//		return map;
+//	}
 
 
 

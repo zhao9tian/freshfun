@@ -20,7 +20,7 @@
     </select>
     <!--查询C累计入账  已打款 -->
     <select id="selectTotalMoneyC" parameterType="java.lang.String" resultType="java.lang.Integer">
-        SELECT sum(`fetcher_price`) as totalMoney FROM order_details where fetcher_id = #{userId} and order_status <![CDATA[>=]]>30
+        SELECT sum(`fetcher_price`) as totalMoney FROM order_details where fetcher_id = #{userId}
         and order_status = 100 and is_deleted = 0
     </select>
 
@@ -58,22 +58,22 @@
 
     <!--查询收入记录 -->
     <select id="selectIncomeRecords" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
-        SELECT  `goods_name` as `goodsName` , `actual_price` as `price`, `create_date` as `time`
-        FROM goods g, order_details o where g.id = o.goods_id and o.user_id = #{userId} and o.order_status = 100 and o.is_deleted = 0
+        SELECT  `goods_name` as `goodsName` , `fetcher_price` as `price`, `create_date` as `time`
+        FROM goods g, order_details o where g.id = o.goods_id and o.fetcher_id = #{userId} and o.order_status = 100 and o.is_deleted = 0
         order by create_date desc
     </select>
 
     <!--查询累计入账收益记录  ？是不是就是收入记录 -->
     <select id="selectRecordDetails" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
-        SELECT  `goods_name` as `goodsName` , `actual_price` as `price`, `create_date` as `time`
-        FROM goods g, order_details o where g.id = o.goods_id and o.user_id = #{userId} and o.order_status = 100 and o.is_deleted = 0
+        SELECT  `goods_name` as `goodsName` , `fetcher_price` as `price`, `create_date` as `time`
+        FROM goods g, order_details o where g.id = o.goods_id and o.fetcher_id = #{userId} and o.order_status = 100 and o.is_deleted = 0
         order by create_date desc
     </select>
 
     <!--查询未入账收益记录 -->
     <select id="selectUnrecordDetails" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
-        SELECT  `goods_name` as `goodsName` , `actual_price` as `price`, `create_date` as `time`
-        FROM goods g, order_details o where g.id = o.goods_id and o.user_id = #{userId} and order_status <![CDATA[>=]]>30
+        SELECT  `goods_name` as `goodsName` , `fetcher_price` as `price`, `create_date` as `time`
+        FROM goods g, order_details o where g.id = o.goods_id and o.fetcher_id = #{userId} and order_status <![CDATA[>=]]>30
         and order_status <![CDATA[<]]> 100 and o.is_deleted = 0  order by create_date desc
     </select>
 

@@ -9,28 +9,28 @@ import com.quxin.freshfun.model.Withdraw;
 
 public interface WithdrawMapper {
 
-    int deleteByPrimaryKey(@Param("id") Integer id, @Param("userId") Integer userId);
-
-
-    int insert(Withdraw record);
-
-
-    int insertSelective(Withdraw record);
-
-
-    Withdraw selectByPrimaryKey(@Param("id") Integer id, @Param("userId") Integer userId);
-
-
-    int updateByPrimaryKeySelective(Withdraw record);
-
-
-    int updateByPrimaryKey(Withdraw record);
-    /**
-     * 查询提现记录
-     * @param userId
-     * @return
-     */
-    List<Withdraw> selectPresentRecord(Long userId);
+//    int deleteByPrimaryKey(@Param("id") Integer id, @Param("userId") Integer userId);
+//
+//
+//    int insert(Withdraw record);
+//
+//
+//    int insertSelective(Withdraw record);
+//
+//
+//    Withdraw selectByPrimaryKey(@Param("id") Integer id, @Param("userId") Integer userId);
+//
+//
+//    int updateByPrimaryKeySelective(Withdraw record);
+//
+//
+//    int updateByPrimaryKey(Withdraw record);
+//    /**
+//     * 查询提现记录
+//     * @param userId
+//     * @return
+//     */
+//    List<Withdraw> selectPresentRecord(Long userId);
 
 
     /**

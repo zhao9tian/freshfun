@@ -77,7 +77,7 @@ public interface UserRevenueMapper {
      */
     List<UserRevenue> selectRevenueBill(Long userId);
     /**
-     * 查詢可提現金額詳情 
+     * 查詢可提現金額詳情
      * @return
      */
     List<UserRevenue> selectExtractDetails(Long userId);

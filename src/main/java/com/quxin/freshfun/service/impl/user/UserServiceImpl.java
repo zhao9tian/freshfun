@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService{
 			if(userId != null){
 				//3.判断wzId是否在用户表里面,wzId唯一
 				String wzIdDB = userDao.getWzIdBywxId(wxId);
-				if( wzIdDB!= null && !wxId.equals(wzIdDB)){
+				if( wzIdDB!= null && !wzId.equals(wzIdDB)){
 					Map<String, Object> map = new HashMap<>();
 					map.put("userId", userId);
 					map.put("wzId", wzId);
@@ -96,8 +96,12 @@ public class UserServiceImpl implements UserService{
 				user.setWxId(wxId);
 				user.setWzId(wzId);
 				if(null != wxinfo.getCode() && !"".equals(wxinfo.getCode())){
-					String parentId = AESUtil.decodeStr(wxinfo.getCode()).split("\\|")[0];
-					user.setParentId(Long.parseLong(parentId.replace("\"", "")));
+					try{
+						String parentId = AESUtil.decodeStr(wxinfo.getCode()).split("\\|")[0];
+						user.setParentId(Long.parseLong(parentId.replace("\"", "")));
+					}catch (Exception e){
+						logger.error("code不正确导致, parentId出错", e);
+					}
 				}
 				//不为空
 				user.setGmtCreate(System.currentTimeMillis()/1000);
@@ -126,7 +130,6 @@ public class UserServiceImpl implements UserService{
 				userDetailPOJO.setUnionid(wxinfo.getUnionid());
 				userDetailPOJO.setOpenid(wxinfo.getOpenid());
 				userDao.insertUserDetails(userDetailPOJO);
-
 			}
 		}
 		return userId;

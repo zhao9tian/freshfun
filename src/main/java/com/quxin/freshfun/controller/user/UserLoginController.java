@@ -18,7 +18,7 @@ import com.quxin.freshfun.service.user.UserService;
 
 @Controller
 @RequestMapping("/login")
-public class UserLogin {
+public class UserLoginController {
 	@Autowired
 	private UserService userService;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
