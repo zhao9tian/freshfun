@@ -235,4 +235,10 @@ public interface OrderManager {
 	 * @return
 	 */
 	Integer orderRemark(Long orderId,String remark);
+
+	/**
+	 * 7天未确认收货订单
+	 * @return
+	 */
+	List<OrderDetailsPOJO> autoConfirmDelivery();
 }

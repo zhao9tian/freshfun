@@ -69,5 +69,5 @@ public interface GoodsTypeMapper {
      * 通过类别查询
      * @return
      */
-    List<GoodsTypePOJO>findAllGoods();
+    List<GoodsTypePOJO> findAllGoods();
 }

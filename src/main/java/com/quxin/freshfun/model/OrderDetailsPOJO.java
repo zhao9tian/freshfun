@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class OrderDetailsPOJO {
-    private Integer id;
+    private Long id;
     private Long userId;
     private Long orderId;
     private String orderDetailsId;
@@ -175,11 +175,11 @@ public class OrderDetailsPOJO {
         this.isRefund = isRefund;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -400,4 +400,47 @@ public class OrderDetailsPOJO {
         this.outTimeStamp = outTimeStamp;
     }
 
+    @Override
+    public String toString() {
+        return "OrderDetailsPOJO{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", orderId=" + orderId +
+                ", orderDetailsId='" + orderDetailsId + '\'' +
+                ", goodsId=" + goodsId +
+                ", actualPrice=" + actualPrice +
+                ", deliveryNum='" + deliveryNum + '\'' +
+                ", addressId=" + addressId +
+                ", commentId=" + commentId +
+                ", paymentMethod=" + paymentMethod +
+                ", payTime=" + payTime +
+                ", count=" + count +
+                ", orderStatus=" + orderStatus +
+                ", agentId=" + agentId +
+                ", agentPrice=" + agentPrice +
+                ", fetcherId=" + fetcherId +
+                ", fetcherPrice=" + fetcherPrice +
+                ", payPlateform=" + payPlateform +
+                ", isDeleted=" + isDeleted +
+                ", createDate=" + createDate +
+                ", updateDate=" + updateDate +
+                ", payStatus=" + payStatus +
+                ", deliveryTime=" + deliveryTime +
+                ", goodsCost=" + goodsCost +
+                ", name='" + name + '\'' +
+                ", tel='" + tel + '\'' +
+                ", city='" + city + '\'' +
+                ", address='" + address + '\'' +
+                ", remark='" + remark + '\'' +
+                ", deliveryRemark='" + deliveryRemark + '\'' +
+                ", extra='" + extra + '\'' +
+                ", goods=" + goods +
+                ", deliveryName='" + deliveryName + '\'' +
+                ", actualMoney='" + actualMoney + '\'' +
+                ", isLimit=" + isLimit +
+                ", isRefund=" + isRefund +
+                ", reciveTime=" + reciveTime +
+                ", outTimeStamp=" + outTimeStamp +
+                '}';
+    }
 }

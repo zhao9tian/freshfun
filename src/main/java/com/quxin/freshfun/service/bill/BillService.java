@@ -3,6 +3,7 @@ package com.quxin.freshfun.service.bill;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.utils.BusinessException;
 import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.model.ExtractMoney;
@@ -83,4 +84,10 @@ public interface BillService {
      * @return
      */
     String addAgentWithdraw(Integer userId ,Integer wayId,Long money ,Long extractMoney);
+
+    /**
+     * 自动确认收货
+     * @return
+     */
+    Integer autoConfirmRecording() throws BusinessException;
 }

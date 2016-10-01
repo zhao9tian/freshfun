@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,8 @@ public class OrderManagerImpl implements OrderManager {
 	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
 	private GoodsMapper goodsMapper;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * 根据订单编号删除订单信息
@@ -230,6 +234,7 @@ public class OrderManagerImpl implements OrderManager {
 	 */
 	@Override
 	public Integer confirmGoodsReceipt(String orderId) {
+		logger.info("订单自动进入确认收货流程");
 		Map<String , Object> map = new HashMap<String, Object>();
 		map.put("reciveTime", System.currentTimeMillis()/1000);
 		map.put("orderDetailId", orderId);
@@ -239,6 +244,8 @@ public class OrderManagerImpl implements OrderManager {
 		// TODO 记录账单信息
 		return returnNum;
 	}
+
+
 
 	/*@Override
 	public Integer autoConfirmDelivery(){
@@ -387,6 +394,11 @@ public class OrderManagerImpl implements OrderManager {
 		map.put("remark",remark);
 		map.put("orderId",orderId);
 		return orderDetailsMapper.orderRemark(map);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> autoConfirmDelivery() {
+		return orderDetailsMapper.selectUnConfirmOrder();
 	}
 
 

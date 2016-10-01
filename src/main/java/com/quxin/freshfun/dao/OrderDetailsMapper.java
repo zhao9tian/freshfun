@@ -122,7 +122,7 @@ public interface OrderDetailsMapper {
      * @param orderId
      * @return
      */
-    int confirmGoodsReceipt(String orderId);
+    int confirmGoodsReceipt(@Param("reciveTime") Long reciveTime,@Param("orderId") Long orderId);
 
     /**
      * 确认评价
@@ -130,6 +130,25 @@ public interface OrderDetailsMapper {
      * @return
      */
     int confirmGoodsComment(String orderId);
+
+    /**
+     * 14天自动收货
+     * @return
+     */
+    List<OrderDetailsPOJO> selectUnConfirmOrder();
+
+    /**
+     * 查询订单确认收货超过7天
+     * @return
+     */
+    List<OrderDetailsPOJO> selectAwaitPayMoney();
+
+    /**
+     * 修改订单状态为已打款
+     * @param orderId
+     * @return
+     */
+    Integer updateAlreadyPayMoney(Long orderId);
 
     /**
      * 查询所有未退款订单状态数量

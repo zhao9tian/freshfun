@@ -43,17 +43,17 @@
   
   <!-- 查询类别 -->
   <select id="findAll" resultMap="BaseResultMap">
-      select id, goods_type, goods_type_img, goods_info_des, goods_info_img from goods_type where is_deleted = 0 and goods_type != '精选'
+      select `id`, `goods_type`, `goods_type_img`, `goods_info_des`, `goods_info_img` from goods_type where is_deleted = 0 and id != 11
   </select>
   
    <!-- 查询商品-->
   <select id="findAllGoods" resultMap="BaseResult">
-      select id, goods_type, goods_type_img, goods_info_des, goods_info_img from goods_type where is_deleted = 0 and goods_type != '精选'
+      select `id`, `goods_type`, `goods_type_img`, `goods_info_des`, `goods_info_img` from goods_type where is_deleted = 0 and id != 11
   </select>
   
   <!-- 通过类别查询-->
   <select id="findByType" resultMap="BaseResult" parameterType="java.lang.String">
-      select id, goods_type, goods_type_img, goods_info_des, goods_info_img from goods_type where 
+      select `id`, `goods_type`, `goods_type_img`, `goods_info_des`, `goods_info_img` from goods_type where
       is_deleted = 0 and goods_type = #{goods_type}
   </select>
   

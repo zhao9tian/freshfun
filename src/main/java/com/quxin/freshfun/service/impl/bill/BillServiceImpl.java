@@ -7,14 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.quxin.freshfun.dao.AgentWithdrawMapper;
+import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.service.flow.FlowService;
+import com.quxin.freshfun.utils.BusinessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.quxin.freshfun.dao.UserOutcomeMapper;
-import com.quxin.freshfun.dao.UserRevenueMapper;
-import com.quxin.freshfun.dao.WithdrawMapper;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
@@ -28,6 +29,12 @@ public class BillServiceImpl implements BillService {
 	private WithdrawMapper withdrawMapper;
 	@Autowired
 	private AgentWithdrawMapper agentWithdrawMapper;
+	@Autowired
+	private OrderDetailsMapper orderDetailsMapper;
+	@Autowired
+	private FlowService flowService;
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public Map<String, String> selectUserBillDetailed(Long userId) {
@@ -229,5 +236,24 @@ public class BillServiceImpl implements BillService {
 		}
 		return "0";
 	}
-	
+
+	/**
+	 * 7天订单自动走账单流程
+	 * @return
+	 */
+	@Override
+	public Integer autoConfirmRecording() throws BusinessException {
+		logger.info("订单自动走账单流程");
+		List<OrderDetailsPOJO> orderDetails = orderDetailsMapper.selectAwaitPayMoney();
+		Integer status = 0;
+		for (OrderDetailsPOJO order: orderDetails) {
+			status = orderDetailsMapper.updateAlreadyPayMoney(order.getId());
+			if(status <= 0){
+				logger.error("修改订单状态为已完成失败");
+				throw new BusinessException("修改订单状态为已完成状态失败");
+			}
+		}
+		return status;
+	}
+
 }
