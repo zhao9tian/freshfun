@@ -35,7 +35,7 @@ public interface FlowMapper {
      * @param userId
      * @return
      */
-    int selectLastedFlowByUserId(Long userId);
+    Integer selectLastedFlowByUserId(Long userId);
 
     /**
      * 通过主键查询流水明细
