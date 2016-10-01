@@ -168,7 +168,7 @@ public interface OrderDetailsMapper {
      * @param userId
      * @return
      */
-    List<OrderStatusInfo> selectPayCounts(Long userId);
+    Integer selectPayCounts(Long userId);
     /**
      * 查询待支付订单
      * @param userId
@@ -220,7 +220,7 @@ public interface OrderDetailsMapper {
      * @param orderDetailId
      * @return
      */
-    Integer applyRefund(String orderDetailId);
+    Long applyRefund(String orderDetailId);
 
     /**
      * 获取总收益

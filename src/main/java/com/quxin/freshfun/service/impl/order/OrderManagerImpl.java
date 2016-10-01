@@ -290,7 +290,7 @@ public class OrderManagerImpl implements OrderManager {
 	 * @return
 	 */
 	@Override
-	public List<OrderStatusInfo> selectPayCounts(Long userId) {
+	public Integer selectPayCounts(Long userId) {
 		return orderDetailsMapper.selectPayCounts(userId);
 	}
 	@Override
@@ -307,7 +307,7 @@ public class OrderManagerImpl implements OrderManager {
 		return shoppingCartMapper.delShoppingCartOrder(scId, currentDate);
 	}
 	@Override
-	public Integer applyRefund(String orderDetailId) {
+	public Long applyRefund(String orderDetailId) {
 		return orderDetailsMapper.applyRefund(orderDetailId);
 	}
 

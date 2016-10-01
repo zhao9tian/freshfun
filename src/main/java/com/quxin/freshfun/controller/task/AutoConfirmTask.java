@@ -67,6 +67,9 @@ public class AutoConfirmTask {
         billService.autoConfirmRecording();
     }
 
+    /**
+     * 删除验证码
+     */
     @Scheduled(cron="0 0 1 * * ? ")
     public void deleteVerifyCode(){
         verifiedCodeService.removeVerifyCode();
