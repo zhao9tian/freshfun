@@ -34,15 +34,21 @@ public class FlowServiceImpl implements FlowService {
 
 		Long userId = flowParam.getUserId();
 
-		// 查询这个用户最新的流水
-		int id = flowMapper.selectLastedFlowByUserId(userId);
+		long fetcherBalance = 0;
+		long agentBalance = 0;
 
-		// 查询流水详情
-		FlowPOJO lastedFlowDetail = flowMapper.selectFlowById(id);
+		// 查询这个用户最新的流水
+		Integer id = flowMapper.selectLastedFlowByUserId(userId);
+		if (id != null) {
+			// 查询流水详情
+			FlowPOJO lastedFlowDetail = flowMapper.selectFlowById(id);
+			fetcherBalance = lastedFlowDetail.getFetcherBalance();
+			agentBalance = lastedFlowDetail.getAgentBalance();
+		}
 
 		// 余额 = 最新一条的余额 + 本次的flow
-		flowParam.setFetcherBalance(lastedFlowDetail.getFetcherBalance() + flowParam.getFetcherFlow());
-		flowParam.setAgentBalance(lastedFlowDetail.getAgentBalance() + flowParam.getAgentFlow());
+		flowParam.setFetcherBalance(fetcherBalance + flowParam.getFetcherFlow());
+		flowParam.setAgentBalance(agentBalance + flowParam.getAgentFlow());
 
 		int insertId = flowMapper.insert(flowParam);
 		if (insertId == 0) {
