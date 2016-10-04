@@ -126,7 +126,7 @@ public interface OrderManager {
 	 * @param userID
 	 * @return
 	 */
-	List<OrderStatusInfo> selectPayCounts(Long userID);
+	Integer selectPayCounts(Long userID);
 
 	/**
 	 * 根据订单ID修改订单状态
@@ -140,7 +140,7 @@ public interface OrderManager {
 	 * @param orderDetailId
 	 * @return
 	 */
-	Integer applyRefund(String orderDetailId);
+	Long applyRefund(String orderDetailId);
 
 	//订单后台
 

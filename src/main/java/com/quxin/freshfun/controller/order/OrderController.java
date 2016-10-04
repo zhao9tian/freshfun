@@ -60,7 +60,7 @@ public class OrderController {
 		Long ui = Long.parseLong(userId.replace("\"", ""));
 		return setGoodsList(orderManager.findAll(ui, currentPage, pageSize) , 1);
 	}
-	/**
+	/**`
 	 * 查询单个商品
 	 * @param orderDetailsId
 	 * @return
@@ -325,6 +325,7 @@ public class OrderController {
 		Long ui = Long.parseLong(userId.replace("\"", ""));
 		List<OrderStatusInfo> statusCounts = orderManager.selectStatusCounts(ui);
 
+		int awaitPaymentCount =  orderManager.selectPayCounts(ui);
 		Map<String, Object> orderMap = new HashMap<String, Object>(5);
 		orderMap.put("daishouhuo","");
 		orderMap.put("daipingjia","");
@@ -333,15 +334,15 @@ public class OrderController {
 		orderMap.put("daifukuan","");
 
 		for(OrderStatusInfo orderStatus : statusCounts){
-			if(orderStatus.getOrderStatus() == 0){
-				orderMap.put("daifukuan", orderStatus.getStatusCounts());
-			}else if(orderStatus.getOrderStatus() == 10){
-				orderMap.put("daifahuo", orderStatus.getStatusCounts());
-			}else if(orderStatus.getOrderStatus() == 20){
-				orderMap.put("daishouhuo", orderStatus.getStatusCounts());
+			if(orderStatus.getOrderStatus() == 10){
+				orderMap.put("daifukuan", awaitPaymentCount);
 			}else if(orderStatus.getOrderStatus() == 30){
+				orderMap.put("daifahuo", orderStatus.getStatusCounts());
+			}else if(orderStatus.getOrderStatus() == 50){
+				orderMap.put("daishouhuo", orderStatus.getStatusCounts());
+			}else if(orderStatus.getOrderStatus() == 70){
 				orderMap.put("daipingjia", orderStatus.getStatusCounts());
-			}else if(orderStatus.getOrderStatus() == 60){
+			}else if(orderStatus.getOrderStatus() == 40){
 				orderMap.put("tuihuo", orderStatus.getStatusCounts());
 			}
 		}
@@ -367,12 +368,7 @@ public class OrderController {
 	 */
 	public OrderDetailsPOJO setGoods(OrderDetailsPOJO orderDetail){
 		Integer goodsId = orderDetail.getGoodsId();
-		Integer isLimit = orderDetail.getIsLimit();//1是限时购
-		if(isLimit == 0){
-			orderDetail.setGoods(goodsService.findGoodsMysql(goodsId));
-		}else{
-			orderDetail.setGoods(goodsDao.findById(goodsId));
-		}
+		orderDetail.setGoods(goodsService.findGoodsMysql(goodsId));
 		return orderDetail;
 	}
 
@@ -422,7 +418,7 @@ public class OrderController {
 	@ResponseBody
 	public ReturnStatus applyRefund(@RequestParam String orderDetailId){
 		ReturnStatus rs = new ReturnStatus();
-		Integer num = orderManager.applyRefund(orderDetailId);
+		Long num = orderManager.applyRefund(orderDetailId);
 		if(num != null){
 			rs.setStatus(1);//不为空就表示未过期
 		}else{
