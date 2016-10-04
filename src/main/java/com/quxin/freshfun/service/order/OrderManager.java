@@ -166,7 +166,12 @@ public interface OrderManager {
 	 * @return
 	 */
 	List<OrderDetailsPOJO>  selectBackstageOrders(int currentPage,int pageSize);
-
+	/**
+	 * 查询待评价数量
+	 * @param userId
+	 * @return
+	 */
+	Integer selectCommentCount(Long userId);
 	/**
 	 * 待支付订单
 	 * @param currentPage

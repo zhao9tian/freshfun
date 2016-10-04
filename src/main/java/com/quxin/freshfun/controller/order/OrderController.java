@@ -341,6 +341,7 @@ public class OrderController {
 		List<OrderStatusInfo> statusCounts = orderManager.selectStatusCounts(ui);
 
 		int awaitPaymentCount =  orderManager.selectPayCounts(ui);
+        int commentCount = orderManager.selectCommentCount(ui);
 		Map<String, Object> orderMap = new HashMap<String, Object>(5);
 		orderMap.put("daishouhuo","");
 		orderMap.put("daipingjia","");
@@ -360,7 +361,11 @@ public class OrderController {
 			}else if(orderStatus.getOrderStatus() == 50){
 				orderMap.put("daishouhuo", orderStatus.getStatusCounts());
 			}else if(orderStatus.getOrderStatus() == 70){
-				orderMap.put("daipingjia", orderStatus.getStatusCounts());
+                if(commentCount <= 0){
+                    orderMap.put("daipingjia", "");
+                }else{
+                    orderMap.put("daipingjia", commentCount);
+                }
 			}else if(orderStatus.getOrderStatus() == 40){
 				orderMap.put("tuihuo", orderStatus.getStatusCounts());
 			}

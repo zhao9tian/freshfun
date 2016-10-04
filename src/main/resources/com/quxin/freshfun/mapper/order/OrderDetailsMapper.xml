@@ -133,6 +133,10 @@
   <select id="selectRefundCounts" parameterType="java.lang.Long" resultMap="BaseResultInfo">
     select count(id) as refund_counts from order_details WHERE user_id=#{userId} and order_status in (20,40) and is_deleted = 0
   </select>
+  <!--查询待评价数量-->
+  <select id="selectCommentCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(id) from order_details where user_id = #{userId} and is_deleted = 0 and order_status = 70 and comment_status = 0
+  </select>
 
   <!-- 查询未付款订单数量 -->
   <!-- <select id="selectPayCounts" parameterType="java.lang.Long" resultMap="BaseResultInfo">

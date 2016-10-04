@@ -300,6 +300,15 @@ public class OrderManagerImpl implements OrderManager {
 	}
 
 	/**
+	 * 查询待评价数量
+	 * @param userId
+	 * @return
+	 */
+	@Override
+	public Integer selectCommentCount(Long userId) {
+		return orderDetailsMapper.selectCommentCount(userId);
+	}
+	/**
 	 * 查询所有未退款订单状态数量
 	 * @param userId
 	 * @return
@@ -320,6 +329,7 @@ public class OrderManagerImpl implements OrderManager {
 	public List<OrderStatusInfo> selectRefundCounts(Long userId) {
 		return orderDetailsMapper.selectRefundCounts(userId);
 	}
+
 
 	/**
 	 * 查询未付款订单数量

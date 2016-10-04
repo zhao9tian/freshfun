@@ -264,6 +264,13 @@ public interface OrderDetailsMapper {
      * @return
      */
     Integer selectBackstageOrdersCount();
+
+    /**
+     * 查询待评价数量
+     * @param userId
+     * @return
+     */
+    Integer selectCommentCount(Long userId);
     /**
      * 待付款订单
      * @param currentPage
