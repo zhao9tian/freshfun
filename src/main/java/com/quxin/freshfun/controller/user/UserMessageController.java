@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.model.pojo.CommentPOJO;
+import com.quxin.freshfun.service.comment.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 
-import com.quxin.freshfun.model.Comment;
 import com.quxin.freshfun.model.CommentInfo;
 import com.quxin.freshfun.model.UserMessage;
 import com.quxin.freshfun.model.UserMessageInfo;
@@ -30,6 +31,9 @@ public class UserMessageController {
 	
 	@Autowired
 	private GoodsService goodsService;
+
+	@Autowired
+	private CommentService commentService;
 	
 	@Autowired
 	private OrderManager orderManager;
@@ -96,18 +100,20 @@ public class UserMessageController {
 	public Map<String, Object> adduserComment(String orderId,String userId, String goodsId, String content, String commentLevel){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 		CodingTools codingTools = new CodingTools();
-		Comment comment = new Comment();
-		
-		comment.setUserId(Long.parseLong(userId));
-		comment.setGoodsId(Integer.parseInt(goodsId));
-		comment.setOrderId(orderId);
-		comment.setContent(codingTools.enCodeStr(content));
-		comment.setCommentLevel(commentLevel);
-		String nowTime = String.valueOf(System.currentTimeMillis()/1000);
-		comment.setGmtCreate(System.currentTimeMillis()/1000);
-		comment.setGmtModified(System.currentTimeMillis()/1000);
-		comment.setIsDeleted((byte)0);
-		goodsService.addComment(comment);
+		CommentPOJO comment = new CommentPOJO();
+
+		// TODO @渠成
+
+//		comment.setUserId(Long.parseLong(userId));
+//		comment.setGoodsId(Integer.parseInt(goodsId));
+//		comment.setOrderId(orderId);
+//		comment.setContent(codingTools.enCodeStr(content));
+//		comment.setCommentLevel(commentLevel);
+//		String nowTime = String.valueOf(System.currentTimeMillis()/1000);
+//		comment.setGmtCreate(System.currentTimeMillis()/1000);
+//		comment.setGmtModified(System.currentTimeMillis()/1000);
+//		comment.setIsDeleted((byte)0);
+		commentService.addComment(comment);
 		orderManager.confirmGoodsComment(orderId);
 		stateMap.put("state", "chenggong");
 		return stateMap;

@@ -2,7 +2,8 @@ package com.quxin.freshfun.service.impl.goods;
 
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
-import com.quxin.freshfun.service.CommentService;
+import com.quxin.freshfun.model.pojo.CommentPOJO;
+import com.quxin.freshfun.service.comment.CommentService;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,16 +95,6 @@ public class GoodsServiceImpl implements GoodsService {
 
 		}
 		return smidVsGid;
-	}
-
-
-
-
-
-	@Override
-	public void addComment(Comment comment) {
-		mongeComment.addComment(comment);
-		
 	}
 
 	@Override

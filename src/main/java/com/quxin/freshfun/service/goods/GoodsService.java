@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.quxin.freshfun.model.Comment;
+import com.quxin.freshfun.model.pojo.CommentPOJO;
 import com.quxin.freshfun.model.GoodsLimit;
 import com.quxin.freshfun.model.GoodsMongo;
 import com.quxin.freshfun.model.GoodsPOJO;
@@ -43,11 +43,6 @@ public interface GoodsService {
 	 */
 	public List<SmidVsGid> findMallGoods(Map<String, Integer> mallMap);
 	
-	/**
-	 * 添加评论
-	 */
-	public void addComment(Comment comment);
-
 	/**
 	 * 根据代理商户ID查询代理的商品信息
 	 * @param map
