@@ -211,10 +211,11 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	private OrderDetailsPOJO makeOrderDetail(OrderPayInfo payInfo, GoodsInfo goodsInfo,OrderInfo orderInfo,Long orderId) {
 		long currentTime = DateUtils.getCurrentDate();
+        long uid = Long.parseLong(orderInfo.getUserId().replace("\"",""));
 		//根据地址编号查询地址信息
 		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
 		//查询捕手信息
-		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(Long.parseLong(orderInfo.getUserId().replace("\"","")));
+		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(uid);
 
 		OrderDetailsPOJO od = new OrderDetailsPOJO();
 		//订单编号

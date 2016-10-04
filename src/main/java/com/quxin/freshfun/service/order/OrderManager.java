@@ -93,6 +93,12 @@ public interface OrderManager {
 	 * @return
 	 */
 	Integer addConfirmGoodsReceipt(String orderId) throws BusinessException;
+
+	/**
+	 *自动确认收货
+	 * @return
+	 */
+	Integer autoConfirmDelivery(String orderId) throws BusinessException;
 	/**
 	 * 刪除訂單
 	 * @param scId

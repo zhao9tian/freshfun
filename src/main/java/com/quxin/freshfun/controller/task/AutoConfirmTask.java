@@ -38,23 +38,35 @@ public class AutoConfirmTask {
         System.out.println("开始执行");
         //查询订单未确认收货信息
         List<OrderDetailsPOJO> orders = orderManager.autoConfirmDelivery();
-        System.out.println(orders.toString());
         if(orders != null){
+            Long currentDate = DateUtils.getCurrentDate();
             for (OrderDetailsPOJO order: orders) {
                 //修改订单状态
-                int status = orderManager.addConfirmGoodsReceipt(order.getId().toString());
+                int status = orderManager.autoConfirmDelivery(order.getId().toString());
                 if(status <= 0){
                     throw new BusinessException("修改7点自动确认收货失败");
                 }
-                Long currentDate = DateUtils.getCurrentDate();
-                FlowParam flowParam = new FlowParam();
-                flowParam.setOrderId(order.getId());
-                flowParam.setUserId(order.getUserId());
-                flowParam.setCreated(currentDate);
-                flowParam.setUpdated(currentDate);
-                flowParam.setAgentFlow(order.getAgentPrice().longValue());
-                flowParam.setFetcherFlow(order.getFetcherPrice().longValue());
-                flowService.add(flowParam);
+                //添加账单流水信息
+                if(order.getAgentId() !=0){
+                    //添加代理商户账单信息
+                    FlowParam flowParam = new FlowParam();
+                    flowParam.setOrderId(order.getId());
+                    flowParam.setUserId(order.getAgentId());
+                    flowParam.setCreated(currentDate);
+                    flowParam.setUpdated(currentDate);
+                    flowParam.setAgentFlow(order.getAgentPrice().longValue());
+                    flowService.add(flowParam);
+                }
+                if(order.getFetcherId() != 0){
+                    //添加捕手账单信息
+                    FlowParam flowParam = new FlowParam();
+                    flowParam.setOrderId(order.getId());
+                    flowParam.setUserId(order.getFetcherId());
+                    flowParam.setCreated(currentDate);
+                    flowParam.setUpdated(currentDate);
+                    flowParam.setAgentFlow(order.getFetcherPrice().longValue());
+                    flowService.add(flowParam);
+                }
             }
         }
     }

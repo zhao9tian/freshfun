@@ -49,7 +49,7 @@
     <result column="order_status" jdbcType="INTEGER" property="orderStatus" />
     <result column="status_counts" jdbcType="INTEGER" property="statusCounts" />
     <result column="refund_counts" jdbcType="INTEGER" property="refundCounts" />
-    <result column="pay_counts" jdbcType="INTEGER" property="payCounts" />
+    <result column="comment_counts" jdbcType="INTEGER" property="commentCounts" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--

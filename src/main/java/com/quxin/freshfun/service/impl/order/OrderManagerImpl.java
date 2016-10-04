@@ -239,7 +239,6 @@ public class OrderManagerImpl implements OrderManager {
 	 */
 	@Override
 	public Integer addConfirmGoodsReceipt(String orderId) throws BusinessException {
-		logger.info("订单自动进入确认收货流程");
 		Map<String , Object> map = new HashMap<String, Object>();
 		map.put("reciveTime", System.currentTimeMillis()/1000);
 		map.put("orderDetailId", orderId);
@@ -250,25 +249,45 @@ public class OrderManagerImpl implements OrderManager {
 		}
 		//查询订单信息
 		OrderDetailsPOJO orderDetails = orderDetailsMapper.selectConfirmOrderInfo(orderId);
-		//添加账单信息
-		Long currentDate = DateUtils.getCurrentDate();
-		FlowParam flowParam = new FlowParam();
-		flowParam.setOrderId(orderDetails.getId());
-		flowParam.setUserId(orderDetails.getUserId());
-		flowParam.setCreated(currentDate);
-		flowParam.setUpdated(currentDate);
-		flowParam.setAgentFlow(orderDetails.getAgentPrice().longValue());
-		flowParam.setFetcherFlow(orderDetails.getFetcherPrice().longValue());
-		flowService.add(flowParam);
+		if(orderDetails.getAgentId() !=0){
+			//添加账单信息
+			Long currentDate = DateUtils.getCurrentDate();
+			FlowParam flowParam = new FlowParam();
+			flowParam.setOrderId(orderDetails.getId());
+			flowParam.setUserId(orderDetails.getAgentId());
+			flowParam.setCreated(currentDate);
+			flowParam.setUpdated(currentDate);
+			flowParam.setAgentFlow(orderDetails.getAgentPrice().longValue());
+			flowService.add(flowParam);
+		}
+		if(orderDetails.getFetcherId() != 0){
+			//添加账单信息
+			Long currentDate = DateUtils.getCurrentDate();
+			FlowParam flowParam = new FlowParam();
+			flowParam.setOrderId(orderDetails.getId());
+			flowParam.setUserId(orderDetails.getFetcherId());
+			flowParam.setCreated(currentDate);
+			flowParam.setUpdated(currentDate);
+			flowParam.setAgentFlow(orderDetails.getFetcherPrice().longValue());
+			flowService.add(flowParam);
+		}
+
 		return returnNum;
 	}
 
-
-
-	/*@Override
-	public Integer autoConfirmDelivery(){
-
-	}*/
+	@Override
+	public Integer autoConfirmDelivery(String orderId) throws BusinessException {
+		logger.info("订单自动进入确认收货流程");
+		Map<String , Object> map = new HashMap<String, Object>();
+		map.put("reciveTime", System.currentTimeMillis()/1000);
+		map.put("orderDetailId", orderId);
+		//修改订单状态
+		Integer returnNum = orderDetailsMapper.updateOrderStatus(map);
+		if(returnNum <= 0){
+			throw new BusinessException("修改确认收货状态失败");
+		}
+		return returnNum;
+	}
 
 	/**
 	 * 确认评价

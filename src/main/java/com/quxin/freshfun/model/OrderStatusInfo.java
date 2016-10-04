@@ -11,7 +11,7 @@ public class OrderStatusInfo {
 	
 	private Integer refundCounts;
 	
-	private Integer payCounts;
+	private Integer commentCounts;
 
 
 	public Integer getOrderStatus() {
@@ -38,11 +38,11 @@ public class OrderStatusInfo {
 		this.refundCounts = refundCounts;
 	}
 
-	public Integer getPayCounts() {
-		return payCounts;
+	public Integer getCommentCounts() {
+		return commentCounts;
 	}
 
-	public void setPayCounts(Integer payCounts) {
-		this.payCounts = payCounts;
+	public void setCommentCounts(Integer commentCounts) {
+		this.commentCounts = commentCounts;
 	}
 }
