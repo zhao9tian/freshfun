@@ -8,6 +8,7 @@ import com.quxin.freshfun.model.param.WithdrawParam;
 import com.quxin.freshfun.service.withdraw.WithdrawService;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.ListSortUtil;
+import com.quxin.freshfun.utils.MoneyFormat;
 import com.quxin.freshfun.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -68,9 +69,10 @@ public class WithdrawController {
     public Map<String , Object>  getAllMoneyC(String userId){
         Map<String , Object> resultMap = new HashMap<String , Object>();
         if(userId != null && !"".equals(userId)){
-            Double totalMoney = withdrawService.queryTotalMoneyC(userId);
-            Double unrecordMoney = withdrawService.queryUnrecordMoneyC(userId);
-            Double withdrawCash = withdrawService.queryWithdrawCashC(userId);
+            String uId = userId.replace("\"","");
+            Double totalMoney = withdrawService.queryTotalMoneyC(uId);
+            Double unrecordMoney = withdrawService.queryUnrecordMoneyC(uId);
+            Double withdrawCash = withdrawService.queryWithdrawCashC(uId);
             DecimalFormat df = new DecimalFormat("#0.00");
             resultMap.put("totalMoney" , df.format(totalMoney));
             resultMap.put("unrecordMoney" , df.format(unrecordMoney));
@@ -129,11 +131,11 @@ public class WithdrawController {
     @ResponseBody
     public Map<String,Object> applyWithdrawC(@RequestBody WithdrawParam extractMoney) {
         Map<String, Object> resultmap;
-        Double extractmoney = withdrawService.queryWithdrawCashC(extractMoney.getUserId());
-        String userId = extractMoney.getUserId();
+        String uId = extractMoney.getUserId().replace("\"","");
+        Double extractmoney = withdrawService.queryWithdrawCashC(uId);
         String extractMoneyStr = extractMoney.getMoney();
 
-        if(userId == null){
+        if(uId == null){
             resultmap = ResultUtil.fail(1004,"userId 为空");
         }else if(extractmoney == null){
             resultmap = ResultUtil.fail(1004,"该用户提现金额为0");
@@ -144,7 +146,7 @@ public class WithdrawController {
         }else{
             WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
             withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
-            withdrawPOJO.setUserId(Long.parseLong(extractMoney.getUserId()));
+            withdrawPOJO.setUserId(Long.parseLong(uId));
             withdrawPOJO.setWithDrawType(extractMoney.getPayway());
             withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
             withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));

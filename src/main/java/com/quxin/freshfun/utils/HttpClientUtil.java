@@ -283,6 +283,7 @@ public static void configureHttpClient2(HttpClientBuilder clientBuilder)
 			e.printStackTrace();
 		}
 	}
+
 	
 	/**
 	 * 根据样式格式化时间 "yyyyMMdd" "yyyyMMddHHmmss" "yyyyMMddHHmmssssssss"

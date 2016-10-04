@@ -42,7 +42,7 @@ public class AutoConfirmTask {
         if(orders != null){
             for (OrderDetailsPOJO order: orders) {
                 //修改订单状态
-                int status = orderManager.confirmGoodsReceipt(order.getId().toString());
+                int status = orderManager.addConfirmGoodsReceipt(order.getId().toString());
                 if(status <= 0){
                     throw new BusinessException("修改7点自动确认收货失败");
                 }

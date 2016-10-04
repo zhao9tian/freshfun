@@ -26,11 +26,9 @@ public interface UserService {
 	
 	/**
 	 * 微信用户登录
-	 * @param wxInfo
-	 * @param deviceId
 	 * @return
 	 */
-	public Long WXLogin(WxInfo wxInfo ,String deviceId);
+	public Long WXLogin(String code,String deviceId) throws BusinessException;
 	
 	/**
 	 * 微站登录

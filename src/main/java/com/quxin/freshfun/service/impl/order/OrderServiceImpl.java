@@ -1,24 +1,36 @@
 package com.quxin.freshfun.service.impl.order;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
+import com.quxin.freshfun.controller.wxpay.AccessTokenRequestHandler;
+import com.quxin.freshfun.controller.wxpay.ClientRequestHandler;
+import com.quxin.freshfun.controller.wxpay.PackageRequestHandler;
+import com.quxin.freshfun.controller.wxpay.PrepayIdRequestHandler;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.*;
+import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 @Service("orderService")
@@ -102,10 +114,6 @@ public class OrderServiceImpl implements OrderService {
 				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
 				throw new BusinessException("订单详情生成失败");
 			}
-			//生成收入账单
-			//generateBill(orderPayInfos[i],orderDetail,uId,goodsInfo.getGoodsId());
-			//生成支出账单
-			//generateExpensesBill(orderPayInfos[i],goodsInfo,uId,orderDetail);
 		}
 
 		//生成订单后 调用支付
@@ -138,7 +146,6 @@ public class OrderServiceImpl implements OrderService {
 		//订单编号
 		IdGenerate idGenerate = new IdGenerate();
 		Long orderId = idGenerate.nextId();
-		// #TODO 根据购物车数量循环
 		for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
 			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
 			OrderPayInfo payInfo = null;
@@ -675,5 +682,307 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public Integer queryEarnedIncome(Long id) {
 		return orderDetailsMapper.selectEarnedIncome(id);
+	}
+
+	/**
+	 * 原生支付
+	 * @param orderInfo
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@Override
+	public String addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException {
+		if(orderInfo == null){
+			return null;
+		}
+		//订单总价格
+		Integer orderSumPrice = 0;
+		//订单编号
+		Long uId = Long.parseLong(orderInfo.getUserId().replace("\"", ""));
+		//支付结果
+		String payStr = null;
+		if(orderInfo.getGoods() != null){
+			GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(orderInfo.getGoods().getGoodsId());
+			OrderDetailsPOJO orderDetail = makeOrderDetail(goodsPOJO,orderInfo,orderInfo.getGoods());
+			//生成订单详情
+			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
+			if (orderDetailStatus <= 0) {
+				resultLogger.error(orderInfo.getUserId() + "添加订单详情失败");
+				throw new BusinessException("订单详情生成失败");
+			}
+			//生成订单后 调用支付
+			payStr = generateOrder(orderInfo, request, response, orderDetail.getActualPrice(), orderDetail.getId());
+		}else {
+			//根据用户编号查询购物车信息
+			List<ShoppingCartPOJO> shoppingCart = shoppingCartMapper.selectShoppingCartByUserId(uId);
+			for (ShoppingCartPOJO cart : shoppingCart) {
+				orderSumPrice += cart.getGoodsTotalsPrice() * cart.getGoodsTotals();
+			}
+			OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo, orderSumPrice);
+			int insertStatus = ordersMapper.insertSelective(orderPOJO);
+			if (insertStatus <= 0) {
+				resultLogger.error(orderInfo.getUserId() + "添加订单失败");
+				throw new BusinessException("订单添加失败");
+			}
+			//订单父级编号
+			Long orderId = orderPOJO.getId();
+			for (ShoppingCartPOJO cart : shoppingCart) {
+				OrderDetailsPOJO orderDetail = makeOrderDetail(cart, orderInfo, orderId);
+				//生成订单详情
+				int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
+				if (orderDetailStatus <= 0) {
+					resultLogger.error(orderInfo.getUserId() + "添加订单详情失败");
+					throw new BusinessException("订单详情生成失败");
+				}
+			}
+			//生成订单后 调用支付
+			payStr = generateOrder(orderInfo, request, response, orderSumPrice, orderId);
+			//修改购物车支付状态
+			if(payStr != null){
+				for (ShoppingCartPOJO cart : shoppingCart) {
+					int status = shoppingCartMapper.updateOrderPayStatus(cart.getScId());
+					if(status <= 0){
+						resultLogger.error(orderInfo.getUserId() + "修改购物车状态失败");
+						throw new BusinessException("修改购物车状态");
+					}
+				}
+			}
+		}
+		return payStr;
+	}
+
+	private String generateOrder(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response, Integer orderSumPrice, Long orderId) throws JSONException, UnsupportedEncodingException {
+		String payStr;
+		StringBuilder payId = new StringBuilder();
+		payId.append("Z");
+		payId.append(orderId);
+		//生成支付订单
+		payStr = appPay(request, response,payId.toString(),orderSumPrice.toString(),orderInfo.getCode(),orderInfo.getOpenid());
+		return payStr;
+	}
+
+	/**
+	 * 根据用户提交的信息生成单笔订单详情
+	 * @param
+	 * @param
+	 */
+	private OrderDetailsPOJO makeOrderDetail(GoodsPOJO goodsPOJO,OrderInfo orderInfo,GoodsInfo goodsInfo) {
+		long currentTime = DateUtils.getCurrentDate();
+		//根据地址编号查询地址信息
+		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
+		//查询捕手信息
+		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(Long.parseLong(orderInfo.getUserId().replace("\"","")));
+
+		OrderDetailsPOJO od = new OrderDetailsPOJO();
+
+		od.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
+		od.setGoodsId(goodsPOJO.getId());
+		od.setAddressId(orderInfo.getAddressId());
+		od.setPaymentMethod(orderInfo.getPaymentMethod());
+		//单笔订单支付的价格
+		Integer orderMoney = goodsPOJO.getShopPrice()*goodsInfo.getCount();
+		od.setActualPrice(orderMoney);
+		od.setPayTime(currentTime);
+		od.setOrderStatus(10);
+		//判断是否是捕手
+		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
+			od.setFetcherId(userPOJO.getParentId());
+			//计算捕手需要获取的提成
+			Double fetcherMoney = orderMoney * Constant.FECTHER_COMPONENT;
+			od.setFetcherPrice(fetcherMoney.intValue());
+		}
+		//查询是否有代理商户
+		GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsPOJO.getId());
+		if(gp.getMerchantProxyId()!=null && gp.getMerchantProxyId()!=0){
+			od.setAgentId(gp.getMerchantProxyId());
+			//计算商户获取的提成
+			Double agentMoney = orderMoney*Constant.AGENT_COMPONENT;
+			od.setAgentPrice(agentMoney.intValue());
+		}
+		if(null == orderInfo.getPaySign() || "".equals(orderInfo.getPaySign())){
+			if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0){
+				od.setPayPlateform(1);
+			}else{
+				od.setPayPlateform(0);
+			}
+		}else{
+			od.setPayPlateform(2);
+		}
+		od.setCount(goodsInfo.getCount());
+		od.setCreateDate(currentTime);
+		od.setUpdateDate(currentTime);
+		od.setName(address.getName());
+		od.setTel(address.getTel());
+		od.setCity(address.getCity());
+		od.setAddress(address.getAddress());
+		return od;
+	}
+
+	/**
+	 * 根据购物车信息生成订单详情
+	 * @param
+	 * @param
+	 */
+	private OrderDetailsPOJO makeOrderDetail(ShoppingCartPOJO cart,OrderInfo orderInfo,Long orderId) {
+		long currentTime = DateUtils.getCurrentDate();
+		//根据地址编号查询地址信息
+		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
+		//查询捕手信息
+		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(Long.parseLong(orderInfo.getUserId().replace("\"","")));
+
+		OrderDetailsPOJO od = new OrderDetailsPOJO();
+		//订单编号
+		od.setOrderId(orderId);
+		od.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
+		od.setGoodsId(cart.getGoodsId());
+		od.setAddressId(orderInfo.getAddressId());
+		od.setPaymentMethod(orderInfo.getPaymentMethod());
+		//单笔订单支付的价格
+		Integer orderMoney = cart.getGoodsTotalsPrice()*cart.getGoodsTotals();
+		od.setActualPrice(orderMoney);
+		od.setPayTime(currentTime);
+		od.setOrderStatus(10);
+		//判断是否是捕手
+		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
+			od.setFetcherId(userPOJO.getParentId());
+			//计算捕手需要获取的提成
+			Double fetcherMoney = orderMoney * Constant.FECTHER_COMPONENT;
+			od.setFetcherPrice(fetcherMoney.intValue());
+		}
+		//查询是否有代理商户
+		GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(cart.getGoodsId());
+		if(gp.getMerchantProxyId()!=null && gp.getMerchantProxyId()!=0){
+			od.setAgentId(gp.getMerchantProxyId());
+			//计算商户获取的提成
+			Double agentMoney = orderMoney*Constant.AGENT_COMPONENT;
+			od.setAgentPrice(agentMoney.intValue());
+		}
+		if(null == orderInfo.getPaySign() || "".equals(orderInfo.getPaySign())){
+			if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0){
+				od.setPayPlateform(1);
+			}else{
+				od.setPayPlateform(0);
+			}
+		}else{
+			od.setPayPlateform(2);
+		}
+		od.setCount(cart.getGoodsTotals());
+		od.setCreateDate(currentTime);
+		od.setUpdateDate(currentTime);
+		od.setName(address.getName());
+		od.setTel(address.getTel());
+		od.setCity(address.getCity());
+		od.setAddress(address.getAddress());
+		return od;
+	}
+
+	public String appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney,String code,String openId) throws JSONException, UnsupportedEncodingException {
+		Map<Object,Object> resInfo = new HashMap<Object, Object>();
+		//接收财付通通知的URL
+		String notify_url = "http://127.0.0.1:8180/tenpay_api_b2c/payNotifyUrl.jsp";
+
+		//---------------生成订单号 开始------------------------
+		//当前时间 yyyyMMddHHmmss
+		String currTime = TenpayUtil.getCurrTime();
+		//8位日期
+		String strTime = currTime.substring(8, currTime.length());
+		//四位随机数
+		String strRandom = TenpayUtil.buildRandom(4) + "";
+		//10位序列号,可以自行调整。
+		String strReq = strTime + strRandom;
+		//订单号，此处用时间加随机数生成，商户根据自己情况调整，只要保持全局唯一就行
+		String out_trade_no = strReq;
+		//---------------生成订单号 结束------------------------
+
+		PackageRequestHandler packageReqHandler = new PackageRequestHandler(request, response);//生成package的请求类
+		PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler(request, response);//获取prepayid的请求类
+		ClientRequestHandler clientHandler = new ClientRequestHandler(request, response);//返回客户端支付参数的请求类
+		packageReqHandler.setKey(ConstantUtil.PARTNER_KEY);
+
+		int retcode ;
+		String retmsg = "";
+		String xml_body = "";
+		//获取token值
+
+		String token = AccessTokenRequestHandler.getAccessToken();
+
+		resultLogger.info("获取token------值 " + token);
+
+		if (!"".equals(token)) {
+			//设置package订单参数
+			packageReqHandler.setParameter("bank_type", "WX");//银行渠道
+			packageReqHandler.setParameter("body", "悦选美食"); //商品描述
+			packageReqHandler.setParameter("notify_url", notify_url); //接收财付通通知的URL
+			packageReqHandler.setParameter("partner", ConstantUtil.PARTNER); //商户号
+			packageReqHandler.setParameter("out_trade_no", payId); //商家订单号
+			packageReqHandler.setParameter("total_fee", payMoney); //商品金额,以分为单位
+			packageReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
+			packageReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
+			packageReqHandler.setParameter("input_charset", "GBK"); //字符编码
+
+			//获取package包
+			String packageValue = packageReqHandler.getRequestURL();
+			resInfo.put("package", packageValue);
+
+			resultLogger.info("获取package------值 " + packageValue);
+
+			String noncestr = WXUtil.getNonceStr();
+			String timestamp = WXUtil.getTimeStamp();
+			String traceid = "";
+			////设置获取prepayid支付参数
+			prepayReqHandler.setParameter("appid", ConstantUtil.APP_ID);
+			prepayReqHandler.setParameter("appkey", ConstantUtil.APP_KEY);
+			prepayReqHandler.setParameter("noncestr", noncestr);
+			prepayReqHandler.setParameter("package", packageValue);
+			prepayReqHandler.setParameter("timestamp", timestamp);
+			prepayReqHandler.setParameter("traceid", traceid);
+
+			//生成获取预支付签名
+			String sign = prepayReqHandler.createSHA1Sign();
+			//增加非参与签名的额外参数
+			prepayReqHandler.setParameter("app_signature", sign);
+			prepayReqHandler.setParameter("sign_method",
+					ConstantUtil.SIGN_METHOD);
+			String gateUrl = ConstantUtil.GATEURL + token;
+			prepayReqHandler.setGateUrl(gateUrl);
+
+			//获取prepayId
+			String prepayid = prepayReqHandler.sendPrepay();
+
+			resultLogger.info("获取prepayid------值 " + prepayid);
+
+			//吐回给客户端的参数
+			if (null != prepayid && !"".equals(prepayid)) {
+				//输出参数列表
+				clientHandler.setParameter("appid", ConstantUtil.APP_ID);
+				clientHandler.setParameter("appkey", ConstantUtil.APP_KEY);
+				clientHandler.setParameter("noncestr", noncestr);
+				clientHandler.setParameter("package", "Sign=" + packageValue);
+				//clientHandler.setParameter("package", "Sign=WXPay");
+				clientHandler.setParameter("partnerid", ConstantUtil.PARTNER);
+				clientHandler.setParameter("prepayid", prepayid);
+				clientHandler.setParameter("timestamp", timestamp);
+				//生成签名
+				sign = clientHandler.createSHA1Sign();
+				clientHandler.setParameter("sign", sign);
+
+				xml_body = clientHandler.getXmlBody();
+				resInfo.put("entity", xml_body);
+				retcode = 0;
+				retmsg = "OK";
+			} else {
+				retcode = -2;
+				retmsg = "错误：获取prepayId失败";
+			}
+		} else {
+			retcode = -1;
+			retmsg = "错误：获取不到Token";
+		}
+
+		resInfo.put("retcode", retcode);
+		resInfo.put("retmsg", retmsg);
+		String strJson = JSON.toJSONString(resInfo);
+		return strJson;
 	}
 }

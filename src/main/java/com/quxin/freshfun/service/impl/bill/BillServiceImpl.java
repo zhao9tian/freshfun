@@ -22,17 +22,9 @@ import com.quxin.freshfun.utils.MoneyFormat;
 @Service("billService")
 public class BillServiceImpl implements BillService {
 	@Autowired
-	private UserRevenueMapper userRevenueMapper;
-	@Autowired
-	private UserOutcomeMapper userOutcomeMapper;
-	@Autowired
-	private WithdrawMapper withdrawMapper;
-//	@Autowired
-//	private AgentWithdrawMapper agentWithdrawMapper;
-	@Autowired
 	private OrderDetailsMapper orderDetailsMapper;
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private Logger logger = LoggerFactory.getLogger("info_log");
 
 //	@Override
 //	public Map<String, String> selectUserBillDetailed(Long userId) {

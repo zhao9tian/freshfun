@@ -11,7 +11,15 @@ public class OrderInfo {
 	private String code;
 	private String openid;
 	private List<GoodsInfo> goodsInfo;
+	private GoodsInfo goods;
 
+	public GoodsInfo getGoods() {
+		return goods;
+	}
+
+	public void setGoods(GoodsInfo goods) {
+		this.goods = goods;
+	}
 
 	public String getUserId() {
 		return userId;

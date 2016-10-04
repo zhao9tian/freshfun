@@ -11,6 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.model.param.FlowParam;
+import com.quxin.freshfun.service.flow.FlowService;
+import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +41,10 @@ public class OrderController {
 	private OrderService orderService;
 	@Autowired
 	private OrderManager orderManager;
-
+	@Autowired
+	private FlowService flowService;
 	private static Integer orderOutTime;
+
 
 	private Logger resultLogger = LoggerFactory.getLogger("info_log");
 
@@ -58,7 +63,9 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> findAllOrders(String userId,Integer currentPage,Integer pageSize){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return setGoodsList(orderManager.findAll(ui, currentPage, pageSize) , 1);
+		List<OrderDetailsPOJO> orders =setGoodsList(orderManager.findAll(ui, currentPage, pageSize) , 1);
+		orders = setGoodsMoney(orders);
+		return orders;
 	}
 	/**`
 	 * 查询单个商品
@@ -74,24 +81,14 @@ public class OrderController {
 		Long now = System.currentTimeMillis();
 		Long outTimeStamp = createTime*1000 + orderOutTime*60000 - now;
 		orderDetail.setOutTimeStamp(outTimeStamp);
-
+		GoodsPOJO goods = orderDetail.getGoods();
+		goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
+		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+		goods.setMarketPrice(null);
+		goods.setShopPrice(null);
+		orderDetail.setGoods(goods);
 		//控制付款成功页面申请退款按钮是否有效 isRefund 1是有效  0是无效
-
-		/*if (commenStatus == 1) {
-			orderDetail.setIsRefund(0);
-		} else {
-			Long reciveTime = orderDetail.getReciveTime();
-			if(reciveTime != null){
-				Long now1 = System.currentTimeMillis();
-				Long outTimeStamp1 = reciveTime * 1000 + 1000 * 60 * 60 * 24 * 5 - now1;
-				if (outTimeStamp1 < 0) {
-					orderDetail.setIsRefund(1);
-				}else{
-					orderDetail.setIsRefund(0);
-				}
-			}
-		}*/
-		return setGoods(orderDetail);
+		return orderDetail;
 	}
 
 
@@ -106,6 +103,7 @@ public class OrderController {
 	public List<OrderDetailsPOJO> selectPendingPaymentOrder(String userId,Integer currentPage,Integer pageSize){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
 		List<OrderDetailsPOJO> orders = orderManager.selectPendingPaymentOrder(ui, currentPage, pageSize);
+		orders = setGoodsMoney(orders);
 		return setGoodsList(orders,null);
 	}
 	/**
@@ -119,7 +117,9 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> selectAwaitDeliverOrder(String userId,Integer currentPage,Integer pageSize){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return setGoodsList(orderManager.selectAwaitDeliverOrder(ui,currentPage,pageSize),null);
+		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectAwaitDeliverOrder(ui,currentPage,pageSize),null);
+		orders = setGoodsMoney(orders);
+		return orders;
 	}
 
 	/**
@@ -133,7 +133,9 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> selectAwaitGoodsReceipt(String userId,Integer currentPage,Integer pageSize){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return setGoodsList(orderManager.selectAwaitGoodsReceipt(ui, currentPage, pageSize),null);
+		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectAwaitGoodsReceipt(ui, currentPage, pageSize),null);
+		orders = setGoodsMoney(orders);
+		return orders;
 	}
 	/**
 	 * 查询待评价订单
@@ -146,7 +148,9 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> selectAwaitComment(String userId,Integer currentPage,Integer pageSize){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return setGoodsList(orderManager.selectAwaitComment(ui, currentPage, pageSize),null);
+		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectAwaitComment(ui, currentPage, pageSize),null);
+		orders = setGoodsMoney(orders);
+		return orders;
 	}
 	/**
 	 * 查询退货订单
@@ -159,7 +163,9 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> selectCancelOrder(String userId,Integer currentPage,Integer pageSize){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return setGoodsList(orderManager.selectCancelOrder(ui, currentPage, pageSize),null);
+		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectCancelOrder(ui, currentPage, pageSize),null);
+		orders = setGoodsMoney(orders);
+		return orders;
 	}
 	/**
 	 * 根据用户编号查询购物车信息
@@ -190,8 +196,17 @@ public class OrderController {
 	@RequestMapping("/confirmGoodsReceipt")
 	@ResponseBody
 	public ResponseResult confirmGoodsReceipt(String orderId){
-		int status = orderManager.confirmGoodsReceipt(orderId);
 		ResponseResult r = new ResponseResult();
+		if(orderId == null || "".equals(orderId)){
+			r.setSuccess("0");
+			return  r;
+		}
+		int status = 0;
+		try {
+			status = orderManager.addConfirmGoodsReceipt(orderId);
+		} catch (BusinessException e) {
+			resultLogger.error("确认收货失败",e);
+		}
 		r.setSuccess(status+"");
 		return r;
 	}
@@ -335,7 +350,11 @@ public class OrderController {
 
 		for(OrderStatusInfo orderStatus : statusCounts){
 			if(orderStatus.getOrderStatus() == 10){
-				orderMap.put("daifukuan", awaitPaymentCount);
+				if(awaitPaymentCount <= 0){
+					orderMap.put("daifukuan","");
+				}else{
+					orderMap.put("daifukuan", awaitPaymentCount);
+				}
 			}else if(orderStatus.getOrderStatus() == 30){
 				orderMap.put("daifahuo", orderStatus.getStatusCounts());
 			}else if(orderStatus.getOrderStatus() == 50){
@@ -361,16 +380,6 @@ public class OrderController {
 	@Autowired
 	private GoodsLimitMapper goodsDao;
 
-	/**
-	 * 给订单设置商品信息
-	 * @param orderDetail
-	 * @return
-	 */
-	public OrderDetailsPOJO setGoods(OrderDetailsPOJO orderDetail){
-		Integer goodsId = orderDetail.getGoodsId();
-		orderDetail.setGoods(goodsService.findGoodsMysql(goodsId));
-		return orderDetail;
-	}
 
 	public List<OrderDetailsPOJO> setGoodsList(List<OrderDetailsPOJO> orders  , Integer rukou){
 		if(rukou != null && rukou == 1){
@@ -383,9 +392,9 @@ public class OrderController {
 				order.setOutTimeStamp(outTimeStamp);
 			}
 		}
-		for(OrderDetailsPOJO order : orders){
+		/*for(OrderDetailsPOJO order : orders){
 			setGoods(order);
-		}
+		}*/
 		return orders;
 	}
 
@@ -427,6 +436,34 @@ public class OrderController {
 		return rs;
 	}
 
+	/**
+	 * 设置金钱的格式
+	 * @param order
+	 * @return
+	 */
+	public List<OrderDetailsPOJO> setGoodsMoney(List<OrderDetailsPOJO> order){
+		for (OrderDetailsPOJO o: order) {
+			GoodsPOJO goods = o.getGoods();
+			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
+			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+		}
+		return order;
+	}
+
+	/**
+	 * 后台设置金额格式
+	 * @param order
+	 * @return
+	 */
+	public List<OrderDetailsPOJO> setBackstageMoney(List<OrderDetailsPOJO> order){
+		for (OrderDetailsPOJO o: order) {
+			GoodsPOJO goods = o.getGoods();
+			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+		}
+		return order;
+	}
+
 
 	//后台订单系统管理
 
@@ -449,13 +486,8 @@ public class OrderController {
 		}
 		int page = (currentPage - 1) * PAGE_SIZE;
 		List<OrderDetailsPOJO> order = orderManager.selectBackstageOrderClose(page,PAGE_SIZE);
-		for (OrderDetailsPOJO o: order) {
-			ArrayList<GoodsPOJO> goods = (ArrayList<GoodsPOJO>) o.getGoods();
-			for (GoodsPOJO g:  goods) {
-				g.setMarketMoney(MoneyFormat.priceFormatString(g.getShopPrice()));
-			}
+		order = setBackstageMoney(order);
 
-		}
 		map.put("code",1001);
 		map.put("msg","请求成功");
 		Map<String, Object>  resultMap = new HashMap<String, Object>();
@@ -482,12 +514,7 @@ public class OrderController {
 		}
 		int page = (currentPage - 1) * PAGE_SIZE;
 		List<OrderDetailsPOJO> order = orderManager.selectBackstageOrders(page,PAGE_SIZE);
-		for (OrderDetailsPOJO o: order) {
-			ArrayList<GoodsPOJO> goods = (ArrayList<GoodsPOJO>) o.getGoods();
-			for (GoodsPOJO g:  goods) {
-				g.setMarketMoney(MoneyFormat.priceFormatString(g.getShopPrice()));
-			}
-		}
+		order = setBackstageMoney(order);
 		map.put("code",1001);
 		map.put("msg","请求成功");
 		resultMap.put("status",map);
@@ -514,12 +541,7 @@ public class OrderController {
 		}else{
 			int page = (currentPage - 1) * PAGE_SIZE;
 			List<OrderDetailsPOJO> order = orderManager.selectBackstagePendingPaymentOrder(page,PAGE_SIZE);
-			for (OrderDetailsPOJO o: order) {
-				ArrayList<GoodsPOJO> goods = (ArrayList<GoodsPOJO>) o.getGoods();
-				for (GoodsPOJO g:  goods) {
-					g.setMarketMoney(MoneyFormat.priceFormatString(g.getShopPrice()));
-				}
-			}
+			order = setBackstageMoney(order);
 			map.put("code",1001);
 			map.put("msg","请求成功");
 			resultMap.put("status",map);
@@ -549,12 +571,7 @@ public class OrderController {
 		}else{
 			int page = (currentPage - 1) * PAGE_SIZE;
 			List<OrderDetailsPOJO> order = orderManager.selectBackstageAwaitDeliverOrder(page,PAGE_SIZE);
-			for (OrderDetailsPOJO o: order) {
-				ArrayList<GoodsPOJO> goods = (ArrayList<GoodsPOJO>) o.getGoods();
-				for (GoodsPOJO g:  goods) {
-					g.setMarketMoney(MoneyFormat.priceFormatString(g.getShopPrice()));
-				}
-			}
+			order = setBackstageMoney(order);
 			map.put("code",1001);
 			map.put("msg","请求成功");
 			resultMap.put("status",map);
@@ -581,12 +598,7 @@ public class OrderController {
 		}else{
 			int page = (currentPage - 1) * PAGE_SIZE;
 			List<OrderDetailsPOJO> order = orderManager.selectBackstageAwaitGoodsReceipt(page,PAGE_SIZE);
-			for (OrderDetailsPOJO o: order) {
-				ArrayList<GoodsPOJO> goods = (ArrayList<GoodsPOJO>) o.getGoods();
-				for (GoodsPOJO g:  goods) {
-					g.setMarketMoney(MoneyFormat.priceFormatString(g.getShopPrice()));
-				}
-			}
+			order = setBackstageMoney(order);
 			map.put("code",1001);
 			map.put("msg","请求成功");
 			resultMap.put("status",map);
@@ -614,12 +626,7 @@ public class OrderController {
 		}else{
 			int page = (currentPage - 1) * PAGE_SIZE;
 			List<OrderDetailsPOJO> order = orderManager.selectFinishOrder(page,PAGE_SIZE);
-			for (OrderDetailsPOJO o: order) {
-				ArrayList<GoodsPOJO> goods = (ArrayList<GoodsPOJO>) o.getGoods();
-				for (GoodsPOJO g:  goods) {
-					g.setMarketMoney(MoneyFormat.priceFormatString(g.getShopPrice()));
-				}
-			}
+			order = setBackstageMoney(order);
 			map.put("code",1001);
 			map.put("msg","请求成功");
 			resultMap.put("status",map);

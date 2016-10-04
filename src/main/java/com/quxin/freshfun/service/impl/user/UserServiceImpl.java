@@ -1,12 +1,12 @@
 package com.quxin.freshfun.service.impl.user;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.dao.UsersMapper;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.service.user.UserService;
-import com.quxin.freshfun.utils.AESUtil;
-import com.quxin.freshfun.utils.BusinessException;
-import com.quxin.freshfun.utils.IdGenerate;
-import com.quxin.freshfun.utils.MessageUtils;
+import com.quxin.freshfun.utils.*;
+import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +136,12 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public Long WXLogin(WxInfo wxInfo, String deviceId) {
+	public Long WXLogin(String code,String deviceId) throws BusinessException {
+		if(code == null){
+			return null;
+		}
+		//获取用户信息
+		WxInfo wxInfo = getUserInfo(code);
 		Long userId = null;
 		if(wxInfo!=null && deviceId != null && !"".equals(deviceId) && !"".equals(wxInfo)){
 			UserInfoPOJO userInfo = new UserInfoPOJO();
@@ -165,17 +170,65 @@ public class UserServiceImpl implements UserService{
 				user.setLoginMethod("wx");
 				user.setUserCredit((byte)1);
 				user.setUserIdentify((byte)1);
-				user.setIncomeIdentify((byte)1);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
-				userDao.insert(user);
+				int status = userDao.insert(user);
+				if(status <= 0){
+					logger.error("用户添加失败");
+					throw new BusinessException("用户添加失败");
+				}else{
+					userId = user.getId();
+				}
 				//插入一条用户信息到mongoDB
-				userInfo.setUserId(userId);
+				//插入一条用户信息到DB
+				UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
+				userDetailPOJO.setUserId(userId);
+				userDetailPOJO.setProvince(wxInfo.getProvince());
+				userDetailPOJO.setCity(wxInfo.getCity());
+				userDetailPOJO.setCountry(wxInfo.getCountry());
+				userDetailPOJO.setHeadimgurl(wxInfo.getHeadimgurl());
+				userDetailPOJO.setLanguage(wxInfo.getLanguage());
+				userDetailPOJO.setNickname(wxInfo.getNickname());
+				userDetailPOJO.setUnionid(wxInfo.getUnionid());
+				userDetailPOJO.setOpenid(wxInfo.getOpenid());
+				userDao.insertUserDetails(userDetailPOJO);
 			}
 		}
 		return userId;
 	}
-	
+
+	/**
+	 * 通过code获取用户信息
+	 * @param code
+	 */
+	private WxInfo getUserInfo(String code) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("https://api.weixin.qq.com/sns/oauth2/access_token?appid=");
+		sb.append(ConstantUtil.APP_ID);
+		sb.append("&secret=");
+		sb.append(ConstantUtil.APP_SECRET);
+		sb.append("&code=");
+		sb.append(code);
+		sb.append("&grant_type=authorization_code");
+		Object o = new Object();
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+		String StrJson = gson.toJson(o);
+		String str = HttpClientUtil.jsonToPost(sb.toString(), StrJson);
+		WxInfo wxInfo = strToJson(str);
+		return wxInfo;
+	}
+
+	/**
+	 * String转对象
+	 * @param str
+	 * @return
+	 */
+	public WxInfo strToJson(String str){
+		Gson gson = new Gson();
+		WxInfo wxInfo = gson.fromJson(str,WxInfo.class);
+		return wxInfo;
+	}
+
 
 	@Override
 	public Integer getVerifyCode(String userId, String phoneNum) {

@@ -16,6 +16,9 @@ import com.quxin.freshfun.model.ReturnStatus;
 import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.service.user.UserService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 @RequestMapping("/login")
 public class UserLoginController {
@@ -29,11 +32,34 @@ public class UserLoginController {
 		Long userId =userService.PhoneLogin(phoneNum, deviceId);
 		return userId.toString();
 	}
+
+	/**
+	 * 微信登录
+	 * @param code
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping("/wxLogin")
-	public String wxLogin(WxInfo wxInfo , String deviceId , HttpServletResponse response){
-		Long userId =userService.WXLogin(wxInfo, deviceId);
-		return userId.toString();
+	public Map<String, Object>  wxLogin(String code,String deviceId){
+		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object>  resultMap = new HashMap<String, Object>();
+		if(code != null){
+			try {
+				Long userId =userService.WXLogin(code,deviceId);
+				map.put("code",1001);
+				map.put("msg","请求成功");
+				resultMap.put("status",map);
+				resultMap.put("data",userId);
+			} catch (BusinessException e) {
+				logger.error("添加用户失败",e);
+			}
+		}else{
+			map.put("code",1004);
+			map.put("msg","参数错误");
+			resultMap.put("status",map);
+			return resultMap;
+		}
+		return resultMap;
 	}
 	@ResponseBody
 	@RequestMapping("/wzLogin")

@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.model.Share;
 
 public class FieldUtil {
@@ -45,4 +46,5 @@ public class FieldUtil {
 //
 //		return obj;
 //	}
+
 }

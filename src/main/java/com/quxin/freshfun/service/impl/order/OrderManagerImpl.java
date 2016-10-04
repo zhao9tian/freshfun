@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.model.param.FlowParam;
+import com.quxin.freshfun.service.flow.FlowService;
+import com.quxin.freshfun.utils.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,8 @@ public class OrderManagerImpl implements OrderManager {
 	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
 	private GoodsMapper goodsMapper;
+	@Autowired
+	private FlowService flowService;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -233,15 +238,28 @@ public class OrderManagerImpl implements OrderManager {
 	 * @return
 	 */
 	@Override
-	public Integer confirmGoodsReceipt(String orderId) {
+	public Integer addConfirmGoodsReceipt(String orderId) throws BusinessException {
 		logger.info("订单自动进入确认收货流程");
 		Map<String , Object> map = new HashMap<String, Object>();
 		map.put("reciveTime", System.currentTimeMillis()/1000);
 		map.put("orderDetailId", orderId);
 		//修改订单状态
 		Integer returnNum = orderDetailsMapper.updateOrderStatus(map);
-
-		// TODO 记录账单信息
+		if(returnNum <= 0){
+			throw new BusinessException("修改确认收货状态失败");
+		}
+		//查询订单信息
+		OrderDetailsPOJO orderDetails = orderDetailsMapper.selectConfirmOrderInfo(orderId);
+		//添加账单信息
+		Long currentDate = DateUtils.getCurrentDate();
+		FlowParam flowParam = new FlowParam();
+		flowParam.setOrderId(orderDetails.getId());
+		flowParam.setUserId(orderDetails.getUserId());
+		flowParam.setCreated(currentDate);
+		flowParam.setUpdated(currentDate);
+		flowParam.setAgentFlow(orderDetails.getAgentPrice().longValue());
+		flowParam.setFetcherFlow(orderDetails.getFetcherPrice().longValue());
+		flowService.add(flowParam);
 		return returnNum;
 	}
 
@@ -399,6 +417,11 @@ public class OrderManagerImpl implements OrderManager {
 	@Override
 	public List<OrderDetailsPOJO> autoConfirmDelivery() {
 		return orderDetailsMapper.selectUnConfirmOrder();
+	}
+
+	@Override
+	public OrderDetailsPOJO selectConfirmOrderInfo(String orderId) {
+		return orderDetailsMapper.selectConfirmOrderInfo(orderId);
 	}
 
 

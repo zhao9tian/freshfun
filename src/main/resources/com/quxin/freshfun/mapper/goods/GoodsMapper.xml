@@ -75,7 +75,7 @@
   
   <!-- 根据商品编号查询商品信息 -->
   <select id="selectGoodsById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.GoodsPOJO">
-      select id,goods_name as goodsName,goods_des as goodsDes,goods_img as goodsImg,goods_type as goodsType,shop_price as shopPrice,market_price as marketPrice,share_url as shareUrl from goods where id = #{goodsId} and is_on_sale = 1
+      select id,goods_name as goodsName,goods_des as goodsDes,goods_img as goodsImg,goods_type as goodsType,shop_price as shopPrice,market_price as marketPrice,share_url as shareUrl from goods where id = #{goodsId}
   </select>
   <select id="findByLimit" parameterType="map" resultType="com.quxin.freshfun.model.GoodsPOJO">
       select id, goods_name as goodsName, goods_img as goodsImg, goods_des as goodsDes, shop_price as shopPrice, market_price as marketPrice,share_url as shareUrl ,merchant_proxy_id as merchantProxyId, agency_fees as agencyFees from goods where is_on_sale = 1 ORDER BY gmt_modified DESC limit #{page}, #{pagesize}

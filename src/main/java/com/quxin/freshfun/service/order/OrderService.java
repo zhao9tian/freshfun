@@ -1,13 +1,18 @@
 package com.quxin.freshfun.service.order;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import com.quxin.freshfun.model.*;
+import org.json.JSONException;
 import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.dao.ResponseResult;
 import com.quxin.freshfun.utils.BusinessException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Service
 public interface OrderService {
@@ -67,4 +72,10 @@ public interface OrderService {
 	 * @return
 	 */
 	Integer queryEarnedIncome(Long id);
+
+	/**
+	 * 原生支付
+	 * @return
+	 */
+	String addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException;
 }

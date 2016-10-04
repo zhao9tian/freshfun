@@ -197,7 +197,6 @@ public interface OrderDetailsMapper {
 
     /**
      * 修改成功将状态改为70
-     * @param condition
      * @return
      */
     Integer updateOrderStatus(Map<String , Object> condition);
@@ -330,5 +329,12 @@ public interface OrderDetailsMapper {
      * @return
      */
     Integer orderRemark(Map<String,Object> map);
+
+    /**
+     * 根据订单编号查询账单需要的信息
+     * @param orderId
+     * @return
+     */
+    OrderDetailsPOJO selectConfirmOrderInfo(String orderId);
 
 }

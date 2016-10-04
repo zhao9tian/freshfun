@@ -41,7 +41,10 @@ public class OrderDetailsPOJO {
     private Integer isDeleted;
     private Long createDate;
     private Long updateDate;
-    private Integer payStatus;
+    /**
+     * 评论状态
+     */
+    private Integer commentStatus;
     /**
      * 发货时间
      */
@@ -68,7 +71,7 @@ public class OrderDetailsPOJO {
     private String extra;
 
     //    private GoodsPOJO goods;
-    private Object goods;
+    private GoodsPOJO goods;
     private String deliveryName;
     /**
      * 用于前端价格显示
@@ -215,11 +218,11 @@ public class OrderDetailsPOJO {
         this.address = address;
     }
 
-    public Object getGoods() {
+    public GoodsPOJO getGoods() {
         return goods;
     }
 
-    public void setGoods(Object goods) {
+    public void setGoods(GoodsPOJO goods) {
         this.goods = goods;
     }
 
@@ -369,12 +372,12 @@ public class OrderDetailsPOJO {
         this.updateDate = updateDate;
     }
 
-    public Integer getPayStatus() {
-        return payStatus;
+    public Integer getCommentStatus() {
+        return commentStatus;
     }
 
-    public void setPayStatus(Integer payStatus) {
-        this.payStatus = payStatus;
+    public void setCommentStatus(Integer commentStatus) {
+        this.commentStatus = commentStatus;
     }
 
     public String getDeliveryName() {
@@ -424,7 +427,6 @@ public class OrderDetailsPOJO {
                 ", isDeleted=" + isDeleted +
                 ", createDate=" + createDate +
                 ", updateDate=" + updateDate +
-                ", payStatus=" + payStatus +
                 ", deliveryTime=" + deliveryTime +
                 ", goodsCost=" + goodsCost +
                 ", name='" + name + '\'' +

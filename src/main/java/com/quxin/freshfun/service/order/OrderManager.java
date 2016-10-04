@@ -3,6 +3,7 @@ package com.quxin.freshfun.service.order;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.utils.BusinessException;
 import org.springframework.stereotype.Service;
 
 import com.quxin.freshfun.model.OrderDetailsPOJO;
@@ -91,7 +92,7 @@ public interface OrderManager {
 	 * @param orderId
 	 * @return
 	 */
-	Integer confirmGoodsReceipt(String orderId);
+	Integer addConfirmGoodsReceipt(String orderId) throws BusinessException;
 	/**
 	 * 刪除訂單
 	 * @param scId
@@ -241,4 +242,11 @@ public interface OrderManager {
 	 * @return
 	 */
 	List<OrderDetailsPOJO> autoConfirmDelivery();
+
+	/**
+	 * 根据订单编号查询账单需要的信息
+	 * @param orderId
+	 * @return
+	 */
+	OrderDetailsPOJO selectConfirmOrderInfo(String orderId);
 }
