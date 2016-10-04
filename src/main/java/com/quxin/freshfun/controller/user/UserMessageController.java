@@ -96,8 +96,6 @@ public class UserMessageController {
 	public Map<String, Object> adduserComment(String orderId,String userId, String goodsId, String content, String commentLevel){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 		CodingTools codingTools = new CodingTools();
-		System.out.println(orderId);
-		System.out.println(codingTools.enCodeStr(content));
 		Comment comment = new Comment();
 		
 		comment.setUserId(Long.parseLong(userId));

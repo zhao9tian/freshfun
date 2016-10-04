@@ -196,8 +196,8 @@ public interface OrderDetailsMapper {
     Integer updateOrderDetailPayStatus(@Param("date") Long date,@Param("orderId") Long orderId);
 
     /**
-     * 修改成功将状态改为30
-     * @param orderDetailId
+     * 修改成功将状态改为70
+     * @param condition
      * @return
      */
     Integer updateOrderStatus(Map<String , Object> condition);
@@ -210,7 +210,7 @@ public interface OrderDetailsMapper {
     List<Long> selectPayId(Long orderId);
     /**
      * 批量修改订单状态
-     * @param orderDetails
+     * @param list
      * @return
      */
     public int bachUpdateOrder(List<PayModify> list);

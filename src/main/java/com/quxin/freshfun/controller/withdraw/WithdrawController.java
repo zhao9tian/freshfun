@@ -101,7 +101,7 @@ public class WithdrawController {
             resultmap = ResultUtil.fail(1004,"该用户提现金额为0");
         }else if(extractMoneyStr == null){
             resultmap = ResultUtil.fail(1004,"提现金额必须大于0");
-        }else if(extractmoney <= Double.parseDouble(extractMoneyStr)){
+        }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
             resultmap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
         }else{
             WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
@@ -139,7 +139,7 @@ public class WithdrawController {
             resultmap = ResultUtil.fail(1004,"该用户提现金额为0");
         }else if(extractMoneyStr == null){
             resultmap = ResultUtil.fail(1004,"提现金额必须大于0");
-        }else if(extractmoney <= Double.parseDouble(extractMoneyStr)){
+        }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
             resultmap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
         }else{
             WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
@@ -176,7 +176,7 @@ public class WithdrawController {
             inOutDetailsOutParam.setGoodsName("提现");//操作
             inOutDetailsOutParam.setTime(inOutDetailsPOJO.getTime());//时间戳
             DecimalFormat df = new DecimalFormat("#0.00");
-            inOutDetailsOutParam.setPrice(df.format(inOutDetailsPOJO.getPrice()/100));//金额
+            inOutDetailsOutParam.setPrice(df.format(((double)inOutDetailsPOJO.getPrice())/100));//金额
             allInOut.add(inOutDetailsOutParam);
         }
         for(InOutDetailsPOJO inOutDetailsPOJO : inOutDetailsPOJOs ){
@@ -184,7 +184,7 @@ public class WithdrawController {
             inOutDetailsOutParam.setGoodsName(inOutDetailsPOJO.getGoodsName());//操作
             inOutDetailsOutParam.setTime(inOutDetailsPOJO.getTime());
             DecimalFormat df = new DecimalFormat("#0.00");
-            inOutDetailsOutParam.setPrice(df.format(inOutDetailsPOJO.getPrice()/100));
+            inOutDetailsOutParam.setPrice(df.format(((double)inOutDetailsPOJO.getPrice())/100));
             allInOut.add(inOutDetailsOutParam);
         }
         //处理页面显示数据
@@ -236,7 +236,7 @@ public class WithdrawController {
             inOutDetailsOutParam.setGoodsName(inOutDetailsPOJO.getGoodsName());//操作
             inOutDetailsOutParam.setTime(inOutDetailsPOJO.getTime());//时间戳
             DecimalFormat df = new DecimalFormat("#0.00");
-            inOutDetailsOutParam.setPrice(df.format(inOutDetailsPOJO.getPrice()/100));//金额
+            inOutDetailsOutParam.setPrice(df.format(((double)inOutDetailsPOJO.getPrice())/100));//金额
             incomeDetails.add(inOutDetailsOutParam);
         }
         return ResultUtil.success(incomeDetails);
@@ -257,7 +257,7 @@ public class WithdrawController {
             inOutDetailsOutParam.setGoodsName(inOutDetailsPOJO.getGoodsName());//操作
             inOutDetailsOutParam.setTime(inOutDetailsPOJO.getTime());//时间戳
             DecimalFormat df = new DecimalFormat("#0.00");
-            inOutDetailsOutParam.setPrice(df.format(inOutDetailsPOJO.getPrice()/100));//金额
+            inOutDetailsOutParam.setPrice(df.format(((double)inOutDetailsPOJO.getPrice())/100));//金额
             incomeDetails.add(inOutDetailsOutParam);
         }
         return ResultUtil.success(incomeDetails);
