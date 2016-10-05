@@ -26,41 +26,47 @@ public class WithdrawContorllerTest extends TestBase{
     }
     @Test
     public void getAllMoneyB() throws Exception {
-        System.out.println(withdrawController.getAllMoneyB("552233"));
+        System.out.println(withdrawController.getAllMoneyB("556677"));
     }
     @Test
     public void getAllMoneyC() throws Exception {
-        System.out.println(withdrawController.getAllMoneyC("553344"));
+        System.out.println(withdrawController.getAllMoneyC("556677"));
     }
 
     @Test
     public void getWithdrawRecord() {
-        System.out.println(withdrawController.withdrawRecords("553344"));
+        //提现记录
+        System.out.println(withdrawController.withdrawRecords("556677"));
     }
 
     @Test
     public void addWithdraw() throws Exception {
         WithdrawParam withdrawParam = new WithdrawParam();
-        withdrawParam.setUserId("553344");
-        withdrawParam.setMoney("6.0");
+        withdrawParam.setUserId("556677");
+        withdrawParam.setMoney("0.6");
         withdrawParam.setPayway("银行卡");
         withdrawParam.setAccount("6286549251531o15315");
+        //b端提现
 //        System.out.println(withdrawController.applyWithdrawB(withdrawParam));
+        //c端提现
         System.out.println(withdrawController.applyWithdrawC(withdrawParam));
     }
 
 
     @Test
     public void getAllList(){
-        System.out.println(withdrawController.inOutDetails("553344"));
+        //收支明细--收入是累计入账收益 --支出是提现
+        System.out.println(withdrawController.inOutDetails("556677"));
     }
     @Test
     public void getRecordList(){
-        System.out.println(withdrawController.getRecordList("553344"));
+        //收入记录--累计入账收益
+        System.out.println(withdrawController.getRecordList("556677"));
     }
     @Test
     public void getUnrecordList(){
-        System.out.println(withdrawController.getUnrecordList("553344"));
+        //未入账收益记录
+        System.out.println(withdrawController.getUnrecordList("556677"));
     }
 
 }

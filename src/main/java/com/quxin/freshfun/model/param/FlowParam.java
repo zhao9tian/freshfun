@@ -31,7 +31,7 @@ public class FlowParam extends BaseEntity {
     }
 
     public Long getAgentFlow() {
-        return agentFlow;
+        return agentFlow == null ? 0 : agentFlow;
     }
 
     public void setAgentFlow(Long agentFlow) {
@@ -39,7 +39,7 @@ public class FlowParam extends BaseEntity {
     }
 
     public Long getFetcherFlow() {
-        return fetcherFlow;
+        return fetcherFlow == null ? 0 : fetcherFlow;
     }
 
     public void setFetcherFlow(Long fetcherFlow) {

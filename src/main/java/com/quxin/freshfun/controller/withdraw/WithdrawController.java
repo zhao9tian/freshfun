@@ -178,7 +178,7 @@ public class WithdrawController {
             inOutDetailsOutParam.setGoodsName("提现");//操作
             inOutDetailsOutParam.setTime(inOutDetailsPOJO.getTime());//时间戳
             DecimalFormat df = new DecimalFormat("#0.00");
-            inOutDetailsOutParam.setPrice(df.format(((double)inOutDetailsPOJO.getPrice())/100));//金额
+            inOutDetailsOutParam.setPrice("-"+df.format(((double)inOutDetailsPOJO.getPrice())/100));//金额
             allInOut.add(inOutDetailsOutParam);
         }
         for(InOutDetailsPOJO inOutDetailsPOJO : inOutDetailsPOJOs ){
@@ -212,7 +212,7 @@ public class WithdrawController {
             WithdrawOutParam withdrawOP = new WithdrawOutParam();
             withdrawOP.setWithdrawName("提现");
             DecimalFormat df = new DecimalFormat("#0.00");
-            withdrawOP.setPrice(df.format(((double)inOutDetailsPOJO.getPrice())/100));
+            withdrawOP.setPrice("-"+df.format(((double)inOutDetailsPOJO.getPrice())/100));
             try {
                 withdrawOP.setTime(DateUtils.longToString(inOutDetailsPOJO.getTime(), "yyyy-MM-dd HH:mm:ss"));
             } catch (ParseException e) {

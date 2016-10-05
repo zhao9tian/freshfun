@@ -1,11 +1,14 @@
 package com.quxin.freshfun.controller.user;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.quxin.freshfun.model.UserMessage;
+import com.quxin.freshfun.model.UserMessageInfo;
+import com.quxin.freshfun.model.UsersPOJO;
+import com.quxin.freshfun.model.param.CommentParam;
 import com.quxin.freshfun.model.pojo.CommentPOJO;
+import com.quxin.freshfun.service.UserAddressService;
 import com.quxin.freshfun.service.comment.CommentService;
+import com.quxin.freshfun.service.order.OrderManager;
+import com.quxin.freshfun.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,15 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
-import com.quxin.freshfun.model.CommentInfo;
-import com.quxin.freshfun.model.UserMessage;
-import com.quxin.freshfun.model.UserMessageInfo;
-import com.quxin.freshfun.model.UsersPOJO;
-import com.quxin.freshfun.service.UserAddressService;
-import com.quxin.freshfun.service.goods.GoodsService;
-import com.quxin.freshfun.service.order.OrderManager;
-import com.quxin.freshfun.utils.CodingTools;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/")
@@ -29,9 +25,6 @@ public class UserMessageController {
 	@Autowired
 	private UserAddressService userAddressService;
 	
-	@Autowired
-	private GoodsService goodsService;
-
 	@Autowired
 	private CommentService commentService;
 	
@@ -95,28 +88,43 @@ public class UserMessageController {
 	 * 添加用户留言
 	 * @return
 	 */
-	@RequestMapping("/addusercomment")
+	@RequestMapping(value = "/addusercomment" , method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> adduserComment(String orderId,String userId, String goodsId, String content, String commentLevel){
-		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		CodingTools codingTools = new CodingTools();
+	public Map<String, Object> addUserComment(@RequestBody CommentParam commentParam){
 		CommentPOJO comment = new CommentPOJO();
-
-		// TODO @渠成
-
-//		comment.setUserId(Long.parseLong(userId));
-//		comment.setGoodsId(Integer.parseInt(goodsId));
-//		comment.setOrderId(orderId);
-//		comment.setContent(codingTools.enCodeStr(content));
-//		comment.setCommentLevel(commentLevel);
-//		String nowTime = String.valueOf(System.currentTimeMillis()/1000);
-//		comment.setGmtCreate(System.currentTimeMillis()/1000);
-//		comment.setGmtModified(System.currentTimeMillis()/1000);
-//		comment.setIsDeleted((byte)0);
-		commentService.addComment(comment);
-		orderManager.confirmGoodsComment(orderId);
-		stateMap.put("state", "chenggong");
-		return stateMap;
+		if(commentParam.getOrderId() != null && !"".equals(commentParam.getOrderId())){
+			comment.setOrderId(Long.parseLong(commentParam.getOrderId()));
+			comment.setGoodsId(Integer.parseInt(commentParam.getGoodsId()));
+			comment.setUserId(Long.parseLong(commentParam.getUserId()));
+			comment.setContent(commentParam.getContent());
+			comment.setGeneralLevel(commentParam.getGeneralLevel());
+			comment.setPackLevel(commentParam.getPackLevel());
+			comment.setTasteLevel(commentParam.getTasteLevel());
+			comment.setLogisticsLevel(commentParam.getLogisticsLevel());
+			comment.setCreated(System.currentTimeMillis()/1000);
+			comment.setUpdated(System.currentTimeMillis()/1000);
+			Integer count = commentService.addComment(comment);
+			if(count == null){
+				return ResultUtil.fail(1004,"新增失败");
+			}
+			orderManager.confirmGoodsComment(commentParam.getOrderId());
+			return ResultUtil.success("success");
+		}
+		return null;
 	}
 
+	@RequestMapping(value = "/findComment" , method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String ,Object> getComment(String orderId){
+		if(orderId == null || "".equals(orderId)){
+			return ResultUtil.fail(1004,"订单id不能为空");
+		}else{
+			CommentPOJO commentPOJO = commentService.queryCommentDetailByOrderId(Long.parseLong(orderId));
+			if(commentPOJO == null){
+				return ResultUtil.fail(1004,"没有评价");
+			}else{
+				return ResultUtil.success(commentPOJO);
+			}
+		}
+	}
 }

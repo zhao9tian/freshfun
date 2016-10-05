@@ -37,11 +37,11 @@
 
     <!--查询B提现记录金额 -->
     <select id="selectWithdrawRecordMoneyB" parameterType="java.lang.String" resultType="java.lang.Integer" >
-        select sum(withdraw_price) from withdraw where user_id = #{userId} and withdraw_source = 20 and state != 2 and is_delete = 0
+        select sum(withdraw_price) from withdraw where user_id = #{userId} and withdraw_source = 20 and state = 0 and is_delete = 0
     </select>
     <!--查询C提现记录金额 -->
     <select id="selectWithdrawRecordMoneyC"  parameterType="java.lang.String" resultType="java.lang.Integer" >
-        select sum(withdraw_price) from withdraw where user_id = #{userId} and withdraw_source = 10 and state != 2 and is_delete = 0
+        select sum(withdraw_price) from withdraw where user_id = #{userId} and withdraw_source = 10 and state = 0 and is_delete = 0
     </select>
 
     <!--记录申请 -->
@@ -50,13 +50,13 @@
         values (#{id} , #{userId} , #{withDrawPrice} , #{withDrawType} , #{paymentAccount} , #{withdrawSource} , #{createDate})
     </insert>
 
-    <!--查询提现记录 -->
+    <!--查询提现记录 申请的记录-->
     <select id="selectWithdrawList" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
         SELECT   `withdraw_price` as `price`, `create_date` as `time`
         FROM withdraw where user_id = #{userId} and withdraw_source = 10 and is_delete = 0 order by create_date desc
     </select>
 
-    <!--查询收入记录 -->
+    <!--查询收入记录 入账的-->
     <select id="selectIncomeRecords" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.InOutDetailsPOJO">
         SELECT  `goods_name` as `goodsName` , `fetcher_price` as `price`, `create_date` as `time`
         FROM goods g, order_details o where g.id = o.goods_id and o.fetcher_id = #{userId} and o.order_status = 100 and o.is_deleted = 0

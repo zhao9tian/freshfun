@@ -268,7 +268,8 @@ public class OrderManagerImpl implements OrderManager {
 			flowParam.setUserId(orderDetails.getFetcherId());
 			flowParam.setCreated(currentDate);
 			flowParam.setUpdated(currentDate);
-			flowParam.setAgentFlow(orderDetails.getFetcherPrice().longValue());
+//			flowParam.setAgentFlow(orderDetails.getFetcherPrice().longValue());
+			flowParam.setFetcherFlow(orderDetails.getFetcherPrice().longValue());
 			flowService.add(flowParam);
 		}*/
 
