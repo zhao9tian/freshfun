@@ -23,8 +23,6 @@ public class AutoConfirmTask {
     private OrderManager orderManager;
     @Autowired
     private BillService billService;
-    @Autowired
-    private FlowService flowService;
 
     @Autowired
     private VerifiedCodeService verifiedCodeService;
@@ -39,7 +37,7 @@ public class AutoConfirmTask {
         //查询订单未确认收货信息
         List<OrderDetailsPOJO> orders = orderManager.autoConfirmDelivery();
         if(orders != null){
-            Long currentDate = DateUtils.getCurrentDate();
+            //Long currentDate = DateUtils.getCurrentDate();
             for (OrderDetailsPOJO order: orders) {
                 //修改订单状态
                 int status = orderManager.autoConfirmDelivery(order.getId().toString());
@@ -47,7 +45,7 @@ public class AutoConfirmTask {
                     throw new BusinessException("修改7点自动确认收货失败");
                 }
                 //添加账单流水信息
-                if(order.getAgentId() !=0){
+                /*if(order.getAgentId() !=0){
                     //添加代理商户账单信息
                     FlowParam flowParam = new FlowParam();
                     flowParam.setOrderId(order.getId());
@@ -66,7 +64,7 @@ public class AutoConfirmTask {
                     flowParam.setUpdated(currentDate);
                     flowParam.setAgentFlow(order.getFetcherPrice().longValue());
                     flowService.add(flowParam);
-                }
+                }*/
             }
         }
     }

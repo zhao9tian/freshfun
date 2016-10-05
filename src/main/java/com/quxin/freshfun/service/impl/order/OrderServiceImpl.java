@@ -229,6 +229,7 @@ public class OrderServiceImpl implements OrderService {
 		od.setOrderStatus(10);
 		//判断是否是捕手
 		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
+
 			od.setFetcherId(userPOJO.getParentId());
 			//计算捕手需要获取的提成
 			Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;

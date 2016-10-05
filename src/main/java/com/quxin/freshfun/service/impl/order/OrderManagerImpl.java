@@ -248,7 +248,7 @@ public class OrderManagerImpl implements OrderManager {
 			throw new BusinessException("修改确认收货状态失败");
 		}
 		//查询订单信息
-		OrderDetailsPOJO orderDetails = orderDetailsMapper.selectConfirmOrderInfo(orderId);
+		/*OrderDetailsPOJO orderDetails = orderDetailsMapper.selectConfirmOrderInfo(orderId);
 		if(orderDetails.getAgentId() !=0){
 			//添加账单信息
 			Long currentDate = DateUtils.getCurrentDate();
@@ -270,7 +270,7 @@ public class OrderManagerImpl implements OrderManager {
 			flowParam.setUpdated(currentDate);
 			flowParam.setAgentFlow(orderDetails.getFetcherPrice().longValue());
 			flowService.add(flowParam);
-		}
+		}*/
 
 		return returnNum;
 	}
