@@ -81,29 +81,47 @@
 
   <!-- 根据用户编号分页查询所有订单 -->
   <select id="selectAll" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`comment_status`,`count`,`order_status`,`actual_price`,`delivery_num`,`name`,`tel`,`city`,`address` from order_details where user_id = #{userId} and is_deleted = 0 limit #{currentPage},#{pageSize}
+    select `id`,`address_id`,`goods_id`,`comment_status`,`count`,`order_status`,`actual_price`,`delivery_num`,`name`,`tel`,`city`,`address`
+    from order_details where user_id = #{userId} and is_deleted = 0
+    order by create_date DESC
+    limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待发货订单 -->
   <select id="selectAwaitDeliverOrder" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and order_status = 30 and is_deleted = 0 limit #{currentPage},#{pageSize}
+    select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address
+    from order_details where user_id = #{userId} and order_status = 30 and is_deleted = 0
+    order by create_date DESC
+    limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待付款订单 -->
   <select id="selectPendingPaymentOrder" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and order_status = 10 and is_deleted = 0
+    select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address
+    from order_details where user_id = #{userId} and order_status = 10 and is_deleted = 0
     and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0
+    order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 待收货 -->
   <select id="selectAwaitGoodsReceipt" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address from order_details where user_id = #{userId} and order_status = 50 and is_deleted = 0 limit #{currentPage},#{pageSize}
+    select id,address_id,goods_id,actual_price,count,delivery_num , is_limit,name,tel,city,address
+    from order_details where user_id = #{userId} and order_status = 50 and is_deleted = 0
+    order by create_date DESC
+    limit #{currentPage},#{pageSize}
   </select>
   <!-- 待评价 -->
   <select id="selectAwaitComment" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address` from order_details where user_id = #{userId} and is_deleted = 0 and order_status = 70 and comment_status = 0 limit #{currentPage},#{pageSize}
+    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address`
+    from order_details
+    where user_id = #{userId} and is_deleted = 0 and order_status = 70 and comment_status = 0
+    order by create_date DESC
+    limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询退货 -->
   <select id="selectCancelOrder" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address` from order_details where user_id = #{userId} and order_status = 40 and is_deleted = 0 limit #{currentPage},#{pageSize}
+    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address`
+    from order_details where user_id = #{userId} and order_status = 40 and is_deleted = 0
+    order by create_date DESC
+    limit #{currentPage},#{pageSize}
   </select>
   <!-- 删除一条订单信息 -->
   <update id="delOrder">
@@ -138,15 +156,9 @@
     select count(id) from order_details where user_id = #{userId} and is_deleted = 0 and order_status = 70 and comment_status = 0
   </select>
 
-  <!-- 查询未付款订单数量 -->
-  <!-- <select id="selectPayCounts" parameterType="java.lang.Long" resultMap="BaseResultInfo">
-      select count(id) as pay_counts from order_details WHERE user_id=#{user_id} and pay_status = 0 and is_deleted = 0
-  </select> -->
-
   <select id="selectPayCounts" parameterType="java.lang.Long" resultType="java.lang.Integer">
     select count(id) from order_details WHERE user_id=#{userId} and order_status = 10 and is_deleted = 0
     and (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]>0
-
   </select>
 
 
@@ -175,16 +187,20 @@
 
   <!--查询账单需要的订单信息-->
   <select id="selectConfirmOrderInfo" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
-    select `id`,`user_id` as `userId`,`agent_id` as `agentId`,`agent_price` as `agentPrice`,`fetcher_id` as `fetcherId`,`fetcher_price` as `fetcherPrice` from order_details where id = #{orderId}
+    select `id`,`user_id` as `userId`,`agent_id` as `agentId`,`agent_price` as `agentPrice`,`fetcher_id` as `fetcherId`,`fetcher_price` as `fetcherPrice`
+    from order_details where id = #{orderId} order by create_date DESC
   </select>
 
   <!--查询所有过14天没有确认收货订单-->
   <select id="selectUnConfirmOrder" resultMap="BaseResultMap" >
-    select `id`,`user_id`,`agent_id`,`agent_price`,`fetcher_id`,`fetcher_price` from order_details where order_status = 50 and is_deleted = 0 and (delivery_time + 20160*60 - unix_timestamp(now())) <![CDATA[<]]> 0
+    select `id`,`user_id`,`agent_id`,`agent_price`,`fetcher_id`,`fetcher_price`
+    from order_details where order_status = 50 and is_deleted = 0 and (delivery_time + 20160*60 - unix_timestamp(now())) <![CDATA[<]]> 0
+    order by create_date DESC
   </select>
   <!--查询确认收货超过7天等待打款-->
   <select id="selectAwaitPayMoney" resultMap="BaseResultMap" >
     select id from  order_details where order_status = 70 and is_deleted = 0 and (recive_time + 10080*60 - unix_timestamp(now())) <![CDATA[<]]> 0
+    order by create_date DESC
   </select>
   <!--修改订单状态为以完成打款：100-->
   <update id="updateAlreadyPayMoney" parameterType="java.lang.Long">
@@ -202,7 +218,9 @@
   </select>
   <!--查询待付款-->
   <select id="selectBackstagePendingPaymentOrder" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 and order_status = 10 and (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0 order by create_date desc limit #{currentPage},#{pageSize}
+    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
+    from order_details where is_deleted = 0 and order_status = 10 and (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0
+    order by create_date desc limit #{currentPage},#{pageSize}
   </select>
   <!--查询待付款数量-->
   <select id="selectBackstagePendingPaymentOrderCount" resultType="java.lang.Integer">
@@ -210,7 +228,10 @@
   </select>
   <!--待发货-->
   <select id="selectBackstageAwaitDeliverOrder" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 and order_status = 30 order by create_date desc limit #{currentPage},#{pageSize}
+    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
+    from order_details where is_deleted = 0 and order_status = 30
+    order by create_date desc
+    limit #{currentPage},#{pageSize}
   </select>
   <!--查询代发货数量-->
   <select id="selectBackstageAwaitDeliverOrderCount" resultType="java.lang.Integer">
@@ -218,7 +239,10 @@
   </select>
   <!--待收货-->
   <select id="selectBackstageAwaitGoodsReceipt" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 and order_status = 50 order by create_date desc limit #{currentPage},#{pageSize}
+    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
+    from order_details where is_deleted = 0 and order_status = 50
+    order by create_date desc
+    limit #{currentPage},#{pageSize}
   </select>
   <!--查询待收货数量-->
   <select id="selectBackstageAwaitGoodsReceiptCount" resultType="java.lang.Integer">
@@ -226,7 +250,10 @@
   </select>
   <!--已完成-->
   <select id="selectFinishOrder" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 and order_status = 100 order by create_date desc limit #{currentPage},#{pageSize}
+    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
+    from order_details where is_deleted = 0 and order_status = 100
+    order by create_date desc
+    limit #{currentPage},#{pageSize}
   </select>
   <select id="selectFinishOrderCount" resultType="java.lang.Integer">
     select count(id) from order_details where is_deleted = 0 and order_status = 100
@@ -234,7 +261,8 @@
   <!--查询已关闭订单-->
   <select id="selectBackstageOrderClose" resultMap="BaseResultMap">
     select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 and order_status = 10 and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[<]]> 0
-    order by create_date desc limit #{currentPage},#{pageSize}
+    order by create_date desc
+    limit #{currentPage},#{pageSize}
   </select>
   <!--查询已关闭订单数量-->
   <select id="selectBackstageOrderCloseCount" resultType="java.lang.Integer">
