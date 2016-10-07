@@ -26,7 +26,7 @@
   <update id="updateRefundStatus" parameterType="java.lang.String">
   	update order_details 
   	<set>
-  		refund_status = 1
+  		order_status = 40
   	</set>
   	<where>
   		id = #{orderDetailId}
