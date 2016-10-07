@@ -28,7 +28,7 @@
   	<set>
   		order_status = 40 ,
         update_date = UNIX_TIMESTAMP(now()),
-        delivery_remark = #{orderStatus}
+        delivery_remarke = #{orderStatus}
   	</set>
   	<where>
   		id = #{orderId}
