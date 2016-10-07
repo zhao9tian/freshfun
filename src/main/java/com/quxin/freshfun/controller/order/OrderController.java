@@ -422,7 +422,6 @@ public class OrderController {
 			GoodsPOJO goods = o.getGoods();
 			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
-			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
 		}
 		return order;
 	}
