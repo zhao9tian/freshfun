@@ -141,7 +141,7 @@
   </update>
   <!-- 确认评价 -->
   <update id="confirmGoodsComment" parameterType="java.lang.String">
-    update order_details set order_status = 90 where id = #{orderId}
+    update order_details set comment_status = 1 where id = #{orderId} and comment_status = 0
   </update>
   <!-- 查询未退款订单数量 -->
   <select id="selectStatusCounts" parameterType="java.lang.Long" resultMap="BaseResultInfo">
@@ -199,7 +199,7 @@
   </select>
   <!--查询确认收货超过7天等待打款-->
   <select id="selectAwaitPayMoney" resultMap="BaseResultMap" >
-    select id from  order_details where order_status = 70 and is_deleted = 0 and (recive_time + 10080*60 - unix_timestamp(now())) <![CDATA[<]]> 0
+    select id , agent_id , agent_price , fetcher_id , fetcher_price from order_details where order_status = 70 and is_deleted = 0 and (recive_time + 10080*60 - unix_timestamp(now())) <![CDATA[<]]> 0
     order by create_date DESC
   </select>
   <!--修改订单状态为以完成打款：100-->

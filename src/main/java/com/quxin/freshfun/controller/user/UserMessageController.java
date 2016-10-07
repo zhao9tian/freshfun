@@ -33,7 +33,7 @@ public class UserMessageController {
 	
 	/**userismobile
 	 * 添加用户反馈
-	 * @return
+	 * @return 返回是否成功
 	 */
 	@RequestMapping(value="/usermessage",method={RequestMethod.POST})
 	@ResponseBody
@@ -50,7 +50,7 @@ public class UserMessageController {
 		long nowTime = System.currentTimeMillis()/1000;
 		userMessage.setGmtModified(nowTime);
 		userMessage.setGmtCreate(nowTime);
-		Map<String, Object> stateMap = new HashMap<String, Object>(1);
+		Map<String, Object> stateMap = new HashMap<String, Object>();
 		int demo = userAddressService.insertUserMessage(userMessage);
 		if (demo == 1){
 			stateMap.put("state", "1");			
@@ -62,17 +62,18 @@ public class UserMessageController {
 	
 	/**
 	 * 通过userID获取用户手机号
-	 * @return
+	 * @return map
 	 */
 	@RequestMapping("/userismobile")
 	@ResponseBody
 	public Map<String, Object> FindUserIsMobile(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		Map<String, Object> stateMap = new HashMap<String, Object>(1);
+		Map<String, Object> stateMap = new HashMap<String, Object>();
 		UsersPOJO userInfo = userAddressService.findIsMobile(ui);
-		String mobile = userInfo.getMobilePhone();
-		Byte identify = userInfo.getUserIdentify();
-		if(mobile == null || mobile == ""){
+		String mobile;
+        mobile = userInfo.getMobilePhone();
+        Byte identify = userInfo.getUserIdentify();
+		if(mobile == null || "".equals(mobile)){
 			stateMap.put("state", 0);
 		}else if(identify == 0){
 			userAddressService.updateUserIdentify(ui);
@@ -86,13 +87,20 @@ public class UserMessageController {
 	
 	/**
 	 * 添加用户留言
-	 * @return
+	 * @return map
 	 */
 	@RequestMapping(value = "/addusercomment" , method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> addUserComment(@RequestBody CommentParam commentParam){
 		CommentPOJO comment = new CommentPOJO();
 		if(commentParam.getOrderId() != null && !"".equals(commentParam.getOrderId())){
+			try{
+				if(commentService.queryCommentDetailByOrderId(Long.parseLong(commentParam.getOrderId()))!=null){
+					return ResultUtil.fail(1004,"该订单已经被评论");
+				}
+			}catch(Exception e){
+				return ResultUtil.fail(1004,"该订单已经被评论");
+			}
 			comment.setOrderId(Long.parseLong(commentParam.getOrderId()));
 			comment.setGoodsId(Integer.parseInt(commentParam.getGoodsId()));
 			comment.setUserId(Long.parseLong(commentParam.getUserId()));
@@ -105,9 +113,12 @@ public class UserMessageController {
 			comment.setUpdated(System.currentTimeMillis()/1000);
 			Integer count = commentService.addComment(comment);
 			if(count == null){
-				return ResultUtil.fail(1004,"新增失败");
+				return ResultUtil.fail(1004,"新增评论失败");
 			}
-			orderManager.confirmGoodsComment(commentParam.getOrderId());
+			int num = orderManager.confirmGoodsComment(commentParam.getOrderId());
+			if(num == 0){
+				return ResultUtil.fail(1004,"订单"+commentParam.getOrderId()+"状态不是确认收货");
+			}
 			return ResultUtil.success("success");
 		}
 		return null;

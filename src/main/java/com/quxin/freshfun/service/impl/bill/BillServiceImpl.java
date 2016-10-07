@@ -265,7 +265,7 @@ public class BillServiceImpl implements BillService {
 						flowParam.setUserId(order.getFetcherId());
 						flowParam.setCreated(currentDate);
 						flowParam.setUpdated(currentDate);
-						flowParam.setAgentFlow(order.getFetcherPrice().longValue());
+						flowParam.setFetcherFlow(order.getFetcherPrice().longValue());
 						flowService.add(flowParam);
 					}
 				}
