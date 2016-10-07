@@ -26,7 +26,8 @@
   <update id="updateRefundStatus" parameterType="java.lang.String">
   	update order_details 
   	<set>
-  		order_status = 40
+  		order_status = 40 ,
+        update_date = UNIX_TIMESTAMP(now())
   	</set>
   	<where>
   		id = #{orderDetailId}
