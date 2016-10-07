@@ -692,7 +692,7 @@ public class OrderController {
 	@RequestMapping("/selectBackstageAwaitGoodsReceiptCount")
 	@ResponseBody
 	public Map<String, Object> selectBackstageAwaitGoodsReceiptCount(){
-		Integer count = orderManager.selectBackstageAwaitGoodsReceiptCount();
+		Integer count = orderManager.selectBackstageAwaitGoodsReceiptCount()/PAGE_SIZE;
 		if(count <= 0){
 			count = 1;
 		}
