@@ -118,8 +118,8 @@
   </select>
   <!-- 查询退货 -->
   <select id="selectCancelOrder" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address` ,`update_date`
-    from order_details where user_id = #{userId} and order_status = 40 and is_deleted = 0
+    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address` ,`update_date` , `order_status`
+    from order_details where user_id = #{userId} and order_status in (20,40) and is_deleted = 0
     order by update_date DESC
     limit #{currentPage},#{pageSize}
   </select>

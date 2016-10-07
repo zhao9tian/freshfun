@@ -23,14 +23,15 @@
       #{returnReason}, #{returnMoney}, #{returnDes},
       #{gmtCreate}, #{gmtModified})
   </insert>
-  <update id="updateRefundStatus" parameterType="java.lang.String">
+  <update id="updateRefundStatus" parameterType="java.util.Map">
   	update order_details 
   	<set>
   		order_status = 40 ,
-        update_date = UNIX_TIMESTAMP(now())
+        update_date = UNIX_TIMESTAMP(now()),
+        delivery_remark = #{orderStatus}
   	</set>
   	<where>
-  		id = #{orderDetailId}
+  		id = #{orderId}
   	</where>
   </update>
 </mapper>
