@@ -618,7 +618,7 @@ public class OrderController {
 	@RequestMapping("/selectBackstageOrderCloseCount")
 	@ResponseBody
 	public Map<String, Object> selectBackstageOrderCloseCount(){
-		Integer count = orderManager.selectBackstageOrderCloseCount()/PAGE_SIZE;
+		Integer count = orderManager.selectBackstageOrderCloseCount()%PAGE_SIZE==0?orderManager.selectBackstageOrderCloseCount()/PAGE_SIZE:orderManager.selectBackstageOrderCloseCount()/PAGE_SIZE+1;
 		if(count <= 0)
 			count = 1;
 		Map<String, Object>  map = new HashMap<String, Object>();
@@ -637,7 +637,7 @@ public class OrderController {
 	@RequestMapping("/selectBackstageOrdersCount")
 	@ResponseBody
 	public Map<String, Object> selectBackstageOrdersCount(){
-		Integer count = orderManager.selectBackstageOrdersCount()/PAGE_SIZE;
+		Integer count = orderManager.selectBackstageOrdersCount()%PAGE_SIZE==0?orderManager.selectBackstageOrdersCount()/PAGE_SIZE:orderManager.selectBackstageOrdersCount()/PAGE_SIZE+1;
 		if(count <= 0)
 			count = 1;
 		Map<String, Object>  map = new HashMap<String, Object>();
@@ -655,7 +655,7 @@ public class OrderController {
 	@RequestMapping("/selectBackstagePendingPaymentOrderCount")
 	@ResponseBody
 	public Map<String, Object> selectBackstagePendingPaymentOrderCount(){
-		Integer count = orderManager.selectBackstagePendingPaymentOrderCount()/PAGE_SIZE;
+		Integer count = orderManager.selectBackstagePendingPaymentOrderCount()%PAGE_SIZE==0?orderManager.selectBackstagePendingPaymentOrderCount()/PAGE_SIZE:orderManager.selectBackstagePendingPaymentOrderCount()/PAGE_SIZE+1;
 		if(count <= 0)
 			count = 1;
 		Map<String, Object>  map = new HashMap<String, Object>();
@@ -673,7 +673,7 @@ public class OrderController {
 	@RequestMapping("/selectBackstageAwaitDeliverOrderCount")
 	@ResponseBody
 	public Map<String, Object> selectBackstageAwaitDeliverOrderCount(){
-		Integer count = orderManager.selectBackstageAwaitDeliverOrderCount()/PAGE_SIZE;
+		Integer count = orderManager.selectBackstageAwaitDeliverOrderCount()%PAGE_SIZE==0?orderManager.selectBackstageAwaitDeliverOrderCount()/PAGE_SIZE:orderManager.selectBackstageAwaitDeliverOrderCount()/PAGE_SIZE+1;
 		if(count == 0){
 			count = 1;
 		}
@@ -692,7 +692,7 @@ public class OrderController {
 	@RequestMapping("/selectBackstageAwaitGoodsReceiptCount")
 	@ResponseBody
 	public Map<String, Object> selectBackstageAwaitGoodsReceiptCount(){
-		Integer count = orderManager.selectBackstageAwaitGoodsReceiptCount();
+		Integer count = orderManager.selectBackstageAwaitGoodsReceiptCount()%PAGE_SIZE==0?orderManager.selectBackstageAwaitGoodsReceiptCount()/PAGE_SIZE:orderManager.selectBackstageAwaitGoodsReceiptCount()/PAGE_SIZE+1;
 		if(count <= 0){
 			count = 1;
 		}
@@ -711,7 +711,7 @@ public class OrderController {
 	@RequestMapping("/selectFinishOrderCount")
 	@ResponseBody
 	public Map<String, Object> selectFinishOrderCount(){
-		Integer count = orderManager.selectFinishOrderCount()/PAGE_SIZE;
+		Integer count = orderManager.selectFinishOrderCount()%PAGE_SIZE==0?orderManager.selectFinishOrderCount()/PAGE_SIZE:orderManager.selectFinishOrderCount()/PAGE_SIZE+1;
 		if(count <= 0)
 			count = 1;
 		Map<String, Object>  map = new HashMap<String, Object>();
