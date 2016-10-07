@@ -120,7 +120,7 @@
   <select id="selectCancelOrder" resultMap="BaseResultMap">
     select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`name`,`tel`,`city`,`address`
     from order_details where user_id = #{userId} and order_status = 40 and is_deleted = 0
-    order by create_date DESC
+    order by update_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 删除一条订单信息 -->
