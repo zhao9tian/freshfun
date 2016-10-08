@@ -327,7 +327,6 @@ public class OrderController {
 	public Map<String, Object> selectOrderCounts(String userId){
 		Long ui = Long.parseLong(userId.replace("\"", ""));
 		List<OrderStatusInfo> statusCounts = orderManager.selectStatusCounts(ui);
-
 		//查询出待付款且并未过期的订单数
 		int awaitPaymentCount =  orderManager.selectPayCounts(ui);
 		//查询出已确认收货且未评价的订单数
@@ -338,12 +337,10 @@ public class OrderController {
 		orderMap.put("daifahuo","");
 		orderMap.put("tuihuo","");
 		orderMap.put("daifukuan","");
-
+        Integer refundCount = 0;
 		for(OrderStatusInfo orderStatus : statusCounts){
 			if(orderStatus.getOrderStatus() == 10){
-				if(awaitPaymentCount <= 0){
-					orderMap.put("daifukuan","");
-				}else{
+				if(awaitPaymentCount > 0){
 					orderMap.put("daifukuan", awaitPaymentCount);
 				}
 			}else if(orderStatus.getOrderStatus() == 30){
@@ -351,20 +348,19 @@ public class OrderController {
 			}else if(orderStatus.getOrderStatus() == 50){
 				orderMap.put("daishouhuo", orderStatus.getStatusCounts());
 			}else if(orderStatus.getOrderStatus() == 70){
-				if(commentCount <= 0){
-					orderMap.put("daipingjia", "");
-				}else{
+				if(commentCount > 0){
 					orderMap.put("daipingjia", commentCount);
 				}
 			}else if(orderStatus.getOrderStatus() == 40 || orderStatus.getOrderStatus() == 20){
-				Integer refundCount = 0;
 				if(orderStatus.getOrderStatus() == 40){
 					refundCount += orderStatus.getStatusCounts();
 				}
 				if(orderStatus.getOrderStatus() == 20){
 					refundCount += orderStatus.getStatusCounts();
 				}
-				orderMap.put("tuihuo", refundCount);
+				if(refundCount > 0){
+			    	orderMap.put("tuihuo", refundCount);
+                }
 			}
 		}
 		return orderMap;
@@ -389,9 +385,6 @@ public class OrderController {
 				order.setOutTimeStamp(outTimeStamp);
 			}
 		}
-		/*for(OrderDetailsPOJO order : orders){
-			setGoods(order);
-		}*/
 		return orders;
 	}
 
