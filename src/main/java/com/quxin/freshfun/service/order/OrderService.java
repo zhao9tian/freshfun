@@ -30,8 +30,7 @@ public interface OrderService {
 
 	/**
 	 * 全名电商支付
-	 * @param userId
-	 * @param goodsId
+	 * @param payInfo
 	 * @return
 	 */
 	ResponseResult addQuanMingPay(QuanMingPayInfo payInfo) throws BusinessException;

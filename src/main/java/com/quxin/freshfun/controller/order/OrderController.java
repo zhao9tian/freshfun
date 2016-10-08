@@ -4,7 +4,6 @@ import com.google.common.collect.Maps;
 import com.quxin.freshfun.dao.GoodsLimitMapper;
 import com.quxin.freshfun.dao.ResponseResult;
 import com.quxin.freshfun.model.*;
-import com.quxin.freshfun.service.flow.FlowService;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
@@ -58,8 +57,8 @@ public class OrderController {
 	}
 	/**`
 	 * 查询单个商品
-	 * @param orderDetailsId
-	 * @return
+	 * @param orderDetailsId 订单Id
+	 * @return 返回单个订单信息
 	 */
 	@RequestMapping("/selectSigleOrder")
 	@ResponseBody
@@ -200,8 +199,8 @@ public class OrderController {
 		return r;
 	}
 	/**
-	 * 删除订单
-	 * @return
+	 * 订单关闭
+	 * @return 关闭是否成功
 	 */
 	@RequestMapping("/delOrder")
 	@ResponseBody
@@ -305,7 +304,7 @@ public class OrderController {
 	@RequestMapping(value="/payCallback",produces = "application/xml")
 	@ResponseBody
 	public String payCallback(HttpServletRequest request,HttpServletResponse response){
-		InputStream in = null;
+		InputStream in;
 		try {
 			in = request.getInputStream();
 			int callbackStatus = orderService.PayCallback(in);
@@ -320,8 +319,8 @@ public class OrderController {
 
 	/**
 	 * 查询订单数量
-	 * @param userId
-	 * @return
+	 * @param userId 用户Id
+	 * @return 返回所有状态的订单数量
 	 */
 	@RequestMapping("/selectordercounts")
 	@ResponseBody
@@ -329,7 +328,9 @@ public class OrderController {
 		Long ui = Long.parseLong(userId.replace("\"", ""));
 		List<OrderStatusInfo> statusCounts = orderManager.selectStatusCounts(ui);
 
+		//查询出待付款且并未过期的订单数
 		int awaitPaymentCount =  orderManager.selectPayCounts(ui);
+		//查询出已确认收货且未评价的订单数
         int commentCount = orderManager.selectCommentCount(ui);
 		Map<String, Object> orderMap = new HashMap<String, Object>(5);
 		orderMap.put("daishouhuo","");
@@ -350,20 +351,22 @@ public class OrderController {
 			}else if(orderStatus.getOrderStatus() == 50){
 				orderMap.put("daishouhuo", orderStatus.getStatusCounts());
 			}else if(orderStatus.getOrderStatus() == 70){
-                if(commentCount <= 0){
-                    orderMap.put("daipingjia", "");
-                }else{
-                    orderMap.put("daipingjia", commentCount);
-                }
-			}else if(orderStatus.getOrderStatus() == 40){
-				orderMap.put("tuihuo", orderStatus.getStatusCounts());
+				if(commentCount <= 0){
+					orderMap.put("daipingjia", "");
+				}else{
+					orderMap.put("daipingjia", commentCount);
+				}
+			}else if(orderStatus.getOrderStatus() == 40 || orderStatus.getOrderStatus() == 20){
+				Integer refundCount = 0;
+				if(orderStatus.getOrderStatus() == 40){
+					refundCount += orderStatus.getStatusCounts();
+				}
+				if(orderStatus.getOrderStatus() == 20){
+					refundCount += orderStatus.getStatusCounts();
+				}
+				orderMap.put("tuihuo", refundCount);
 			}
 		}
-
-
-
-		System.out.println(orderMap);
-
 		return orderMap;
 	}
 

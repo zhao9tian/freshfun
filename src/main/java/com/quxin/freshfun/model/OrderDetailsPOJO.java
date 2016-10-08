@@ -427,6 +427,7 @@ public class OrderDetailsPOJO {
                 ", isDeleted=" + isDeleted +
                 ", createDate=" + createDate +
                 ", updateDate=" + updateDate +
+                ", commentStatus=" + commentStatus +
                 ", deliveryTime=" + deliveryTime +
                 ", goodsCost=" + goodsCost +
                 ", name='" + name + '\'' +

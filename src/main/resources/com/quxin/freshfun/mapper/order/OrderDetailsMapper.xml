@@ -123,9 +123,9 @@
     order by update_date DESC
     limit #{currentPage},#{pageSize}
   </select>
-  <!-- 删除一条订单信息 -->
+  <!-- 关闭一条订单信息 -->
   <update id="delOrder">
-    update order_details set is_deleted = 1 where id = #{orderId}
+    update order_details set order_status = 15 where id = #{orderId} and order_status = 10
   </update>
   <!-- 修改订单支付状态 -->
   <update id="updatePayStatus" parameterType="java.lang.Long" useGeneratedKeys="true" keyProperty="id">
