@@ -1,5 +1,6 @@
 package com.quxin.freshfun.controller.user;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quxin.freshfun.utils.BusinessException;
@@ -63,10 +64,15 @@ public class UserLoginController {
 	}
 	@ResponseBody
 	@RequestMapping("/wzLogin")
-	public String wzLogin(@RequestBody WxInfo wxinfo){
+	public String wzLogin(@RequestBody WxInfo wxinfo,HttpServletResponse response){
 		Long userId = null;
 		try {
 			userId = userService.WZLogin(wxinfo);
+			Cookie cookie = new Cookie("userId",userId.toString());
+			cookie.setMaxAge(1296000);
+			cookie.setDomain(".freshfun365.com");
+			cookie.setPath("/");
+			response.addCookie(cookie);
 		} catch (BusinessException e) {
 			logger.error("用户生成失败",e);
 		}
