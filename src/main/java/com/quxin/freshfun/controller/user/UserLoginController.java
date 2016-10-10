@@ -73,8 +73,11 @@ public class UserLoginController {
 			cookie.setDomain(".freshfun365.com");
 			cookie.setPath("/");
 			response.addCookie(cookie);
+			logger.info("************************登录成功，用户id:"+userId);
 		} catch (BusinessException e) {
 			logger.error("用户生成失败",e);
+		}catch (Exception e) {
+			logger.error("种植cookie失败",e);
 		}
 		return userId.toString();
 	}
