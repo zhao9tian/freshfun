@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.NickNameMapper">
+  <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.pojo.NickNamePOJO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="create" jdbcType="BIGINT" property="create" />
+    <result column="modify" jdbcType="BIGINT" property="update" />
+    <result column="nick_name" jdbcType="VARCHAR" property="nickName" />
+    <result column="is_deleted" jdbcType="INTEGER" property="isDeleted" />
+  </resultMap>
+  <!--获取随机昵称-->
+  <select id="selectRandNickName" resultMap="BaseResultMap">
+    select id,nick_name from nick_name where is_deleted = 0 ORDER BY RAND() LIMIT 1
+  </select>
+</mapper>
