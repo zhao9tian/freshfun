@@ -2,11 +2,14 @@ package com.quxin.freshfun.controller.wxpay;
 
 import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.model.OrderInfo;
+import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
+import net.sf.json.JSONSerializer;
+import net.sf.json.xml.XMLSerializer;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +40,15 @@ public class PayController{
 
     @RequestMapping(value="/weixinPay",method={RequestMethod.POST})
     @ResponseBody
-    public OrderInfo weixinPay(@RequestBody OrderInfo orderInfo,HttpServletRequest request, HttpServletResponse response){
-
+    public Map<String, Object> weixinPay(@RequestBody OrderInfo orderInfo,HttpServletRequest request, HttpServletResponse response){
+        Map<String, Object>  map = new HashMap<String, Object>();
+        Map<String, Object>  resultMap = new HashMap<String, Object>();
         try {
-            orderService.addWeixinAppPay(orderInfo,request,response);
+            WxPayInfo info = orderService.addWeixinAppPay(orderInfo, request, response);
+            map.put("code",1001);
+            map.put("msg","请求成功");
+            resultMap.put("status",map);
+            resultMap.put("data",info);
         } catch (BusinessException e) {
             log.error("App支付失败",e);
         } catch (JSONException e) {
@@ -48,20 +56,7 @@ public class PayController{
         } catch (UnsupportedEncodingException e) {
             log.error("App支付失败",e);
         }
-        return orderInfo;
+        return resultMap;
     }
-
-    /**
-     * 微信登录
-     * @param code
-     * @return
-     */
-    @RequestMapping("/weixinLogin")
-    public String weixinLogin(String code){
-
-
-        return null;
-    }
-
 
 }

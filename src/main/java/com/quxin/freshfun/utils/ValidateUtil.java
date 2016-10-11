@@ -1,5 +1,8 @@
 package com.quxin.freshfun.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Created by tianmingzhao on 16/9/30.
  * 验证
@@ -48,5 +51,17 @@ public class ValidateUtil {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    /**
+     * 手机号格式验证
+     * @param str
+     * @return
+     */
+    public static boolean isChinaPhoneLegal(String str) {
+        String regExp = "^((13[0-9])|(15[^4])|(18[0,2,3,5-9])|(17[0-8])|(147))\\d{8}$";
+        Pattern p = Pattern.compile(regExp);
+        Matcher m = p.matcher(str);
+        return m.matches();
     }
 }

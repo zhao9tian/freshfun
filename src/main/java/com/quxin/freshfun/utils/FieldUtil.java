@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 
 import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.model.Share;
+import net.sf.json.JSONSerializer;
+import net.sf.json.xml.XMLSerializer;
 
 public class FieldUtil {
 //	public static <T> T copyObj(T source) throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
@@ -47,4 +49,35 @@ public class FieldUtil {
 //		return obj;
 //	}
 
+    /**
+     * json字符串转Xml字符串
+     * @param jsonStr
+     * @return
+     */
+    public static String jsonToXml(String jsonStr){
+        XMLSerializer xmlSerializer = new XMLSerializer();
+        xmlSerializer.setRootName("xml");
+        xmlSerializer.clearNamespaces("xml");
+        String write = xmlSerializer.write(JSONSerializer.toJSON(jsonStr));
+        return write;
+    }
+
+    /**
+     * xml格式转json
+     * @return
+     */
+    public static String xmlToJson(String xmlStr){
+        return new XMLSerializer().read(xmlStr).toString();
+    }
+
+    public static void main(String [] args){
+        /*String str = "{\"appid\":\"wx667c9cd468801536\",\"body\":\"sss\",\"fee_type\":\"1\",\"mch_id\":\"1335619501\",\"nonce_str\":\"5bcf8dd060e5ea0bff484b4a4127cb47\",\"notify_url\":\"https://freshfun.meiguoyouxian.com/FreshFun/payCallback.do\",\"out_trade_no\":\"Z13566057\",\"sign\":\"706EF245CFEFCC3FCF09BB8B108380DA\",\"spbill_create_ip\":\"192.168.3.21\",\"total_fee\":\"1000\",\"trade_type\":\"APP\"}";
+        String ss = jsonToXml(str);
+        System.out.println(ss);*/
+
+        //String str = new String("绛惧悕閿欒\uE1E4".getBytes("",""));
+        int num = 1234;
+        String str = String.valueOf(num);
+        System.out.println(str);
+    }
 }

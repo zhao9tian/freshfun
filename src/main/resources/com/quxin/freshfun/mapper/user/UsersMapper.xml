@@ -389,11 +389,15 @@
   <!-- =============================验证码========================================= -->
   <!-- 插入验证码 -->
   <insert id="insertMessage" parameterType="com.quxin.freshfun.model.Message" useGeneratedKeys="true" keyProperty="id">
-  	insert into identified_code(id, code , phoneNum , date ) values(#{id} , #{code} , #{phoneNum} , #{date});
+  	insert into identified_code(id, code , phoneNum , date<if test="token != null">,token</if> ) values(#{id} , #{code} , #{phoneNum} , #{date}<if test="token != null">,#{token}</if> );
   </insert>
   <!-- 验证验证码是否存在 -->
   <select id="validateCode" parameterType="com.quxin.freshfun.model.Message" resultType="java.lang.Integer">
-  	select count(id) from identified_code where phoneNum = #{phoneNum} and code = #{code} 
+  	select count(id) from identified_code where phoneNum = #{phoneNum} and code = #{code}
+  </select>
+  <!--验证-->
+  <select id="validateAppCode" parameterType="com.quxin.freshfun.model.Message" resultType="java.lang.String">
+    select phoneNum from identified_code where token = #{token} and code=#{code}
   </select>
   <!-- 验证验证码是否过期 -->
   <select id="validateOvertime" parameterType="com.quxin.freshfun.model.Message" resultType="java.lang.Integer">

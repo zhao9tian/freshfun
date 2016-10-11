@@ -74,4 +74,29 @@ public class IdGenerate {
     protected long timeGen() {
         return System.currentTimeMillis();
     }
+
+    private static String string = "abcdefghijklmnopqrstuvwxyz";
+
+
+    private String getRandomString(int length){
+        StringBuffer sb = new StringBuffer();
+        int len = string.length();
+        for (int i = 0; i < length; i++) {
+            sb.append(string.charAt(getRandom(len-1)));
+        }
+        return sb.toString();
+    }
+    private int getRandom(int count) {return (int) Math.round(Math.random()*(count));}
+
+    /**
+     * 生成唯一编号
+     * @return
+     */
+    public String generateStr(){
+        StringBuilder sb = new StringBuilder();
+        Long id = nextId();
+        sb.append(getRandomString(3).toUpperCase());
+        sb.append(id.toString().substring(5));
+        return sb.toString();
+    }
 }

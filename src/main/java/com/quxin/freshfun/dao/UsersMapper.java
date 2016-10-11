@@ -117,6 +117,13 @@ public interface UsersMapper {
 	 * @return 1-验证码正确  0-验证码不正确
 	 */
 	Integer validateCode(Message message);
+
+	/**
+	 * App验证验证码
+	 * @param message
+	 * @return
+	 */
+	String validateAppCode(Message message);
 	/**
 	 * 验证是否超时
 	 * @param message

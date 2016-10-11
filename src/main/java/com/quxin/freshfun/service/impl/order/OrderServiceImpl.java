@@ -9,11 +9,14 @@ import com.quxin.freshfun.controller.wxpay.AccessTokenRequestHandler;
 import com.quxin.freshfun.controller.wxpay.ClientRequestHandler;
 import com.quxin.freshfun.controller.wxpay.PackageRequestHandler;
 import com.quxin.freshfun.controller.wxpay.PrepayIdRequestHandler;
+import com.quxin.freshfun.controller.wxpay.client.TenpayHttpClient;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.JsonUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
 import org.dom4j.Document;
@@ -694,64 +697,99 @@ public class OrderServiceImpl implements OrderService {
 	 * @return
 	 */
 	@Override
-	public String addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException {
-		if(orderInfo == null){
-			return null;
-		}
+	public WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException {
+		OrderPayInfo [] orderPayInfos = new OrderPayInfo[orderInfo.getGoodsInfo().size()];
 		//订单总价格
-		Integer orderSumPrice = 0;
+		int orderSumPrice = 0;
 		//订单编号
 		Long uId = Long.parseLong(orderInfo.getUserId().replace("\"", ""));
-		//支付结果
-		String payStr = null;
-		if(orderInfo.getGoods() != null){
-			GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(orderInfo.getGoods().getGoodsId());
-			OrderDetailsPOJO orderDetail = makeOrderDetail(goodsPOJO,orderInfo,orderInfo.getGoods());
-			//生成订单详情
-			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
-			if (orderDetailStatus <= 0) {
-				resultLogger.error(orderInfo.getUserId() + "添加订单详情失败");
-				throw new BusinessException("订单详情生成失败");
-			}
-			//生成订单后 调用支付
-			payStr = generateOrder(orderInfo, request, response, orderDetail.getActualPrice(), orderDetail.getId());
-		}else {
-			//根据用户编号查询购物车信息
-			List<ShoppingCartPOJO> shoppingCart = shoppingCartMapper.selectShoppingCartByUserId(uId);
-			for (ShoppingCartPOJO cart : shoppingCart) {
-				orderSumPrice += cart.getGoodsTotalsPrice() * cart.getGoodsTotals();
-			}
-			OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo, orderSumPrice);
-			int insertStatus = ordersMapper.insertSelective(orderPOJO);
-			if (insertStatus <= 0) {
-				resultLogger.error(orderInfo.getUserId() + "添加订单失败");
-				throw new BusinessException("订单添加失败");
-			}
-			//订单父级编号
-			Long orderId = orderPOJO.getId();
-			for (ShoppingCartPOJO cart : shoppingCart) {
-				OrderDetailsPOJO orderDetail = makeOrderDetail(cart, orderInfo, orderId);
-				//生成订单详情
-				int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
-				if (orderDetailStatus <= 0) {
-					resultLogger.error(orderInfo.getUserId() + "添加订单详情失败");
-					throw new BusinessException("订单详情生成失败");
-				}
-			}
-			//生成订单后 调用支付
-			payStr = generateOrder(orderInfo, request, response, orderSumPrice, orderId);
-			//修改购物车支付状态
-			if(payStr != null){
-				for (ShoppingCartPOJO cart : shoppingCart) {
-					int status = shoppingCartMapper.updateOrderPayStatus(cart.getScId());
-					if(status <= 0){
-						resultLogger.error(orderInfo.getUserId() + "修改购物车状态失败");
-						throw new BusinessException("修改购物车状态");
-					}
+		//获取订单信息
+		orderSumPrice = getOrderInfo(orderInfo, orderPayInfos, orderSumPrice);
+
+		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,orderSumPrice);
+		int insertStatus = ordersMapper.insertSelective(orderPOJO);
+		if(insertStatus <= 0){
+			resultLogger.error(orderInfo.getUserId()+"添加订单失败");
+			throw new BusinessException("订单添加失败");
+		}
+		//订单父级编号
+		Long orderId = orderPOJO.getId();
+		/**
+		 * 生成订单详情
+		 */
+		generateOrderDetails(orderInfo, orderPayInfos, orderId);
+		//生成订单后 调用支付
+		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
+		StringBuilder payId = new StringBuilder();
+		payId.append("Z");
+		payId.append(orderId);
+		//订单支付
+		WxPayInfo info = appPay(request, response, payId.toString(), payMoney, orderInfo.getCode(), orderInfo.getOpenid());
+		//修改购物车状态
+		updateGoodsCartStatus(orderInfo);
+		return info;
+	}
+
+	/**
+	 * 生成订单后修改购物车状态
+	 * @param orderInfo
+	 * @throws BusinessException
+	 */
+	private void updateGoodsCartStatus(OrderInfo orderInfo) throws BusinessException {
+		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
+			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
+				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
+				if(status <= 0){
+					resultLogger.error(orderInfo.getUserId()+"修改购物车状态失败");
+					throw new BusinessException("修改购物车状态");
 				}
 			}
 		}
-		return payStr;
+	}
+
+	/**
+	 * 根据订单信息生成订单详情
+	 * @param orderInfo
+	 * @param orderPayInfos
+	 * @param orderId
+	 * @throws BusinessException
+	 */
+	private void generateOrderDetails(OrderInfo orderInfo, OrderPayInfo[] orderPayInfos, Long orderId) throws BusinessException {
+		for (int i = 0;i < orderPayInfos.length;i++){
+			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
+			OrderDetailsPOJO orderDetail = makeOrderDetail(orderPayInfos[i],goodsInfo,orderInfo,orderId);
+			//生成订单详情
+			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
+			if(orderDetailStatus <= 0){
+				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
+				throw new BusinessException("订单详情生成失败");
+			}
+		}
+	}
+
+	/**
+	 * 获取订单需要的信息
+	 * @param orderInfo
+	 * @param orderPayInfos
+	 * @param orderSumPrice
+	 * @return
+	 */
+	private int getOrderInfo(OrderInfo orderInfo, OrderPayInfo[] orderPayInfos, int orderSumPrice) {
+		for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
+			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
+			OrderPayInfo orderPayInfo = null;
+			//查询购物车
+			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
+				GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
+				orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice()*goodsInfo.getCount());
+			}else{
+				ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
+				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice()*shoppingCart.getGoodsTotals());
+			}
+			orderPayInfos[i] = orderPayInfo;
+			orderSumPrice += orderPayInfo.getGoodsPrice();
+		}
+		return orderSumPrice;
 	}
 
 	private String generateOrder(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response, Integer orderSumPrice, Long orderId) throws JSONException, UnsupportedEncodingException {
@@ -760,8 +798,8 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		//生成支付订单
-		payStr = appPay(request, response,payId.toString(),orderSumPrice.toString(),orderInfo.getCode(),orderInfo.getOpenid());
-		return payStr;
+		//payStr = appPay(request, response,payId.toString(),orderSumPrice.toString(),orderInfo.getCode(),orderInfo.getOpenid());
+		return "";
 	}
 
 	/**
@@ -879,10 +917,11 @@ public class OrderServiceImpl implements OrderService {
 		return od;
 	}
 
-	public String appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney,String code,String openId) throws JSONException, UnsupportedEncodingException {
-		Map<Object,Object> resInfo = new HashMap<Object, Object>();
+	public WxPayInfo appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney,String code,String openId) throws JSONException, UnsupportedEncodingException {
+		//Map<Object,Object> resInfo = new HashMap<Object, Object>();
+		WxPayInfo info = new WxPayInfo();
 		//接收财付通通知的URL
-		String notify_url = "http://127.0.0.1:8180/tenpay_api_b2c/payNotifyUrl.jsp";
+		String notify_url = "https://freshfun.meiguoyouxian.com/FreshFun/payCallback.do";
 
 		//---------------生成订单号 开始------------------------
 		//当前时间 yyyyMMddHHmmss
@@ -900,7 +939,7 @@ public class OrderServiceImpl implements OrderService {
 		PackageRequestHandler packageReqHandler = new PackageRequestHandler(request, response);//生成package的请求类
 		PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler(request, response);//获取prepayid的请求类
 		ClientRequestHandler clientHandler = new ClientRequestHandler(request, response);//返回客户端支付参数的请求类
-		packageReqHandler.setKey(ConstantUtil.PARTNER_KEY);
+		//packageReqHandler.setKey(ConstantUtil.PARTNER_KEY);
 
 		int retcode ;
 		String retmsg = "";
@@ -913,40 +952,48 @@ public class OrderServiceImpl implements OrderService {
 
 		if (!"".equals(token)) {
 			//设置package订单参数
-			packageReqHandler.setParameter("bank_type", "WX");//银行渠道
-			packageReqHandler.setParameter("body", "悦选美食"); //商品描述
+			//packageReqHandler.setParameter("bank_type", "WX");//银行渠道
+			/*packageReqHandler.setParameter("body", "悦选美食"); //商品描述
 			packageReqHandler.setParameter("notify_url", notify_url); //接收财付通通知的URL
-			packageReqHandler.setParameter("partner", ConstantUtil.PARTNER); //商户号
+
 			packageReqHandler.setParameter("out_trade_no", payId); //商家订单号
 			packageReqHandler.setParameter("total_fee", payMoney); //商品金额,以分为单位
-			packageReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
+            packageReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
 			packageReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
-			packageReqHandler.setParameter("input_charset", "GBK"); //字符编码
+			//packageReqHandler.setParameter("input_charset", "UTF-8"); //字符编码
+            packageReqHandler.setParameter("trade_type","APP");*/
+
 
 			//获取package包
-			String packageValue = packageReqHandler.getRequestURL();
-			resInfo.put("package", packageValue);
+			//String packageValue = packageReqHandler.getRequestURL();
+			//resInfo.put("package", packageValue);
 
-			resultLogger.info("获取package------值 " + packageValue);
+			//resultLogger.info("获取package------值 " + packageValue);
+
+
 
 			String noncestr = WXUtil.getNonceStr();
 			String timestamp = WXUtil.getTimeStamp();
 			String traceid = "";
 			////设置获取prepayid支付参数
-			prepayReqHandler.setParameter("appid", ConstantUtil.APP_ID);
-			prepayReqHandler.setParameter("appkey", ConstantUtil.APP_KEY);
-			prepayReqHandler.setParameter("noncestr", noncestr);
-			prepayReqHandler.setParameter("package", packageValue);
-			prepayReqHandler.setParameter("timestamp", timestamp);
-			prepayReqHandler.setParameter("traceid", traceid);
-
+			prepayReqHandler.setParameter("appid",ConstantUtil.APP_ID);
+			//prepayReqHandler.setParameter("appkey", ConstantUtil.APP_KEY);
+            prepayReqHandler.setParameter("mch_id", ConstantUtil.PARTNER); //商户号
+			prepayReqHandler.setParameter("nonce_str", noncestr);
+            prepayReqHandler.setParameter("body", "sss");
+            prepayReqHandler.setParameter("notify_url", notify_url);
+            prepayReqHandler.setParameter("out_trade_no", payId);
+            prepayReqHandler.setParameter("total_fee", "1000"); //商品金额,以分为单位
+            prepayReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
+            prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
+            prepayReqHandler.setParameter("trade_type","APP");
 			//生成获取预支付签名
-			String sign = prepayReqHandler.createSHA1Sign();
+			String sign = prepayReqHandler.createMD5Sign();
 			//增加非参与签名的额外参数
-			prepayReqHandler.setParameter("app_signature", sign);
-			prepayReqHandler.setParameter("sign_method",
-					ConstantUtil.SIGN_METHOD);
-			String gateUrl = ConstantUtil.GATEURL + token;
+			prepayReqHandler.setParameter("sign", sign);
+			/*prepayReqHandler.setParameter("sign_method",
+					ConstantUtil.SIGN_METHOD);*/
+			String gateUrl = ConstantUtil.GATEURL;
 			prepayReqHandler.setGateUrl(gateUrl);
 
 			//获取prepayId
@@ -958,19 +1005,25 @@ public class OrderServiceImpl implements OrderService {
 			if (null != prepayid && !"".equals(prepayid)) {
 				//输出参数列表
 				clientHandler.setParameter("appid", ConstantUtil.APP_ID);
-				clientHandler.setParameter("appkey", ConstantUtil.APP_KEY);
-				clientHandler.setParameter("noncestr", noncestr);
-				clientHandler.setParameter("package", "Sign=" + packageValue);
-				//clientHandler.setParameter("package", "Sign=WXPay");
 				clientHandler.setParameter("partnerid", ConstantUtil.PARTNER);
 				clientHandler.setParameter("prepayid", prepayid);
+				clientHandler.setParameter("package", "Sign=WXPay");
+				clientHandler.setParameter("noncestr", noncestr);
 				clientHandler.setParameter("timestamp", timestamp);
 				//生成签名
-				sign = clientHandler.createSHA1Sign();
-				clientHandler.setParameter("sign", sign);
+				sign = clientHandler.createMD5Sign();
+				//clientHandler.setParameter("sign", sign);
 
-				xml_body = clientHandler.getXmlBody();
-				resInfo.put("entity", xml_body);
+				//xml_body = clientHandler.getXmlBody();
+				//resInfo.put("entity", xml_body);
+
+				info.setAppid(ConstantUtil.APP_ID);
+				info.setPartnerid(ConstantUtil.PARTNER);
+				info.setPrepayid(prepayid);
+				info.setPackageInfo("Sign=WXPay");
+				info.setNoncestr(noncestr);
+				info.setTimestamp(timestamp);
+				info.setSign(sign);
 				retcode = 0;
 				retmsg = "OK";
 			} else {
@@ -982,9 +1035,9 @@ public class OrderServiceImpl implements OrderService {
 			retmsg = "错误：获取不到Token";
 		}
 
-		resInfo.put("retcode", retcode);
-		resInfo.put("retmsg", retmsg);
-		String strJson = JSON.toJSONString(resInfo);
-		return strJson;
+//		resInfo.put("retcode", retcode);
+//		resInfo.put("retmsg", retmsg);
+//		String strJson = JSON.toJSONString(resInfo);
+		return info;
 	}
 }

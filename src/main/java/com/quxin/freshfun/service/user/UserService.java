@@ -3,7 +3,11 @@ package com.quxin.freshfun.service.user;
 import com.quxin.freshfun.model.Message;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.WxInfo;
+import com.quxin.freshfun.model.outparam.WxUserInfo;
 import com.quxin.freshfun.utils.BusinessException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author TuZl
@@ -28,7 +32,7 @@ public interface UserService {
 	 * 微信用户登录
 	 * @return
 	 */
-	public Long WXLogin(String code,String deviceId) throws BusinessException;
+	public WxUserInfo WXLogin(String code, String deviceId) throws BusinessException;
 	
 	/**
 	 * 微站登录
@@ -36,6 +40,12 @@ public interface UserService {
 	 * @return
 	 */
 	public Long WZLogin(WxInfo wxinfo) throws BusinessException;
+
+	/**
+	 * 公众平台微站登录
+	 * @return
+	 */
+	Long WzPlatformLogin(String code);
 	
 	/**
 	 * 绑定手机号
@@ -57,5 +67,18 @@ public interface UserService {
 	 * status 返回2 是验证码有效
 	 */
 	public Integer validateMessage(Message message);
+
+	/**
+	 * App验证验证码
+	 * @param message
+	 * @return
+	 */
+	String validateAppCode(Message message);
+
+	/**
+	 * 生成验证码
+	 * @return
+	 */
+	String genertCode(String phone) throws BusinessException;
 	
 }

@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.dao.UsersMapper;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.model.outparam.WxUserInfo;
+import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 /**
@@ -23,7 +27,9 @@ public class UserServiceImpl implements UserService{
 
 	@Autowired
 	public UsersMapper userDao;
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private Logger logger = LoggerFactory.getLogger("info_log");
+	private Logger error_log = LoggerFactory.getLogger("error_log");
+
 
 	@Override
 	public int insertUser(UsersPOJO user) {
@@ -43,11 +49,9 @@ public class UserServiceImpl implements UserService{
 			userId = userDao.getUserIdByPhoneNum(phoneNum);
 			if(userId!=null){
 				//3.判断该手机号是否有设备号（之前在微站上登录过,没在手机登录）,如果没有插入设备号
-				if(userDao.getDeviceIdByPhoneNum(phoneNum)==null || "".equals(userDao.getDeviceIdByPhoneNum(phoneNum))){
-					Map<String, Object> map = new HashMap<>();
-					map.put("userId", userId);
-					map.put("deviceId", deviceId);
-					userDao.updateUser(map);
+				String device = userDao.getDeviceIdByPhoneNum(phoneNum);
+				if(device==null || "".equals(device)){
+					modifyUser(deviceId, userId);
 				}
 			}else{
 				//4.手机号不存在,就要创建新用户
@@ -72,6 +76,18 @@ public class UserServiceImpl implements UserService{
 		return userId;
 	}
 
+	/**
+	 * 修改用户信息
+	 * @param deviceId
+	 * @param userId
+	 */
+	private void modifyUser(String deviceId, Long userId) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("userId", userId);
+		map.put("deviceId", deviceId);
+		userDao.updateUser(map);
+	}
+
 	@Override
 	public Long WZLogin(WxInfo wxinfo) throws BusinessException {
 		Long userId = null;
@@ -85,10 +101,7 @@ public class UserServiceImpl implements UserService{
 				//3.判断wzId是否在用户表里面,wzId唯一
 				String wzIdDB = userDao.getWzIdBywxId(wxId);
 				if( wzIdDB!= null && !wzId.equals(wzIdDB)){
-					Map<String, Object> map = new HashMap<>();
-					map.put("userId", userId);
-					map.put("wzId", wzId);
-					userDao.updateUser(map);
+					updateUser(userId, wzId);
 				}
 			}else{
 				//2.插入新用户
@@ -135,15 +148,41 @@ public class UserServiceImpl implements UserService{
 		return userId;
 	}
 
+	/**
+	 * 微站登录
+	 * @return
+	 */
 	@Override
-	public Long WXLogin(String code,String deviceId) throws BusinessException {
+	public Long WzPlatformLogin(String code) {
+		if(code == null || "".equals(code))
+			return null;
+		//获取用户信息
+		WxInfo wxInfo = getUserInfo(code);
+
+		return null;
+	}
+
+	/**
+	 * 修改微站用户登录信息
+	 * @param userId
+	 * @param wzId
+	 */
+	private void updateUser(Long userId, String wzId) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("userId", userId);
+		map.put( "wzId", wzId);
+		userDao.updateUser(map);
+	}
+
+	@Override
+	public WxUserInfo WXLogin(String code,String deviceId) throws BusinessException {
 		if(code == null){
 			return null;
 		}
 		//获取用户信息
 		WxInfo wxInfo = getUserInfo(code);
 		Long userId = null;
-		if(wxInfo!=null && deviceId != null && !"".equals(deviceId) && !"".equals(wxInfo)){
+		if(wxInfo!=null){
 			UserInfoPOJO userInfo = new UserInfoPOJO();
 			userInfo.setWxInfo(wxInfo);
 			String wxId = wxInfo.getUnionid();
@@ -151,11 +190,12 @@ public class UserServiceImpl implements UserService{
 			userId = userDao.getUserIdByWxId(wxId);
 			if(userId != null){
 				//3.判断deviceId是否在用户表里面,deviceId唯一
-				if(userDao.getDeviceIdBywxId(wxId) == null || "".equals(userDao.getDeviceIdBywxId(wxId))){
-					Map<String, Object> map = new HashMap<>();
-					map.put("userId", userId);
-					map.put("deviceId", deviceId);
-					userDao.updateUser(map);
+				if(deviceId != null && !"".equals(deviceId)) {
+					String id = userDao.getDeviceIdBywxId(wxId);
+					if (id == null || "".equals(id)) {
+						//修改用户信息
+						modifyUser(deviceId, userId);
+					}
 				}
 			}else{
 				//2.插入新用户
@@ -181,20 +221,48 @@ public class UserServiceImpl implements UserService{
 				}
 				//插入一条用户信息到mongoDB
 				//插入一条用户信息到DB
-				UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
-				userDetailPOJO.setUserId(userId);
-				userDetailPOJO.setProvince(wxInfo.getProvince());
-				userDetailPOJO.setCity(wxInfo.getCity());
-				userDetailPOJO.setCountry(wxInfo.getCountry());
-				userDetailPOJO.setHeadimgurl(wxInfo.getHeadimgurl());
-				userDetailPOJO.setLanguage(wxInfo.getLanguage());
-				userDetailPOJO.setNickname(wxInfo.getNickname());
-				userDetailPOJO.setUnionid(wxInfo.getUnionid());
-				userDetailPOJO.setOpenid(wxInfo.getOpenid());
-				userDao.insertUserDetails(userDetailPOJO);
+				int userInfoStatus = generateUserInfo(wxInfo, userId);
+				if(userInfoStatus <= 0){
+					logger.error("添加用户详细信息失败");
+					throw new BusinessException("添加用户详细信息失败");
+				}
 			}
 		}
-		return userId;
+		WxUserInfo info = generateOutUserInfo(wxInfo,userId);
+		return info;
+	}
+
+	/**
+	 * 生成传递客户端用户信息
+	 * @param wxInfo
+	 * @param userId
+	 * @return
+	 */
+	private WxUserInfo generateOutUserInfo(WxInfo wxInfo, Long userId) {
+		WxUserInfo info = new WxUserInfo();
+		info.setHeadimgurl(wxInfo.getHeadimgurl());
+		info.setNickname(wxInfo.getNickname());
+		info.setUserId(userId);
+		return info;
+	}
+
+	/**
+	 * 生成用户详细信息
+	 * @param wxInfo
+	 * @param userId
+	 */
+	private int generateUserInfo(WxInfo wxInfo, Long userId) {
+		UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
+		userDetailPOJO.setUserId(userId);
+		userDetailPOJO.setProvince(wxInfo.getProvince());
+		userDetailPOJO.setCity(wxInfo.getCity());
+		userDetailPOJO.setCountry(wxInfo.getCountry());
+		userDetailPOJO.setHeadimgurl(wxInfo.getHeadimgurl());
+		userDetailPOJO.setLanguage(wxInfo.getLanguage());
+		userDetailPOJO.setNickname(wxInfo.getNickname());
+		userDetailPOJO.setUnionid(wxInfo.getUnionid());
+		userDetailPOJO.setOpenid(wxInfo.getOpenid());
+		return userDao.insertUserDetails(userDetailPOJO);
 	}
 
 	/**
@@ -210,12 +278,25 @@ public class UserServiceImpl implements UserService{
 		sb.append("&code=");
 		sb.append(code);
 		sb.append("&grant_type=authorization_code");
+		WxAccessTokenInfo wxToken = new WxAccessTokenInfo();
+		wxToken = sendWxRequest(sb,wxToken);
+
+		StringBuilder sbl = new StringBuilder();
+		sbl.append("https://api.weixin.qq.com/sns/userinfo?access_token=");
+		sbl.append(wxToken.getAccess_token());
+		sbl.append("&openid=");
+		sbl.append(wxToken.getOpenid());
+		WxInfo wxInfo = new WxInfo();
+		wxInfo = sendWxRequest(sbl,wxInfo);
+		return wxInfo;
+	}
+
+	private <T> T sendWxRequest(StringBuilder sb,T t) {
 		Object o = new Object();
 		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		String StrJson = gson.toJson(o);
 		String str = HttpClientUtil.jsonToPost(sb.toString(), StrJson);
-		WxInfo wxInfo = strToJson(str);
-		return wxInfo;
+		return strToJson(str,t);
 	}
 
 	/**
@@ -223,9 +304,9 @@ public class UserServiceImpl implements UserService{
 	 * @param str
 	 * @return
 	 */
-	public WxInfo strToJson(String str){
+	public <T> T strToJson(String str,T t){
 		Gson gson = new Gson();
-		WxInfo wxInfo = gson.fromJson(str,WxInfo.class);
+		T wxInfo = (T) gson.fromJson(str,t.getClass());
 		return wxInfo;
 	}
 
@@ -294,5 +375,35 @@ public class UserServiceImpl implements UserService{
 		}
 		return status;
 	}
-	
+
+	@Override
+	public String validateAppCode(Message message) {
+		return userDao.validateAppCode(message);
+	}
+
+	/**
+	 * 生成验证码
+	 * @return
+	 */
+	@Override
+	public String genertCode(String phone) throws BusinessException {
+		//发送短信
+		String code = MessageUtils.createMessage(phone);
+		IdGenerate idGenerate = new IdGenerate();
+		String token = idGenerate.generateStr();
+
+		Message message = new Message();
+		message.setCode(code);
+		message.setDate(DateUtils.getCurrentDate());
+		message.setToken(token);
+		message.setPhoneNum(phone);
+		//添加数据库
+		int status = userDao.insertMessage(message);
+		if(status <= 0){
+			error_log.error("用户登录添加验证码信息失败");
+			throw new BusinessException("登录添加验证码失败");
+		}
+		return token;
+	}
+
 }

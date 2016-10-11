@@ -20,14 +20,20 @@ public class ClientRequestHandler extends PrepayIdRequestHandler {
 		StringBuffer sb = new StringBuffer();
 		Set es = super.getAllParameters().entrySet();
 		Iterator it = es.iterator();
+		sb.append('{');
 		while (it.hasNext()) {
 			Map.Entry entry = (Map.Entry) it.next();
 			String k = (String) entry.getKey();
 			String v = (String) entry.getValue();
 			if (!"appkey".equals(k)) {
-				sb.append("<" + k + ">" + v + "<" + k + ">" + "\r\n");
+				sb.append(k);
+				sb.append(":");
+				sb.append(v);
+				sb.append(",");
 			}
 		}
-		return sb.toString();
+		String reqPars = sb.substring(0, sb.lastIndexOf(","));
+		reqPars+='}';
+		return reqPars;
 	}
 }

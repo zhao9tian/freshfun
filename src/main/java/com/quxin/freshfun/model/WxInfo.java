@@ -12,7 +12,7 @@ public class WxInfo {
 	private String nickname;
 	
 	private String code;
-	
+
 	public String getCode() {
 		return code;
 	}

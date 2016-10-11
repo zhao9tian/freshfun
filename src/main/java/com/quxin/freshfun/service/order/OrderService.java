@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.model.outparam.WxPayInfo;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 
@@ -76,5 +77,5 @@ public interface OrderService {
 	 * 原生支付
 	 * @return
 	 */
-	String addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException;
+	WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException;
 }
