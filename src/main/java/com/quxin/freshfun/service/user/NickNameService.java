@@ -10,5 +10,5 @@ public interface NickNameService {
      * 获取随机昵称
      * @return  随机昵称
      */
-    NickNamePOJO queryRandNickName();
+    String queryRandNickName();
 }

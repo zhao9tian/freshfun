@@ -12,4 +12,16 @@
   <select id="selectRandNickName" resultMap="BaseResultMap">
     select id,nick_name from nick_name where is_deleted = 0 ORDER BY RAND() LIMIT 1
   </select>
+
+  <select id="selectNickNameCount" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.UsersPOJO">
+    select id,user_name as userName,nickname_count as nicknameCount from users where is_deleted = 0
+    <if test="nickName!=null">
+      and user_name=#{nickName,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+  <update id="updateNickNameCount" parameterType="java.util.Map">
+    update users set nickname_count = #{count,jdbcType=INTEGER} where id = #{id,jdbcType=BIGINT}
+  </update>
+
 </mapper>

@@ -26,7 +26,7 @@ public interface UserService {
 	 * @param deviceId
 	 * @return
 	 */
-	public Long PhoneLogin(String phoneNum, String deviceId);
+	public Long PhoneLogin(String phoneNum, String deviceId,String nickName,String headUrl);
 	
 	/**
 	 * 微信用户登录

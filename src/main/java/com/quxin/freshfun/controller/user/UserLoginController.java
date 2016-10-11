@@ -5,10 +5,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quxin.freshfun.model.outparam.WxUserInfo;
-import com.quxin.freshfun.utils.BusinessException;
-import com.quxin.freshfun.utils.CookieUtil;
-import com.quxin.freshfun.utils.MessageUtils;
-import com.quxin.freshfun.utils.ValidateUtil;
+import com.quxin.freshfun.service.user.NickNameService;
+import com.quxin.freshfun.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +28,37 @@ import java.util.Map;
 public class UserLoginController {
 
 	@Autowired
+	private NickNameService nickNameService;
+	@Autowired
 	private UserService userService;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
+
+	public Map<String,Object> chackAuth(@RequestBody String code,HttpServletRequest request,HttpServletResponse response){
+		//校验cookie    true为可用cookie
+		boolean authResult = CookieUtil.checkAuth(request);
+		if(!authResult){//cookie无效
+			if("".equals(code)){  //没有code
+				ResultUtil.fail(1004,"无效cookie并且没有code");
+			}else{//有code
+				Long userId = userService.WzPlatformLogin(code);  //获取userId
+				if(userId!=null){
+					//种植code
+					Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
+					cookie.setMaxAge(CookieUtil.getCookieMaxAge());
+					cookie.setDomain(".freshfun365.com");
+					cookie.setPath("/");
+					response.addCookie(cookie);
+					return ResultUtil.success("成功种植cookie");
+				}
+			}
+		}
+		return ResultUtil.success("cookie有效");
+	}
+
 	@ResponseBody
 	@RequestMapping("/phoneLogin")
 	public Map<String, Object> phoneLogin(String token,String code,String deviceId){
 		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
 
 		if(token != null && code != null && deviceId != null){
 			//查询验证码信息
@@ -46,11 +67,17 @@ public class UserLoginController {
 			message.setCode(code);
 			String phoneNum = userService.validateAppCode(message);
 			if(phoneNum != null){
-				Long userId =userService.PhoneLogin(phoneNum, deviceId);
+				String nickName = nickNameService.queryRandNickName();
+				String headUrl = "/image/2016/9/13/1473757743180.jpg";
+				Long userId =userService.PhoneLogin(phoneNum, deviceId,nickName,headUrl);
+				map.put("userId",userId);
+				map.put("nickName",nickName);
+				map.put("headUrl",headUrl);
+				map.put("mobilePhone",phoneNum);
 			}
 		}
 
-		return resultMap;
+		return ResultUtil.success(map);
 	}
 
 	/**

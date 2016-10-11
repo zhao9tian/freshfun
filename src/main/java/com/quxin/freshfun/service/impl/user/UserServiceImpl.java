@@ -41,8 +41,9 @@ public class UserServiceImpl implements UserService{
 	 * 如果是,就在数据库注册该用户信息,此处设备号没有实际意义(之前是为了限制一台设备只能领一次红包)
 	 */
 	@Override
-	public Long PhoneLogin(String phoneNum, String deviceId) {
+	public Long PhoneLogin(String phoneNum, String deviceId,String nickName,String headUrl) {
 		Long userId = null;
+		UsersPOJO user = null;
 		//1.手机号和设备号都不为空继续执行
 		if(phoneNum != null && deviceId !=null && !"".equals(phoneNum) && !"".equals(deviceId) ){
 			//2.判断手机号是否存在数据库中
@@ -57,10 +58,12 @@ public class UserServiceImpl implements UserService{
 				//4.手机号不存在,就要创建新用户
 				IdGenerate idGenerate = new IdGenerate();
 				userId = idGenerate.nextId();
-				UsersPOJO user = new UsersPOJO();
+				user = new UsersPOJO();
 				user.setUserId(userId);
 				user.setMobilePhone(phoneNum);
 				user.setDeviceId(deviceId);
+				user.setUserName(nickName);
+				user.setUserHeadUrl(headUrl);
 				
 				//不能为空的属性
 				user.setGmtCreate(System.currentTimeMillis()/1000);
@@ -70,10 +73,11 @@ public class UserServiceImpl implements UserService{
 				user.setIncomeIdentify((byte)1);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
+				user.setIsDeleted((byte)1);
 				userDao.insert(user);
 			}
 		}
-		return userId;
+		return user.getId();
 	}
 
 	/**
