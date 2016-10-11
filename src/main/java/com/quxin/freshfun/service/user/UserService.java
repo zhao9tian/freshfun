@@ -20,6 +20,14 @@ public interface UserService {
 	 * @return
 	 */
 	public int insertUser(UsersPOJO user);
+
+	/**
+	 * 根据userId获取user
+	 * @param id userId
+	 * @return  用户信息
+	 */
+	UsersPOJO queryUserById(Long id);
+
 	/**
 	 * 手机用户登录
 	 * @param phoneNum

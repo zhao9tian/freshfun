@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.outparam.WxUserInfo;
 import com.quxin.freshfun.service.user.NickNameService;
 import com.quxin.freshfun.utils.*;
@@ -26,7 +27,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/login")
 public class UserLoginController {
-
 	@Autowired
 	private NickNameService nickNameService;
 	@Autowired
@@ -40,7 +40,12 @@ public class UserLoginController {
 			if("".equals(code)){  //没有code
 				ResultUtil.fail(1004,"无效cookie并且没有code");
 			}else{//有code
-				Long userId = userService.WzPlatformLogin(code);  //获取userId
+				Long userId = null;  //获取userId
+				try {
+					userId = userService.WzPlatformLogin(code);
+				} catch (BusinessException e) {
+					e.printStackTrace();
+				}
 				if(userId!=null){
 					//种植code
 					Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
@@ -68,12 +73,17 @@ public class UserLoginController {
 			String phoneNum = userService.validateAppCode(message);
 			if(phoneNum != null){
 				String nickName = nickNameService.queryRandNickName();
-				String headUrl = "/image/2016/9/13/1473757743180.jpg";
+				String headUrl = "http://pic1.freshfun365.com/image/2016/9/13/1473757743180.jpg";
 				Long userId =userService.PhoneLogin(phoneNum, deviceId,nickName,headUrl);
-				map.put("userId",userId);
-				map.put("nickName",nickName);
-				map.put("headUrl",headUrl);
-				map.put("mobilePhone",phoneNum);
+				UsersPOJO user = userService.queryUserById(userId);
+				if(user !=null){
+					map.put("userId",user.getId());
+					map.put("nickname",user.getUserName());
+					map.put("headimgurl",user.getUserHeadUrl());
+					map.put("mobilePhone",user.getMobilePhone());
+				}else{
+					return ResultUtil.fail(1004,"账户有误");
+				}
 			}
 		}
 

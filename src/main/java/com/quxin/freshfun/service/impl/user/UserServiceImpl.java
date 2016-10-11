@@ -32,6 +32,10 @@ public class UserServiceImpl implements UserService{
 	private Logger error_log = LoggerFactory.getLogger("error_log");
 
 
+	public UsersPOJO queryUserById(Long id){
+		return userDao.selectUserById(id);
+	}
+
 	@Override
 	public int insertUser(UsersPOJO user) {
 		return userDao.insert(user);
@@ -57,10 +61,7 @@ public class UserServiceImpl implements UserService{
 				}
 			}else{
 				//4.手机号不存在,就要创建新用户
-				IdGenerate idGenerate = new IdGenerate();
-				userId = idGenerate.nextId();
 				user = new UsersPOJO();
-				user.setUserId(userId);
 				user.setMobilePhone(phoneNum);
 				user.setDeviceId(deviceId);
 				user.setUserName(nickName);
@@ -74,11 +75,11 @@ public class UserServiceImpl implements UserService{
 				user.setIncomeIdentify((byte)1);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
-				user.setIsDeleted((byte)1);
+				user.setIsDeleted((byte)0);
 				userDao.insert(user);
 			}
 		}
-		return user.getId();
+		return userId;
 	}
 
 	/**

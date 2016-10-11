@@ -24,7 +24,14 @@ public interface UsersMapper {
      * @return
      */
     public int insertUser(UsersPOJO user);
-    
+
+	/**
+	 * 根据userId获取user
+	 * @param id userId
+	 * @return  用户信息
+	 */
+	UsersPOJO selectUserById(Long id);
+
     /**
      * Query entity according to id not user_id 
      * @param id
