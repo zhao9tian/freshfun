@@ -1,9 +1,11 @@
 package com.quxin.freshfun.controller.user;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.CookieUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/login")
 public class UserLoginController {
+
 	@Autowired
 	private UserService userService;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -68,20 +71,17 @@ public class UserLoginController {
 		Long userId = null;
 		try {
 			userId = userService.WZLogin(wxinfo);
-			Cookie cookie = new Cookie("userId",userId.toString());
-			cookie.setMaxAge(1296000);
+			Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
+			cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 			cookie.setDomain(".freshfun365.com");
 			cookie.setPath("/");
 			response.addCookie(cookie);
-			logger.info("************************登录成功，用户id:"+userId);
 		} catch (BusinessException e) {
 			logger.error("用户生成失败",e);
-		}catch (Exception e) {
-			logger.error("种植cookie失败",e);
 		}
 		return userId.toString();
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/getVerifyCode")
 	public ReturnStatus getVerifyCode(@RequestBody Message message, HttpServletResponse response){
