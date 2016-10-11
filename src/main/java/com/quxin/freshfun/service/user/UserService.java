@@ -45,7 +45,7 @@ public interface UserService {
 	 * 公众平台微站登录
 	 * @return
 	 */
-	Long WzPlatformLogin(String code);
+	Long WzPlatformLogin(String code) throws BusinessException;
 	
 	/**
 	 * 绑定手机号

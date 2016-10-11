@@ -644,6 +644,22 @@ public class OrderServiceImpl implements OrderService {
 		return orderPay;
 	}
 
+    /**
+     * App订单支付
+     * @param orderId
+     * @return
+     */
+    @Override
+    public WxPayInfo appOrderPay(String orderId,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException, JSONException {
+        OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(orderId);
+        //String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
+        StringBuilder sb = new StringBuilder();
+        sb.append("W");
+        sb.append(orderId);
+        WxPayInfo payInfo = appPay(request, response, sb.toString(), detailsPOJO.getActualPrice().toString());
+        return payInfo;
+    }
+
 
 	@Override
 	public ResponseResult addQuanMingPay(QuanMingPayInfo info) throws BusinessException {
@@ -680,7 +696,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	@Override
+
+    @Override
 	public Integer queryAllIncome(Long id) {
 		return orderDetailsMapper.selectAllIncome(id);
 	}
@@ -724,7 +741,7 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		//订单支付
-		WxPayInfo info = appPay(request, response, payId.toString(), payMoney, orderInfo.getCode(), orderInfo.getOpenid());
+		WxPayInfo info = appPay(request, response, payId.toString(), payMoney);
 		//修改购物车状态
 		updateGoodsCartStatus(orderInfo);
 		return info;
@@ -917,7 +934,7 @@ public class OrderServiceImpl implements OrderService {
 		return od;
 	}
 
-	public WxPayInfo appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney,String code,String openId) throws JSONException, UnsupportedEncodingException {
+	public WxPayInfo appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney) throws JSONException, UnsupportedEncodingException {
 		//Map<Object,Object> resInfo = new HashMap<Object, Object>();
 		WxPayInfo info = new WxPayInfo();
 		//接收财付通通知的URL
@@ -946,11 +963,11 @@ public class OrderServiceImpl implements OrderService {
 		String xml_body = "";
 		//获取token值
 
-		String token = AccessTokenRequestHandler.getAccessToken();
+		//String token = AccessTokenRequestHandler.getAccessToken();
 
-		resultLogger.info("获取token------值 " + token);
+		//resultLogger.info("获取token------值 " + token);
 
-		if (!"".equals(token)) {
+		//if (!"".equals(token)) {
 			//设置package订单参数
 			//packageReqHandler.setParameter("bank_type", "WX");//银行渠道
 			/*packageReqHandler.setParameter("body", "悦选美食"); //商品描述
@@ -970,20 +987,19 @@ public class OrderServiceImpl implements OrderService {
 
 			//resultLogger.info("获取package------值 " + packageValue);
 
-
-
 			String noncestr = WXUtil.getNonceStr();
 			String timestamp = WXUtil.getTimeStamp();
 			String traceid = "";
 			////设置获取prepayid支付参数
+        new String("悦选美食".getBytes(),"UTF-8");
 			prepayReqHandler.setParameter("appid",ConstantUtil.APP_ID);
-			//prepayReqHandler.setParameter("appkey", ConstantUtil.APP_KEY);
+            prepayReqHandler.setParameter("body", "AA"); //商品描述
+            prepayReqHandler.setParameter("attach", "AA");
             prepayReqHandler.setParameter("mch_id", ConstantUtil.PARTNER); //商户号
 			prepayReqHandler.setParameter("nonce_str", noncestr);
-            prepayReqHandler.setParameter("body", "sss");
             prepayReqHandler.setParameter("notify_url", notify_url);
             prepayReqHandler.setParameter("out_trade_no", payId);
-            prepayReqHandler.setParameter("total_fee", "1000"); //商品金额,以分为单位
+            prepayReqHandler.setParameter("total_fee","10"); //商品金额,以分为单位
             prepayReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
             prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
             prepayReqHandler.setParameter("trade_type","APP");
@@ -1030,10 +1046,10 @@ public class OrderServiceImpl implements OrderService {
 				retcode = -2;
 				retmsg = "错误：获取prepayId失败";
 			}
-		} else {
+		/*} else {
 			retcode = -1;
 			retmsg = "错误：获取不到Token";
-		}
+		}*/
 
 //		resInfo.put("retcode", retcode);
 //		resInfo.put("retmsg", retmsg);

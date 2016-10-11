@@ -1,5 +1,6 @@
 package com.quxin.freshfun.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -70,14 +71,15 @@ public class FieldUtil {
         return new XMLSerializer().read(xmlStr).toString();
     }
 
-    public static void main(String [] args){
+    public static void main(String [] args) throws UnsupportedEncodingException {
         /*String str = "{\"appid\":\"wx667c9cd468801536\",\"body\":\"sss\",\"fee_type\":\"1\",\"mch_id\":\"1335619501\",\"nonce_str\":\"5bcf8dd060e5ea0bff484b4a4127cb47\",\"notify_url\":\"https://freshfun.meiguoyouxian.com/FreshFun/payCallback.do\",\"out_trade_no\":\"Z13566057\",\"sign\":\"706EF245CFEFCC3FCF09BB8B108380DA\",\"spbill_create_ip\":\"192.168.3.21\",\"total_fee\":\"1000\",\"trade_type\":\"APP\"}";
         String ss = jsonToXml(str);
         System.out.println(ss);*/
 
         //String str = new String("绛惧悕閿欒\uE1E4".getBytes("",""));
-        int num = 1234;
-        String str = String.valueOf(num);
+        String s = "鍟嗘埛璁㈠崟鍙烽噸澶峕";
+        String str = new String(s.getBytes("gbk"),"utf-8");
         System.out.println(str);
+
     }
 }

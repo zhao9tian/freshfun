@@ -9,6 +9,7 @@ import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,13 +158,13 @@ public class UserServiceImpl implements UserService{
 	 * @return
 	 */
 	@Override
-	public Long WzPlatformLogin(String code) {
+	public Long WzPlatformLogin(String code) throws BusinessException {
 		if(code == null || "".equals(code))
 			return null;
 		//获取用户信息
-		WxInfo wxInfo = getUserInfo(code);
-
-		return null;
+		WxInfo wxInfo = getUserInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
+        Long userId = WZLogin(wxInfo);
+        return userId;
 	}
 
 	/**
@@ -184,7 +185,7 @@ public class UserServiceImpl implements UserService{
 			return null;
 		}
 		//获取用户信息
-		WxInfo wxInfo = getUserInfo(code);
+		WxInfo wxInfo = getUserInfo(code,ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
 		Long userId = null;
 		if(wxInfo!=null){
 			UserInfoPOJO userInfo = new UserInfoPOJO();
@@ -273,12 +274,12 @@ public class UserServiceImpl implements UserService{
 	 * 通过code获取用户信息
 	 * @param code
 	 */
-	private WxInfo getUserInfo(String code) {
+	private WxInfo getUserInfo(String code,String appId,String appSecert) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("https://api.weixin.qq.com/sns/oauth2/access_token?appid=");
-		sb.append(ConstantUtil.APP_ID);
+		sb.append(appId);
 		sb.append("&secret=");
-		sb.append(ConstantUtil.APP_SECRET);
+		sb.append(appSecert);
 		sb.append("&code=");
 		sb.append(code);
 		sb.append("&grant_type=authorization_code");
