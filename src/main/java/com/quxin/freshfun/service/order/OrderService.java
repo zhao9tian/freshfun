@@ -35,6 +35,13 @@ public interface OrderService {
 	 * @return
 	 */
 	ResponseResult addQuanMingPay(QuanMingPayInfo payInfo) throws BusinessException;
+
+	/**
+	 * App订单支付
+	 * @param orderId
+	 * @return
+	 */
+	WxPayInfo appOrderPay(String orderId,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException, JSONException;
 	/**
 	 * 订单支付
 	 * @param order

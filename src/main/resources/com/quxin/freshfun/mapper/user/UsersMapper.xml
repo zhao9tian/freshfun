@@ -63,6 +63,12 @@
     from users
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectUserById" resultType="com.quxin.freshfun.model.UsersPOJO" parameterType="java.lang.Long" >
+    select
+    id , user_name as userName , user_head_url as userHeadUrl ,mobile_phone as mobilePhone
+    from users
+    where id = #{id,jdbcType=BIGINT}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from users
     where id = #{id,jdbcType=INTEGER}
@@ -356,7 +362,7 @@
   <!-- =============================手机登录========================================== -->
   <!-- 根据手机号查询userId -->
   <select id="getUserIdByPhoneNum" parameterType="java.lang.String" resultType="java.lang.Long">
-  	select user_id from users where mobile_phone = #{mobilePhone}
+  	select id from users where mobile_phone = #{mobilePhone}
   </select>
   <!-- 根据手机号查询设备Id -->
   <select id="getDeviceIdByPhoneNum" parameterType="java.lang.String" resultType="java.lang.String">

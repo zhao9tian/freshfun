@@ -9,6 +9,7 @@ import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,10 @@ public class UserServiceImpl implements UserService{
 	private Logger error_log = LoggerFactory.getLogger("error_log");
 
 
+	public UsersPOJO queryUserById(Long id){
+		return userDao.selectUserById(id);
+	}
+
 	@Override
 	public int insertUser(UsersPOJO user) {
 		return userDao.insert(user);
@@ -41,8 +46,9 @@ public class UserServiceImpl implements UserService{
 	 * 如果是,就在数据库注册该用户信息,此处设备号没有实际意义(之前是为了限制一台设备只能领一次红包)
 	 */
 	@Override
-	public Long PhoneLogin(String phoneNum, String deviceId) {
+	public Long PhoneLogin(String phoneNum, String deviceId,String nickName,String headUrl) {
 		Long userId = null;
+		UsersPOJO user = null;
 		//1.手机号和设备号都不为空继续执行
 		if(phoneNum != null && deviceId !=null && !"".equals(phoneNum) && !"".equals(deviceId) ){
 			//2.判断手机号是否存在数据库中
@@ -55,12 +61,11 @@ public class UserServiceImpl implements UserService{
 				}
 			}else{
 				//4.手机号不存在,就要创建新用户
-				IdGenerate idGenerate = new IdGenerate();
-				userId = idGenerate.nextId();
-				UsersPOJO user = new UsersPOJO();
-				user.setUserId(userId);
+				user = new UsersPOJO();
 				user.setMobilePhone(phoneNum);
 				user.setDeviceId(deviceId);
+				user.setUserName(nickName);
+				user.setUserHeadUrl(headUrl);
 				
 				//不能为空的属性
 				user.setGmtCreate(System.currentTimeMillis()/1000);
@@ -70,6 +75,7 @@ public class UserServiceImpl implements UserService{
 				user.setIncomeIdentify((byte)1);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
+				user.setIsDeleted((byte)0);
 				userDao.insert(user);
 			}
 		}
@@ -153,13 +159,13 @@ public class UserServiceImpl implements UserService{
 	 * @return
 	 */
 	@Override
-	public Long WzPlatformLogin(String code) {
+	public Long WzPlatformLogin(String code) throws BusinessException {
 		if(code == null || "".equals(code))
 			return null;
 		//获取用户信息
-		WxInfo wxInfo = getUserInfo(code);
-
-		return null;
+		WxInfo wxInfo = getUserInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
+        Long userId = WZLogin(wxInfo);
+        return userId;
 	}
 
 	/**
@@ -180,7 +186,7 @@ public class UserServiceImpl implements UserService{
 			return null;
 		}
 		//获取用户信息
-		WxInfo wxInfo = getUserInfo(code);
+		WxInfo wxInfo = getUserInfo(code,ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
 		Long userId = null;
 		if(wxInfo!=null){
 			UserInfoPOJO userInfo = new UserInfoPOJO();
@@ -269,12 +275,12 @@ public class UserServiceImpl implements UserService{
 	 * 通过code获取用户信息
 	 * @param code
 	 */
-	private WxInfo getUserInfo(String code) {
+	private WxInfo getUserInfo(String code,String appId,String appSecert) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("https://api.weixin.qq.com/sns/oauth2/access_token?appid=");
-		sb.append(ConstantUtil.APP_ID);
+		sb.append(appId);
 		sb.append("&secret=");
-		sb.append(ConstantUtil.APP_SECRET);
+		sb.append(appSecert);
 		sb.append("&code=");
 		sb.append(code);
 		sb.append("&grant_type=authorization_code");

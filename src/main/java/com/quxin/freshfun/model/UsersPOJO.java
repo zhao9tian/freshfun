@@ -13,6 +13,8 @@ public class UsersPOJO {
 
     private String userName;
 
+    private Integer nicknameCount;
+
     private String userHeadUrl;
 
     private String mobilePhone;
@@ -81,6 +83,14 @@ public class UsersPOJO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Integer getNicknameCount() {
+        return nicknameCount;
+    }
+
+    public void setNicknameCount(Integer nicknameCount) {
+        this.nicknameCount = nicknameCount;
     }
 
     public String getUserHeadUrl() {

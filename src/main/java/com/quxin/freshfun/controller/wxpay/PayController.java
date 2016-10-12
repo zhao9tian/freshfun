@@ -59,4 +59,54 @@ public class PayController{
         return resultMap;
     }
 
+
+
+    /**
+     * 订单支付
+     * @param orderId
+     * @return
+     */
+    @RequestMapping("/appOrderPay")
+    @ResponseBody
+    public Map<String, Object> appOrderPay(String orderId,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException, JSONException {
+        Map<String, Object>  map = new HashMap<String, Object>();
+        Map<String, Object>  resultMap = new HashMap<String, Object>();
+        if(orderId == null || "".equals(orderId)){
+            errorResultMsg(map, resultMap, "订单编号不能为空");
+            return resultMap;
+        }
+        WxPayInfo payInfo = orderService.appOrderPay(orderId, request, response);
+        if(payInfo == null){
+            errorResultMsg(map,resultMap,"订单异常");
+            return resultMap;
+        }else{
+            correctResultMsg(map,resultMap,payInfo);
+        }
+        return resultMap;
+    }
+
+    /**
+     * 正确信息返回
+     * @param map
+     * @param resultMap
+     * @param payInfo
+     */
+    private void correctResultMsg(Map<String, Object> map, Map<String, Object> resultMap, WxPayInfo payInfo) {
+        map.put("code", 1001);
+        map.put("msg", "请求成功");
+        resultMap.put("status", map);
+        resultMap.put("data", payInfo);
+    }
+
+    /**
+     * 错误信息返回给前端
+     * @param map
+     * @param resultMap
+     */
+    private void errorResultMsg(Map<String, Object> map, Map<String, Object> resultMap, String msg) {
+        map.put("code", 1004);
+        map.put("msg", msg);
+        resultMap.put("status", map);
+    }
+
 }

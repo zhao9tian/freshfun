@@ -8,6 +8,7 @@ import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,9 +163,11 @@ public class OrderController {
 	 */
 	@RequestMapping("/selectShoppingCartByUserId")
 	@ResponseBody
-	public Map<String,Object> selectShoppingCartByUserId(String userId){
+	public Map<String,Object> selectShoppingCartByUserId(String userId,HttpServletRequest request){
+
 		Long ui = Long.parseLong(userId.replace("\"", ""));
-		return orderManager.selectShoppingCartByUserId(ui);
+		Long uId = CookieUtil.getUserIdFromCookie(request);
+		return orderManager.selectShoppingCartByUserId(uId);
 	}
 	/**
 	 * 添加商品数量

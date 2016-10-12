@@ -20,13 +20,21 @@ public interface UserService {
 	 * @return
 	 */
 	public int insertUser(UsersPOJO user);
+
+	/**
+	 * 根据userId获取user
+	 * @param id userId
+	 * @return  用户信息
+	 */
+	UsersPOJO queryUserById(Long id);
+
 	/**
 	 * 手机用户登录
 	 * @param phoneNum
 	 * @param deviceId
 	 * @return
 	 */
-	public Long PhoneLogin(String phoneNum, String deviceId);
+	public Long PhoneLogin(String phoneNum, String deviceId,String nickName,String headUrl);
 	
 	/**
 	 * 微信用户登录
@@ -45,7 +53,7 @@ public interface UserService {
 	 * 公众平台微站登录
 	 * @return
 	 */
-	Long WzPlatformLogin(String code);
+	Long WzPlatformLogin(String code) throws BusinessException;
 	
 	/**
 	 * 绑定手机号
