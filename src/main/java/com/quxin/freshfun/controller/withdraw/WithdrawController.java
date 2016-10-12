@@ -36,15 +36,15 @@ public class WithdrawController {
 
     /**
      * b端提现数据显示
-     * @param userId
      * @return
      */
     @RequestMapping(value = "/getMyMoneyB" , method = RequestMethod.GET)
     @ResponseBody
-    public Map<String , Object>  getAllMoneyB(String userId){
+    public Map<String , Object>  getAllMoneyB(HttpServletRequest request){
         Map<String , Object> resultMap = new HashMap<String , Object>();
+        Long userId = CookieUtil.getUserIdFromCookie(request);
         if(userId != null && !"".equals(userId)){
-            String uId = userId.replace("\"","");
+            String uId = userId.toString();
             Double totalMoney = withdrawService.queryTotalMoneyB(uId);
             Double unrecordMoney = withdrawService.queryUnrecordMoneyB(uId);
             Double withdrawCash = withdrawService.queryWithdrawCashB(uId);

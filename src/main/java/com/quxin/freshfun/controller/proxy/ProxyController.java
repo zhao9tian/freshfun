@@ -6,12 +6,15 @@ import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.HomePagePOJO;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.goods.HomePageService;
+import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,14 +99,13 @@ public class ProxyController {
 
 	/**
 	 * 我的品牌
-	 * @param merchantProxyId
 	 * @return
 	 */
 	@RequestMapping("/toBrands")
 	@ResponseBody
-	public List<GoodsPOJO> toMyBrand(Integer merchantProxyId) {
+	public List<GoodsPOJO> toMyBrand(HttpServletRequest request) {
 		Map<String, Object> doos = new HashMap<>();
-		doos.put("mpId", merchantProxyId);
+		doos.put("mpId", CookieUtil.getUserIdFromCookie(request));
 		List<GoodsPOJO> goodss = goodsService.findProxyGoods(doos);
 		for (GoodsPOJO goodsPOJO : goodss) {
 			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
