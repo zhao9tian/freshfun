@@ -678,18 +678,18 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public ResponseResult addQuanMingPay(QuanMingPayInfo info) throws BusinessException {
-		String userId = info.getUserId().replace("\"","");
-		String [] users = {"556686","556682","556681"};
+		long userId = info.getUserId();
+		long [] users = {556686,556682,556681};
 		//商户支付金额
 		Double agentPrice = 30000.00;
-		for (String str: users) {
-			if(str.equals(userId)){
+		for (long l: users) {
+			if(l == userId){
 				agentPrice = 0.01;
 			}
 		}
 		Long date = DateUtils.getCurrentDate();
 		MerchantAgent agent = new MerchantAgent();
-		agent.setMerchantId(Long.parseLong(userId));
+		agent.setMerchantId(userId);
 		Double price = agentPrice*100;
 		agent.setPrice(price.intValue());
 		agent.setGoodsId(info.getGoodsId());

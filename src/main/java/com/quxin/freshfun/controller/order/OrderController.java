@@ -282,9 +282,11 @@ public class OrderController {
 
 	@RequestMapping(value="/quanMingPay",method={RequestMethod.POST})
 	@ResponseBody
-	public ResponseResult quanMingPay(@RequestBody QuanMingPayInfo payInfo){
+	public ResponseResult quanMingPay(@RequestBody QuanMingPayInfo payInfo,HttpServletRequest httpServletRequest){
 		ResponseResult payResult = null;
 		try{
+			Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
+			payInfo.setUserId(userId);
 			payResult = orderService.addQuanMingPay(payInfo);
 		}catch (BusinessException e){
 			resultLogger.error("商户代理信息添加失败",e);

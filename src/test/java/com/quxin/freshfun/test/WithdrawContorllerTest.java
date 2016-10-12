@@ -26,7 +26,7 @@ public class WithdrawContorllerTest extends TestBase{
     }
     @Test
     public void getAllMoneyB() throws Exception {
-        System.out.println(withdrawController.getAllMoneyB("556677"));
+        //System.out.println(withdrawController.getAllMoneyB("556677"));
     }
     @Test
     public void getAllMoneyC() throws Exception {

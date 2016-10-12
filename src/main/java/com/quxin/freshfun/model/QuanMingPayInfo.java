@@ -7,7 +7,7 @@ public class QuanMingPayInfo {
     /**
      * 用户编号
      */
-    private String userId;
+    private Long userId;
     /**
      * 商品编号
      */
@@ -21,11 +21,11 @@ public class QuanMingPayInfo {
      */
     private String code;
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
