@@ -72,7 +72,6 @@ public class CookieUtil {
         Long createDate = Long.parseLong(strArray[1]);//创建时间
         Long cookieAge = Long.parseLong(strArray[2]);//cookie有效期
         Long curTime = System.currentTimeMillis()/1000;
-        Map<String , Object> map = new HashMap<String , Object>();
         if(userId==null||"".equals(userId)){  //错误cookie
             return  false;
         }else if(curTime>createDate+cookieAge){    //cookie 超时

@@ -187,8 +187,8 @@ public class UserLoginController {
 
 	@ResponseBody
 	@RequestMapping("/getVerifyCode")
-	public ReturnStatus getVerifyCode(@RequestBody Message message, HttpServletResponse response){
-		Integer status = userService.getVerifyCode(message.getUserId(), message.getPhoneNum());
+	public ReturnStatus getVerifyCode(@RequestBody Message message, HttpServletRequest request){
+		Integer status = userService.getVerifyCode(CookieUtil.getUserIdFromCookie(request).toString(), message.getPhoneNum());
 		ReturnStatus rs = new ReturnStatus();
 		rs.setStatus(status);
 		return rs;
@@ -196,7 +196,8 @@ public class UserLoginController {
 	
 	@ResponseBody
 	@RequestMapping("/validateVerifyCode")
-	public ReturnStatus bindPhone(@RequestBody Message message , HttpServletResponse response){
+	public ReturnStatus bindPhone(@RequestBody Message message , HttpServletRequest request){
+		message.setUserId(CookieUtil.getUserIdFromCookie(request).toString());
 		Integer status = userService.validateMessage(message);
 		ReturnStatus rs = new ReturnStatus();
 		rs.setStatus(status);

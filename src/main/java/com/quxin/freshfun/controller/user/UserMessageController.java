@@ -39,8 +39,8 @@ public class UserMessageController {
 	 */
 	@RequestMapping(value="/usermessage",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, Object> UpdateUserDefaultAddress(@RequestBody UserMessageInfo userMessageInfo){
-		Long userId = Long.parseLong(userMessageInfo.getUserId().replace("\"", ""));
+	public Map<String, Object> UpdateUserDefaultAddress(@RequestBody UserMessageInfo userMessageInfo,HttpServletRequest request){
+		Long userId = CookieUtil.getUserIdFromCookie(request);
 	    String message = userMessageInfo.getMessage();
 	    
 	    System.out.println(userId);

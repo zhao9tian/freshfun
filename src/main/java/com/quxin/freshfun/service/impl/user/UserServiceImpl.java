@@ -390,7 +390,7 @@ public class UserServiceImpl implements UserService{
 				status = 2;
 				//2.去绑定手机号
 				Map<String, Object> map = new HashMap<>();
-				map.put("userId", message.getUserId().replace("\"", ""));
+				map.put("userId", message.getUserId());
 				map.put("phoneNum", message.getPhoneNum());
 				userDao.updateUser(map);
 			}else{
