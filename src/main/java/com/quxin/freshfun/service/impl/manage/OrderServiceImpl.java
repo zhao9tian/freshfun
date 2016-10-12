@@ -125,7 +125,9 @@ public class OrderServiceImpl implements OrderService {
 		payId.append(orderId);
 		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
 		//修改支付状态
-		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
+
+
+	if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
 				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
 				if(status <= 0){
@@ -234,7 +236,7 @@ public class OrderServiceImpl implements OrderService {
 			Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
 			od.setFetcherPrice(fetcherMoney.intValue());
 		}else{
-			String sign = orderInfo.getSign();
+			String sign = orderInfo.getFetcherId();
 			if (sign != null && !"".equals(sign)){
 				Long id = FreshFunEncoder.urlToId(sign);
 				if(id != null) {

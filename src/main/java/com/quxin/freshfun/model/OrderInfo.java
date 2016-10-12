@@ -15,14 +15,14 @@ public class OrderInfo {
 	/**
 	 * 通过分享过来的标记
 	 */
-	private String sign;
+	private String fetcherId;
 
-	public String getSign() {
-		return sign;
+	public String getFetcherId() {
+		return fetcherId;
 	}
 
-	public void setSign(String sign) {
-		this.sign = sign;
+	public void setFetcherId(String fetcherId) {
+		this.fetcherId = fetcherId;
 	}
 
 	public GoodsInfo getGoods() {

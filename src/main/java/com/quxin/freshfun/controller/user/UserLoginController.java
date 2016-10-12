@@ -80,7 +80,6 @@ public class UserLoginController {
 	@RequestMapping("/phoneLogin")
 	public Map<String, Object> phoneLogin(String token,String code,String deviceId){
 		Map<String, Object>  map = new HashMap<String, Object>();
-
 		if(token != null && code != null && deviceId != null){
 			//查询验证码信息
 			Message message = new Message();
