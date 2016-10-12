@@ -439,7 +439,7 @@
   </insert>
   <!--查询用户头像and昵称-->
   <select id="selectUserInfo" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.outparam.WxUserInfo">
-    select headimgurl,nickname from user_info where user_id = #{userId}
+    select headimgurl,nickname from users where id = #{userId}
   </select>
 
   <!--删除验证码-->
