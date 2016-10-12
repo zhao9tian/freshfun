@@ -271,7 +271,7 @@ public class UserServiceImpl implements UserService{
 					logger.error("添加用户详细信息失败");
 					throw new BusinessException("添加用户详细信息失败");
 				}
-				info = generateOutUserInfo(wxInfo,userId);
+				info = userDao.selectUserInfo(userId);
 			}
 		}
 

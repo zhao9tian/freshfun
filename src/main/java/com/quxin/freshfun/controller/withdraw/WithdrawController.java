@@ -61,15 +61,15 @@ public class WithdrawController {
 
     /**
      * c端提现数据显示
-     * @param userId
      * @return
      */
     @RequestMapping(value = "/getMyMoneyC" , method = RequestMethod.GET)
     @ResponseBody
-    public Map<String , Object>  getAllMoneyC(String userId){
+    public Map<String , Object>  getAllMoneyC(HttpServletRequest request){
         Map<String , Object> resultMap = new HashMap<String , Object>();
+        Long userId = CookieUtil.getUserIdFromCookie(request);
         if(userId != null && !"".equals(userId)){
-            String uId = userId.replace("\"","");
+            String uId = userId.toString();
             Double totalMoney = withdrawService.queryTotalMoneyC(uId);
             Double unrecordMoney = withdrawService.queryUnrecordMoneyC(uId);
             Double withdrawCash = withdrawService.queryWithdrawCashC(uId);
@@ -91,10 +91,10 @@ public class WithdrawController {
      */
     @RequestMapping(value="/applyWithdrawB",method={RequestMethod.POST})
     @ResponseBody
-    public Map<String,Object> applyWithdrawB(@RequestBody WithdrawParam extractMoney) {
+    public Map<String,Object> applyWithdrawB(@RequestBody WithdrawParam extractMoney,HttpServletRequest request) {
         Map<String, Object> resultMap = null;
         if(extractMoney.getUserId() != null && !"".equals(extractMoney.getUserId())){
-            String uId = extractMoney.getUserId().replace("\"","");
+            String uId = CookieUtil.getUserIdFromCookie(request).toString();
             Double extractmoney = withdrawService.queryWithdrawCashB(uId);
             String userId = uId;
             String extractMoneyStr = extractMoney.getMoney();
@@ -133,10 +133,10 @@ public class WithdrawController {
      */
     @RequestMapping(value="/applyWithdrawC",method={RequestMethod.POST})
     @ResponseBody
-    public Map<String,Object> applyWithdrawC(@RequestBody WithdrawParam extractMoney) {
+    public Map<String,Object> applyWithdrawC(@RequestBody WithdrawParam extractMoney,HttpServletRequest request) {
         Map<String, Object> resultMap = null;
         if(extractMoney.getUserId() != null && !"".equals(extractMoney.getUserId())) {
-            String uId = extractMoney.getUserId().replace("\"", "");
+            String uId = CookieUtil.getUserIdFromCookie(request).toString();
             Double extractmoney = withdrawService.queryWithdrawCashC(uId);
             String extractMoneyStr = extractMoney.getMoney();
             if(uId == null){
