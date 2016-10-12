@@ -18,11 +18,11 @@ public class GoodsInfoPOJO {
     /**商品标价*/
     private String originMoney;
     /**规格图*/
-    private String standardImgPath;
+    private String standardImg;
     /**详情图*/
-    private String detailImgPath;
+    private String detailImg;
     /**轮播图*/
-    private String carouselImgPath;
+    private String bannerImg;
 
     public Integer getGoodsId() {
         return goodsId;
@@ -72,42 +72,28 @@ public class GoodsInfoPOJO {
         this.originMoney = originMoney;
     }
 
-    public String getStandardImgPath() {
-        return standardImgPath;
+    public String getStandardImg() {
+        return standardImg;
     }
 
-    public void setStandardImgPath(String standardImgPath) {
-        this.standardImgPath = standardImgPath;
+    public void setStandardImg(String standardImg) {
+        this.standardImg = standardImg;
     }
 
-    public String getDetailImgPath() {
-        return detailImgPath;
+    public String getDetailImg() {
+        return detailImg;
     }
 
-    public void setDetailImgPath(String detailImgPath) {
-        this.detailImgPath = detailImgPath;
+    public void setDetailImg(String detailImg) {
+        this.detailImg = detailImg;
     }
 
-    public String getCarouselImgPath() {
-        return carouselImgPath;
+    public String getBannerImg() {
+        return bannerImg;
     }
 
-    public void setCarouselImgPath(String carouselImgPath) {
-        this.carouselImgPath = carouselImgPath;
+    public void setBannerImg(String bannerImg) {
+        this.bannerImg = bannerImg;
     }
 
-    @Override
-    public String toString() {
-        return "GoodsInfoPOJO{" +
-                "goodsId=" + goodsId +
-                ", goodsName='" + goodsName + '\'' +
-                ", goodsDes='" + goodsDes + '\'' +
-                ", ffunerSaid='" + ffunerSaid + '\'' +
-                ", actualMoney='" + actualMoney + '\'' +
-                ", originMoney='" + originMoney + '\'' +
-                ", standardImgPath='" + standardImgPath + '\'' +
-                ", detailImgPath='" + detailImgPath + '\'' +
-                ", carouselImgPath='" + carouselImgPath + '\'' +
-                '}';
-    }
 }

@@ -80,9 +80,9 @@ public class GoodsDetails {
 			goodsInfoPOJO.setGoodsId(goodsId);
 			goodsInfoPOJO.setActualMoney(MoneyFormat.priceFormatString(goodsMysql.getShopPrice()));
 			goodsInfoPOJO.setOriginMoney(MoneyFormat.priceFormatString(goodsMysql.getMarketPrice()));
-			goodsInfoPOJO.setStandardImgPath(goodsMongo.getStandardImgPath());
-			goodsInfoPOJO.setCarouselImgPath(goodsMongo.getCarouselImgPath());
-			goodsInfoPOJO.setDetailImgPath(goodsMongo.getDetailImgPath());
+			goodsInfoPOJO.setStandardImg(goodsMongo.getStandardImgPath());
+			goodsInfoPOJO.setBannerImg(goodsMongo.getCarouselImgPath());
+			goodsInfoPOJO.setDetailImg(goodsMongo.getDetailImgPath());
 			Map<String , Object> map = new HashMap<String , Object>();
 			map.put("goodsInfo" , goodsInfoPOJO);
 			map.put("fetcherId",FreshFunEncoder.idToUrl(userId));
