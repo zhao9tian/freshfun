@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -37,7 +38,7 @@ public class GoodsDetails {
 	 */
 	@RequestMapping("/goods")
 	@ResponseBody
-	public Map<String , Object> findMongoGoods(Integer goodsId, HttpServletRequest request){
+	public AllGoods findMongoGoods(Integer goodsId, HttpServletRequest request){
 		AllGoods allGoods = new AllGoods();
 		List<GoodsMongo> goodsMongo = goodsService.findGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
@@ -48,10 +49,8 @@ public class GoodsDetails {
 		goodsMysql.setMarketPrice(null);
 		allGoods.setGoodsPOJO(goodsMysql);
 		Long userId = CookieUtil.getUserIdFromCookie(request);
-		Map<String , Object> map = new HashMap<String , Object>();
-		map.put("allGoods",allGoods);
-		map.put("userId",userId);
-		return map;
+		allGoods.setSign(FreshFunEncoder.idToUrl(userId));
+		return allGoods;
 	}
 	
 
@@ -72,7 +71,7 @@ public class GoodsDetails {
 		Long userId = CookieUtil.getUserIdFromCookie(request);
 		Map<String , Object> map = new HashMap<String , Object>();
 		map.put("specialTheme",specialTheme);
-		map.put("userId",userId);
+		map.put("sign", FreshFunEncoder.idToUrl(userId));
 		return map;
 	}
 	
@@ -93,7 +92,7 @@ public class GoodsDetails {
 		Long userId = CookieUtil.getUserIdFromCookie(request);
 		Map<String , Object> map = new HashMap<String , Object>();
 		map.put("mallTheme",mallTheme);
-		map.put("userId",userId);
+		map.put("sign",FreshFunEncoder.idToUrl(userId));
 		return map;
 	}
 

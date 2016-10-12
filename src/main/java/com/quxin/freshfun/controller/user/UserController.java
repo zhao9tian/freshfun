@@ -137,10 +137,9 @@ public class UserController {
 	 */
 	@RequestMapping(value="/updateaddress",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, Object> UpdateUserAddress(@RequestBody AddressInfo addressInfo){
+	public Map<String, Object> UpdateUserAddress(@RequestBody AddressInfo addressInfo,HttpServletRequest request){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		String uId = addressInfo.getUserId();
-		Long userId = Long.parseLong(uId.replace("\"", ""));
+		Long userId = CookieUtil.getUserIdFromCookie(request);
 		Integer addressId = addressInfo.getAddressId();
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();

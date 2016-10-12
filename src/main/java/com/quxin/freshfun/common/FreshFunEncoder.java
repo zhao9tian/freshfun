@@ -3,7 +3,7 @@ package com.quxin.freshfun.common;
 /**
  * Created by tianmingzhao on 16/10/12.
  */
-class FreshFunEncoder {
+public class FreshFunEncoder {
 
     /**
      * ID 加密

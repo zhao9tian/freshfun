@@ -9,8 +9,18 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 public class AllGoods {
 
 	private GoodsPOJO goodsPOJO;
-	
+
+	private String sign;
+
 	private GoodsLimit goodsLimit;
+
+	public String getSign() {
+		return sign;
+	}
+
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
 
 	public GoodsLimit getGoodsLimit() {
 		return goodsLimit;
