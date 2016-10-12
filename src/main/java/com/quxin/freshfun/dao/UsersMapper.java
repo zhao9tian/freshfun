@@ -13,7 +13,7 @@ public interface UsersMapper {
     int deleteByPrimaryKey(Integer id);
     int insert(UsersPOJO record);
     int insertSelective(UsersPOJO record);
-    UsersPOJO selectByPrimaryKey(Integer id);
+    UsersPOJO selectByPrimaryKey(Long id);
     int updateByPrimaryKeySelective(UsersPOJO record);
     int updateByPrimaryKey(UsersPOJO record);
     int updateParentIdByUserId(Map<String, Long> params);

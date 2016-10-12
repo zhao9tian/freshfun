@@ -31,9 +31,18 @@ public class UserServiceImpl implements UserService{
 	private Logger logger = LoggerFactory.getLogger("info_log");
 	private Logger error_log = LoggerFactory.getLogger("error_log");
 
-
+	@Override
 	public UsersPOJO queryUserById(Long id){
 		return userDao.selectUserById(id);
+	}
+
+	/**
+	 * 根据user Id 获取user信息，支付登陆使用
+	 * @param id
+	 * @return
+	 */
+	public UsersPOJO queryUserByPrimaryKey(Long id){
+		return userDao.selectByPrimaryKey(id);
 	}
 
 	@Override

@@ -29,6 +29,13 @@ public interface UserService {
 	UsersPOJO queryUserById(Long id);
 
 	/**
+	 * 根据user Id 获取user信息，支付登陆使用
+	 * @param id
+	 * @return
+	 */
+	UsersPOJO queryUserByPrimaryKey(Long id);
+
+	/**
 	 * 手机用户登录
 	 * @param phoneNum
 	 * @param deviceId

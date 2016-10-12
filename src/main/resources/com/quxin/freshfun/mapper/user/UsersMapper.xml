@@ -7,6 +7,7 @@
     <result column="gmt_create" property="gmtCreate" jdbcType="BIGINT" />
     <result column="gmt_modified" property="gmtModified" jdbcType="BIGINT" />
     <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="nickname_count" property="nicknameCount" jdbcType="INTEGER" />
     <result column="user_head_url" property="userHeadUrl" jdbcType="VARCHAR" />
     <result column="mobile_phone" property="mobilePhone" jdbcType="VARCHAR" />
     <result column="device_id" property="deviceId" jdbcType="VARCHAR" />
@@ -27,7 +28,7 @@
     <result column="user_address" property="userAddress" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, user_id, gmt_create, gmt_modified, user_name, user_head_url, mobile_phone, device_id, 
+    id, user_id, gmt_create, gmt_modified, user_name,nickname_count, user_head_url, mobile_phone, device_id,
     wx_id, wz_id, login_method, is_received, parent_id, reg_time, user_credit, user_money, 
     frozen_money, user_identify, income_identify, user_enter, user_info_id, is_deleted, 
     user_address
@@ -61,11 +62,11 @@
       update users set user_identify = 1 where id = #{userId}
   </update>
   
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 
     <include refid="Base_Column_List" />
     from users
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
   <select id="selectUserById" resultType="com.quxin.freshfun.model.UsersPOJO" parameterType="java.lang.Long" >
     select
