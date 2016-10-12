@@ -7,6 +7,15 @@ public class WxUserInfo {
     private Long userId;
     private String headimgurl;
     private String nickname;
+    private String mobilePhone;
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public void setMobilePhone(String mobilePhone) {
+        this.mobilePhone = mobilePhone;
+    }
 
     public Long getUserId() {
         return userId;
