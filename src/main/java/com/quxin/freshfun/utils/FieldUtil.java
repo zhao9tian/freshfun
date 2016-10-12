@@ -77,8 +77,8 @@ public class FieldUtil {
         System.out.println(ss);*/
 
         //String str = new String("绛惧悕閿欒\uE1E4".getBytes("",""));
-        String s = "鍟嗘埛璁㈠崟鍙烽噸澶峕";
-        String str = new String(s.getBytes("gbk"),"utf-8");
+        String s = "æ\u0099´å¤";
+        String str = new String(s.getBytes("GBK"),"utf-8");
         System.out.println(str);
 
     }

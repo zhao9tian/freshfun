@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -152,6 +153,18 @@ public class OrderController {
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
+	@RequestMapping("/cookieTest")
+	@ResponseBody
+	public String cookieTest(HttpServletResponse response){
+		Long userId = 556677L;
+		Cookie cookie = new Cookie("userId", CookieUtil.getCookieValueByUserId(userId));
+		cookie.setMaxAge(CookieUtil.getCookieMaxAge());
+		cookie.setDomain(".freshfun365.com");
+		cookie.setPath("/");
+		response.addCookie(cookie);
+		return "ok";
+	}
+
 	/**
 	 * 根据用户编号查询购物车信息
 	 * @param request

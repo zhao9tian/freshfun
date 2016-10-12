@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 /**
@@ -212,10 +213,11 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public WxUserInfo WXLogin(String code,String deviceId) throws BusinessException {
+	public WxUserInfo WXLogin(String code,String deviceId) throws BusinessException, UnsupportedEncodingException {
 		if(code == null){
 			return null;
 		}
+		WxUserInfo info = null;
 		//获取用户信息
 		WxInfo wxInfo = getUserInfo(code,ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
 		Long userId = null;
@@ -234,6 +236,10 @@ public class UserServiceImpl implements UserService{
 						modifyUser(deviceId, userId);
 					}
 				}
+				//查询用户头像信息
+				info = userDao.selectUserInfo(userId);
+				if(info != null)
+					info.setUserId(userId);
 			}else{
 				//2.插入新用户
 				UsersPOJO user = new UsersPOJO();
@@ -265,9 +271,10 @@ public class UserServiceImpl implements UserService{
 					logger.error("添加用户详细信息失败");
 					throw new BusinessException("添加用户详细信息失败");
 				}
+				info = generateOutUserInfo(wxInfo,userId);
 			}
 		}
-		WxUserInfo info = generateOutUserInfo(wxInfo,userId);
+
 		return info;
 	}
 
@@ -290,7 +297,7 @@ public class UserServiceImpl implements UserService{
 	 * @param wxInfo
 	 * @param userId
 	 */
-	private int generateUserInfo(WxInfo wxInfo, Long userId) {
+	private int generateUserInfo(WxInfo wxInfo, Long userId) throws UnsupportedEncodingException {
 		UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
 		userDetailPOJO.setUserId(userId);
 		userDetailPOJO.setProvince(wxInfo.getProvince());
@@ -298,7 +305,7 @@ public class UserServiceImpl implements UserService{
 		userDetailPOJO.setCountry(wxInfo.getCountry());
 		userDetailPOJO.setHeadimgurl(wxInfo.getHeadimgurl());
 		userDetailPOJO.setLanguage(wxInfo.getLanguage());
-		userDetailPOJO.setNickname(wxInfo.getNickname());
+		userDetailPOJO.setNickname(new String(wxInfo.getNickname().getBytes(),"utf-8"));
 		userDetailPOJO.setUnionid(wxInfo.getUnionid());
 		userDetailPOJO.setOpenid(wxInfo.getOpenid());
 		return userDao.insertUserDetails(userDetailPOJO);

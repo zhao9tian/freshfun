@@ -1,22 +1,19 @@
-package com.quxin.freshfun.service.impl.order;
+package com.quxin.freshfun.service.impl.manage;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
-import com.quxin.freshfun.controller.wxpay.AccessTokenRequestHandler;
+import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.controller.wxpay.ClientRequestHandler;
 import com.quxin.freshfun.controller.wxpay.PackageRequestHandler;
 import com.quxin.freshfun.controller.wxpay.PrepayIdRequestHandler;
-import com.quxin.freshfun.controller.wxpay.client.TenpayHttpClient;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
-import com.quxin.freshfun.utils.weixinPayUtils.JsonUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
 import org.dom4j.Document;
@@ -118,15 +115,15 @@ public class OrderServiceImpl implements OrderService {
 				throw new BusinessException("订单详情生成失败");
 			}
 		}
-
+		//获取用户openId
+		UsersPOJO usersPOJO = usersMapper.selectByPrimaryKey(uId);
+		String openId = usersPOJO.getWzId();
 		//生成订单后 调用支付
 		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
 		StringBuilder payId = new StringBuilder();
 		payId.append("Z");
 		payId.append(orderId);
-		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),orderInfo.getOpenid());
-		//修改订单状态
-		//int payStatus = order.updateOrderPayStatus(orderPOJO.getId());
+		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
 		//修改支付状态
 		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
@@ -232,11 +229,27 @@ public class OrderServiceImpl implements OrderService {
 		od.setOrderStatus(10);
 		//判断是否是捕手
 		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
-
 			od.setFetcherId(userPOJO.getParentId());
 			//计算捕手需要获取的提成
 			Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
 			od.setFetcherPrice(fetcherMoney.intValue());
+		}else{
+			String sign = orderInfo.getSign();
+			if (sign != null && !"".equals(sign)){
+				Long id = FreshFunEncoder.urlToId(sign);
+				if(id != null) {
+					int status = usersMapper.updateUserParentId(id, uid);
+					if (status <= 0) {
+						billLogger.error("添加分享标记失败");
+					}else{
+						//添加分享提成
+						od.setFetcherId(id);
+						//计算捕手需要获取的提成
+						Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
+						od.setFetcherPrice(fetcherMoney.intValue());
+					}
+				}
+			}
 		}
 		//查询是否有代理商户
 		GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsInfo.getGoodsId());
@@ -819,121 +832,6 @@ public class OrderServiceImpl implements OrderService {
 		return "";
 	}
 
-	/**
-	 * 根据用户提交的信息生成单笔订单详情
-	 * @param
-	 * @param
-	 */
-	private OrderDetailsPOJO makeOrderDetail(GoodsPOJO goodsPOJO,OrderInfo orderInfo,GoodsInfo goodsInfo) {
-		long currentTime = DateUtils.getCurrentDate();
-		//根据地址编号查询地址信息
-		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
-		//查询捕手信息
-		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(Long.parseLong(orderInfo.getUserId().replace("\"","")));
-
-		OrderDetailsPOJO od = new OrderDetailsPOJO();
-
-		od.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
-		od.setGoodsId(goodsPOJO.getId());
-		od.setAddressId(orderInfo.getAddressId());
-		od.setPaymentMethod(orderInfo.getPaymentMethod());
-		//单笔订单支付的价格
-		Integer orderMoney = goodsPOJO.getShopPrice()*goodsInfo.getCount();
-		od.setActualPrice(orderMoney);
-		od.setPayTime(currentTime);
-		od.setOrderStatus(10);
-		//判断是否是捕手
-		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
-			od.setFetcherId(userPOJO.getParentId());
-			//计算捕手需要获取的提成
-			Double fetcherMoney = orderMoney * Constant.FECTHER_COMPONENT;
-			od.setFetcherPrice(fetcherMoney.intValue());
-		}
-		//查询是否有代理商户
-		GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsPOJO.getId());
-		if(gp.getMerchantProxyId()!=null && gp.getMerchantProxyId()!=0){
-			od.setAgentId(gp.getMerchantProxyId());
-			//计算商户获取的提成
-			Double agentMoney = orderMoney*Constant.AGENT_COMPONENT;
-			od.setAgentPrice(agentMoney.intValue());
-		}
-		if(null == orderInfo.getPaySign() || "".equals(orderInfo.getPaySign())){
-			if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0){
-				od.setPayPlateform(1);
-			}else{
-				od.setPayPlateform(0);
-			}
-		}else{
-			od.setPayPlateform(2);
-		}
-		od.setCount(goodsInfo.getCount());
-		od.setCreateDate(currentTime);
-		od.setUpdateDate(currentTime);
-		od.setName(address.getName());
-		od.setTel(address.getTel());
-		od.setCity(address.getCity());
-		od.setAddress(address.getAddress());
-		return od;
-	}
-
-	/**
-	 * 根据购物车信息生成订单详情
-	 * @param
-	 * @param
-	 */
-	private OrderDetailsPOJO makeOrderDetail(ShoppingCartPOJO cart,OrderInfo orderInfo,Long orderId) {
-		long currentTime = DateUtils.getCurrentDate();
-		//根据地址编号查询地址信息
-		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
-		//查询捕手信息
-		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(Long.parseLong(orderInfo.getUserId().replace("\"","")));
-
-		OrderDetailsPOJO od = new OrderDetailsPOJO();
-		//订单编号
-		od.setOrderId(orderId);
-		od.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
-		od.setGoodsId(cart.getGoodsId());
-		od.setAddressId(orderInfo.getAddressId());
-		od.setPaymentMethod(orderInfo.getPaymentMethod());
-		//单笔订单支付的价格
-		Integer orderMoney = cart.getGoodsTotalsPrice()*cart.getGoodsTotals();
-		od.setActualPrice(orderMoney);
-		od.setPayTime(currentTime);
-		od.setOrderStatus(10);
-		//判断是否是捕手
-		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
-			od.setFetcherId(userPOJO.getParentId());
-			//计算捕手需要获取的提成
-			Double fetcherMoney = orderMoney * Constant.FECTHER_COMPONENT;
-			od.setFetcherPrice(fetcherMoney.intValue());
-		}
-		//查询是否有代理商户
-		GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(cart.getGoodsId());
-		if(gp.getMerchantProxyId()!=null && gp.getMerchantProxyId()!=0){
-			od.setAgentId(gp.getMerchantProxyId());
-			//计算商户获取的提成
-			Double agentMoney = orderMoney*Constant.AGENT_COMPONENT;
-			od.setAgentPrice(agentMoney.intValue());
-		}
-		if(null == orderInfo.getPaySign() || "".equals(orderInfo.getPaySign())){
-			if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0){
-				od.setPayPlateform(1);
-			}else{
-				od.setPayPlateform(0);
-			}
-		}else{
-			od.setPayPlateform(2);
-		}
-		od.setCount(cart.getGoodsTotals());
-		od.setCreateDate(currentTime);
-		od.setUpdateDate(currentTime);
-		od.setName(address.getName());
-		od.setTel(address.getTel());
-		od.setCity(address.getCity());
-		od.setAddress(address.getAddress());
-		return od;
-	}
-
 	public WxPayInfo appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney) throws JSONException, UnsupportedEncodingException {
 		//Map<Object,Object> resInfo = new HashMap<Object, Object>();
 		WxPayInfo info = new WxPayInfo();
@@ -993,8 +891,8 @@ public class OrderServiceImpl implements OrderService {
 			////设置获取prepayid支付参数
         new String("悦选美食".getBytes(),"UTF-8");
 			prepayReqHandler.setParameter("appid",ConstantUtil.APP_ID);
-            prepayReqHandler.setParameter("body", "AA"); //商品描述
-            prepayReqHandler.setParameter("attach", "AA");
+            prepayReqHandler.setParameter("body", "FreshFun"); //商品描述
+            prepayReqHandler.setParameter("attach", "FreshFun");
             prepayReqHandler.setParameter("mch_id", ConstantUtil.PARTNER); //商户号
 			prepayReqHandler.setParameter("nonce_str", noncestr);
             prepayReqHandler.setParameter("notify_url", notify_url);

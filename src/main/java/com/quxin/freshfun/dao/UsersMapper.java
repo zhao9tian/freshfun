@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.quxin.freshfun.model.UserDetailPOJO;
 import com.quxin.freshfun.model.UserInfoPOJO;
+import com.quxin.freshfun.model.outparam.WxUserInfo;
 import org.apache.ibatis.annotations.Param;
 
 import com.quxin.freshfun.model.Message;
@@ -75,7 +76,7 @@ public interface UsersMapper {
 	 * @param parentId
 	 * @return
 	 */
-	public Integer updateUserParentId(@Param("parentId") Long parentId,@Param("userId") Integer id);
+	public Integer updateUserParentId(@Param("parentId") Long parentId,@Param("userId") Long id);
 	
 	/**
      * 查询用户分享标记
@@ -170,4 +171,10 @@ public interface UsersMapper {
 	 * @return
 	 */
 	Integer deleteVerifyCode();
+
+	/**
+	 * 查询用户头像and昵称
+	 * @return
+	 */
+	WxUserInfo selectUserInfo(Long userId);
 }

@@ -47,7 +47,7 @@
             <property name="dataSource" ref="dataSource"></property>
             <property name="mapperLocations">
                 <list>
-                    <value>classpath:com/quxin/freshfun/mapper/*.xml</value>
+                    <!--<value>classpath:com/quxin/freshfun/mapper/*.xml</value>-->
                     <value>classpath:com/quxin/freshfun/mapper/**/*.xml</value>
                 </list>
             </property>
@@ -80,7 +80,7 @@
         </tx:advice>
         <!-- Spring aop事务管理 -->
         <aop:config>
-            <aop:pointcut expression="execution(* com.quxin.freshfun.service.impl..*(..))" id="transactionPointcut"/>
+            <aop:pointcut expression="execution(* com.quxin.freshfun.service.impl.manage..*(..))" id="transactionPointcut"/>
             <aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut" />
         </aop:config>
 </beans>

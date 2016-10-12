@@ -21,12 +21,14 @@ import com.quxin.freshfun.model.ReturnStatus;
 import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.service.user.UserService;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/login")
 public class UserLoginController {
+
 	@Autowired
 	private NickNameService nickNameService;
 	@Autowired
@@ -146,7 +148,7 @@ public class UserLoginController {
 	 */
 	@ResponseBody
 	@RequestMapping("/wxLogin")
-	public Map<String, Object>  wxLogin(String code,String deviceId){
+	public Map<String, Object>  wxLogin(String code,String deviceId) throws UnsupportedEncodingException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object>  resultMap = new HashMap<String, Object>();
 		if(code != null){

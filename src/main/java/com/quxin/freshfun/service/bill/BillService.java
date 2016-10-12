@@ -89,5 +89,5 @@ public interface BillService {
      * 自动确认收货
      * @return
      */
-    Integer autoConfirmRecording() throws BusinessException;
+    Integer addAutoConfirmRecording() throws BusinessException;
 }

@@ -1,6 +1,7 @@
 package com.quxin.freshfun.service.user;
 
 import com.quxin.freshfun.model.Message;
+import com.quxin.freshfun.model.UserDetailPOJO;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.model.outparam.WxUserInfo;
@@ -8,6 +9,7 @@ import com.quxin.freshfun.utils.BusinessException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @author TuZl
@@ -47,7 +49,7 @@ public interface UserService {
 	 * 微信用户登录
 	 * @return
 	 */
-	public WxUserInfo WXLogin(String code, String deviceId) throws BusinessException;
+	public WxUserInfo WXLogin(String code, String deviceId) throws BusinessException, UnsupportedEncodingException;
 	
 	/**
 	 * 微站登录

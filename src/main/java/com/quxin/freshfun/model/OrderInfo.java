@@ -12,6 +12,18 @@ public class OrderInfo {
 	private String openid;
 	private List<GoodsInfo> goodsInfo;
 	private GoodsInfo goods;
+	/**
+	 * 通过分享过来的标记
+	 */
+	private String sign;
+
+	public String getSign() {
+		return sign;
+	}
+
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
 
 	public GoodsInfo getGoods() {
 		return goods;

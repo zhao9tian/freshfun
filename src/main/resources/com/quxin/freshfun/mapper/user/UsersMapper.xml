@@ -437,6 +437,10 @@
     INSERT INTO user_info(user_id , province , openid , headimgurl , language , city , country , unionid , nickname )
     VALUES (#{userId} , #{province} ,#{openid} , #{headimgurl} , #{language} , #{city} , #{country} , #{unionid} , #{nickname} )
   </insert>
+  <!--查询用户头像and昵称-->
+  <select id="selectUserInfo" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.outparam.WxUserInfo">
+    select headimgurl,nickname from user_info where user_id = #{userId}
+  </select>
 
   <!--删除验证码-->
   <delete id="deleteVerifyCode" >

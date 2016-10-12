@@ -47,7 +47,7 @@ public class AutoConfirmTask {
      */
     @Scheduled(cron="0 0 1,2,3,4 * * ? ")
     public void autoConfirmRecording() throws BusinessException {
-        billService.autoConfirmRecording();
+        billService.addAutoConfirmRecording();
     }
 
     /**
