@@ -40,7 +40,11 @@ public class GoodsDetails {
 	@ResponseBody
 	public AllGoods findMongoGoods(Integer goodsId, HttpServletRequest request){
 		AllGoods allGoods = new AllGoods();
+		if (goodsId == null) {
+			return null;
+		}
 		List<GoodsMongo> goodsMongo = goodsService.findGoodsMongo(goodsId);
+
 		allGoods.setGoodsMongo(goodsMongo);
 		GoodsPOJO goodsMysql = goodsService.findGoodsMysql(goodsId);
 		goodsMysql.setGoodsMoney(MoneyFormat.priceFormatString(goodsMysql.getShopPrice()));
