@@ -11,8 +11,15 @@ public interface GoodsDetailsMapper {
 
     /**
      * 根据商品Id查询商品详情
-     * @param goodsId
-     * @return
+     * @param goodsId 商品Id
+     * @return 返回商品列表
      */
     List<GoodsMongo> selectGoodsDetailByGoodsId(Integer goodsId);
+
+    /**
+     * 根据商品Id查询商品详情
+     * @param goodsId 商品Id
+     * @return 返回单个商品详情
+     */
+    GoodsMongo selectGoodsDetailPOJOByGoodsId(Integer goodsId);
 }

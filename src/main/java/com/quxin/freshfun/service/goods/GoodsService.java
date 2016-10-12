@@ -20,6 +20,13 @@ public interface GoodsService {
 	 * 查询mongoDB中商品信息
 	 */
 	public List<GoodsMongo> findGoodsMongo(Integer goodsID);
+
+	/**
+	 * 根据商品Id查询商品详情
+	 * @param goodsId 商品id
+	 * @return 返回商品详情
+	 */
+	GoodsMongo queryGoodsDetailById(Integer goodsId);
 	
 	/**
 	 * 查询mysql中商品信息

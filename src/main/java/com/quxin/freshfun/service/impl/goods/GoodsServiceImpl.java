@@ -38,6 +38,11 @@ public class GoodsServiceImpl implements GoodsService {
 	}
 
 	@Override
+	public GoodsMongo queryGoodsDetailById(Integer goodsId) {
+		return goodsDetailsMapper.selectGoodsDetailPOJOByGoodsId(goodsId);
+	}
+
+	@Override
 	public GoodsPOJO findGoodsMysql(Integer goodsID) {
 		
 		GoodsPOJO oneGoods = goodsMapper.findByGoodsId(goodsID);
