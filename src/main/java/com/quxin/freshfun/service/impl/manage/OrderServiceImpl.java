@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
 		//订单总价格
 		int orderSumPrice = 0;
 		//订单编号
-		Long uId = Long.parseLong(orderInfo.getUserId().replace("\"", ""));
+		Long uId = orderInfo.getUserId();
 
 		for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
 			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
@@ -167,7 +167,7 @@ public class OrderServiceImpl implements OrderService {
 			//生成收入账单
 			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderDetailsId());
 			//生成支出账单
-			generateExpensesBill(payInfo,goodsInfo,Long.parseLong(orderInfo.getUserId().replace("\"", "")),orderDetail);
+			generateExpensesBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail);
 		}
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,0);
 		orderPOJO.setIsLimit(1);
@@ -213,7 +213,7 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	private OrderDetailsPOJO makeOrderDetail(OrderPayInfo payInfo, GoodsInfo goodsInfo,OrderInfo orderInfo,Long orderId) {
 		long currentTime = DateUtils.getCurrentDate();
-        long uid = Long.parseLong(orderInfo.getUserId().replace("\"",""));
+        long uid = orderInfo.getUserId();
 		//根据地址编号查询地址信息
 		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
 		//查询捕手信息
@@ -222,7 +222,7 @@ public class OrderServiceImpl implements OrderService {
 		OrderDetailsPOJO od = new OrderDetailsPOJO();
 		//订单编号
 		od.setOrderId(orderId);
-		od.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
+		od.setUserId(orderInfo.getUserId());
 		od.setGoodsId(goodsInfo.getGoodsId());
 		od.setAddressId(orderInfo.getAddressId());
 		od.setPaymentMethod(orderInfo.getPaymentMethod());
@@ -289,14 +289,14 @@ public class OrderServiceImpl implements OrderService {
 	private OrdersPOJO makeOrderPOJO(OrderInfo orderInfo,Integer sumPrice) {
 		long currentDate = DateUtils.getCurrentDate();
 		OrdersPOJO order = new OrdersPOJO();
-		order.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"", "")));
+		order.setUserId(orderInfo.getUserId());
 		order.setGmtCreate(currentDate);
 		order.setGmtModified(currentDate);
 		order.setPaymentMethod(orderInfo.getPaymentMethod());
 		order.setOrderCount(orderInfo.getGoodsInfo().size());
 		order.setOrderStatus(0);
 		order.setPayStatus(0);
-		order.setUserId(Long.parseLong(orderInfo.getUserId().replace("\"","")));
+		order.setUserId(orderInfo.getUserId());
 		order.setActualPrice(sumPrice);
 		order.setCode(orderInfo.getCode());
 		return order;
@@ -734,7 +734,7 @@ public class OrderServiceImpl implements OrderService {
 		//订单总价格
 		int orderSumPrice = 0;
 		//订单编号
-		Long uId = Long.parseLong(orderInfo.getUserId().replace("\"", ""));
+		Long uId = orderInfo.getUserId();
 		//获取订单信息
 		orderSumPrice = getOrderInfo(orderInfo, orderPayInfos, orderSumPrice);
 

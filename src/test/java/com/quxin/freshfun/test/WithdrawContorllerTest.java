@@ -30,7 +30,7 @@ public class WithdrawContorllerTest extends TestBase{
     }
     @Test
     public void getAllMoneyC() throws Exception {
-        System.out.println(withdrawController.getAllMoneyC("556677"));
+       // System.out.println(withdrawController.getAllMoneyC(556677L));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class WithdrawContorllerTest extends TestBase{
         //b端提现
 //        System.out.println(withdrawController.applyWithdrawB(withdrawParam));
         //c端提现
-        System.out.println(withdrawController.applyWithdrawC(withdrawParam));
+        //System.out.println(withdrawController.applyWithdrawC(withdrawParam));
     }
 
 

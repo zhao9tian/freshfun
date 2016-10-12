@@ -264,10 +264,12 @@ public class OrderController {
 	 */
 	@RequestMapping(value="/createOrder",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, ResponseResult> createOrder(@RequestBody OrderInfo orderInfo){
+	public Map<String, ResponseResult> createOrder(@RequestBody OrderInfo orderInfo,HttpServletRequest httpServletRequest){
 		Map<String, ResponseResult> map = Maps.newHashMap();
 		ResponseResult payResult = null;
 		try {
+			Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
+			orderInfo.setUserId(userId);
 			payResult = orderService.addOrder(orderInfo);
 		} catch (BusinessException e) {
 			resultLogger.error("添加订单失败",e);

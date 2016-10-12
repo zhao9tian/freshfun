@@ -3,7 +3,7 @@ package com.quxin.freshfun.model;
 import java.util.List;
 
 public class OrderInfo {
-	private String userId;
+	private Long userId;
 	private Integer addressId;
 	private Integer paymentMethod;
 	private String userRedId;
@@ -33,11 +33,11 @@ public class OrderInfo {
 		this.goods = goods;
 	}
 
-	public String getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(String userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
