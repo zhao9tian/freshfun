@@ -23,9 +23,9 @@ public class AutoConfirmTask {
 
     /**
      * 7天自动确认收货时添加账单信息
-     * 每天凌晨1点触发
+     * 每天凌晨1,2,3,4点触发
      */
-    @Scheduled(cron="0 0 1 * * ? ")
+    @Scheduled(cron="0 0 1,2,3,4 * * ? ")
     public void autoConfirmDelivery() throws BusinessException {
         System.out.println("开始执行");
         //查询订单未确认收货信息
@@ -43,14 +43,16 @@ public class AutoConfirmTask {
 
     /**
      * 7天自动走账单流程
+     * 每天凌晨1.2.3.4点执行
      */
-    @Scheduled(cron="0 0 1 * * ? ")
+    @Scheduled(cron="0 0 1,2,3,4 * * ? ")
     public void autoConfirmRecording() throws BusinessException {
         billService.autoConfirmRecording();
     }
 
     /**
      * 删除验证码
+     * 每天凌晨1点执行
      */
     @Scheduled(cron="0 0 1 * * ? ")
     public void deleteVerifyCode(){
