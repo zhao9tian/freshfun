@@ -126,7 +126,10 @@ public class UserServiceImpl implements UserService{
 						logger.error("code不正确导致, parentId出错", e);
 					}
 				}
+				String wxHeadUrl = OSSUtils.uploadWxHeadImg(wxinfo.getHeadimgurl());
 				//不为空
+				user.setUserName(wxinfo.getNickname());
+				user.setUserHeadUrl(wxHeadUrl);
 				user.setGmtCreate(System.currentTimeMillis()/1000);
 				user.setGmtModified(System.currentTimeMillis()/1000);
 				user.setLoginMethod("wz");
@@ -233,6 +236,8 @@ public class UserServiceImpl implements UserService{
 				user.setGmtCreate(System.currentTimeMillis()/1000);
 				user.setGmtModified(System.currentTimeMillis()/1000);
 				user.setLoginMethod("wx");
+				user.setUserName(wxInfo.getNickname());
+				user.setUserHeadUrl(OSSUtils.uploadWxHeadImg(wxInfo.getHeadimgurl()));
 				user.setUserCredit((byte)1);
 				user.setUserIdentify((byte)1);
 				user.setUserEnter((byte)1);
@@ -377,6 +382,12 @@ public class UserServiceImpl implements UserService{
 			}
 		}
 		return status;
+	}
+
+	@Override
+	public UsersPOJO queryInfoByUserId(Long userId){
+		UsersPOJO user = userDao.selectInfoByUserId(userId);
+		return user;
 	}
 
 	@Override

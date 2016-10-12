@@ -193,6 +193,17 @@ public class UserLoginController {
 		rs.setStatus(status);
 		return rs;
 	}
+
+	@ResponseBody
+	@RequestMapping("/getUserInfo")
+	public Map<String ,Object> getUserInfo(HttpServletRequest request){
+		Long userId = CookieUtil.getUserIdFromCookie(request);
+		UsersPOJO user = userService.queryInfoByUserId(userId);
+		Map<String ,Object> map = new HashMap<String,Object>();
+		map.put("userImg",user.getUserHeadUrl());
+		map.put("nickName",user.getUserName());
+		return ResultUtil.success(map);
+	}
 	
 	@ResponseBody
 	@RequestMapping("/validateVerifyCode")

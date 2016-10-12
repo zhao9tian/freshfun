@@ -88,4 +88,8 @@ public class OSSUtils {
         return wxHeadImg;
     }
 
+
+    public static void main(String[] args) {
+        System.out.println(uploadWxHeadImg("http://wx.qlogo.cn/mmopen/nibxxlib1VaPfEnTqA3c1WjMMacN8fKM9jZfzf3h50uElsRzeC084mbLQdnAJtpult2An6gFDKevuT0Ku7NDqbZ5RGubgI21t3/0"));
+    }
 }

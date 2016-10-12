@@ -83,6 +83,13 @@ public interface UsersMapper {
      * @return
      */
     UsersPOJO selectParentIdByUserId(Long userId);
+
+	/**
+	 * 查询用户头像和昵称
+	 * @param userId
+	 * @return
+	 */
+	UsersPOJO selectInfoByUserId(Long userId);
 	
 	/**
 	 * 根据wxId获取wzId

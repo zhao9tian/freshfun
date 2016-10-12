@@ -66,8 +66,14 @@ public interface UserService {
 	 * @return
 	 */
 	public Integer getVerifyCode(String userId , String phoneNum);
-	
-	
+
+	/**
+	 * 根据userId获取头像昵称
+	 * @param userId  userId
+	 * @return 头像昵称
+	 */
+	UsersPOJO queryInfoByUserId(Long userId);
+
 	/**
 	 * 匹配验证码
 	 * status 返回0 是验证码不对

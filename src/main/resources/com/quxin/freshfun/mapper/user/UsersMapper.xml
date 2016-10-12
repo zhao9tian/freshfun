@@ -44,6 +44,10 @@
   <select id="selectParentIdByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.UsersPOJO">
       select parent_id as parentId,user_identify as userIdentify from users where id = #{userId}
   </select>
+
+  <select id="selectInfoByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.UsersPOJO">
+    select user_name as userName,user_head_url as userHeadUrl from users where id = #{userId}
+  </select>
   
   <select id="findEnterByID" resultMap="BaseResultMap" parameterType="java.lang.Integer">
       select user_enter from users where id = #{id}
