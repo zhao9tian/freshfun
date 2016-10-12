@@ -457,5 +457,12 @@ public class UserServiceImpl implements UserService{
 		}
 		return token;
 	}
+	@Override
+	public boolean findIsMobile(Long userId){
+		UsersPOJO user = userDao.findIsMobile(userId);
+		if(user.getMobilePhone()!=null&&!"".equals(user.getMobilePhone()))
+			return true;
+		return false;
+	}
 
 }

@@ -103,5 +103,6 @@ public interface UserService {
 	 * @return
 	 */
 	String genertCode(String phone) throws BusinessException;
-	
+
+	public boolean findIsMobile(Long userId);
 }
