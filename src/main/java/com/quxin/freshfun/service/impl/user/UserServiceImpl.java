@@ -272,6 +272,7 @@ public class UserServiceImpl implements UserService{
 					throw new BusinessException("添加用户详细信息失败");
 				}
 				info = userDao.selectUserInfo(userId);
+				info.setUserId(userId);
 			}
 		}
 
