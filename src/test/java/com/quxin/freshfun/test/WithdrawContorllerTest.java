@@ -36,7 +36,7 @@ public class WithdrawContorllerTest extends TestBase{
     @Test
     public void getWithdrawRecord() {
         //提现记录
-        System.out.println(withdrawController.withdrawRecords("556677"));
+        //System.out.println(withdrawController.withdrawRecords("556677"));
     }
 
     @Test
@@ -56,17 +56,17 @@ public class WithdrawContorllerTest extends TestBase{
     @Test
     public void getAllList(){
         //收支明细--收入是累计入账收益 --支出是提现
-        System.out.println(withdrawController.inOutDetails("556677"));
+        //System.out.println(withdrawController.inOutDetails("556677"));
     }
     @Test
     public void getRecordList(){
         //收入记录--累计入账收益
-        System.out.println(withdrawController.getRecordList("556677"));
+        //System.out.println(withdrawController.getRecordList("556677"));
     }
     @Test
     public void getUnrecordList(){
         //未入账收益记录
-        System.out.println(withdrawController.getUnrecordList("556677"));
+        //System.out.println(withdrawController.getUnrecordList("556677"));
     }
 
 }

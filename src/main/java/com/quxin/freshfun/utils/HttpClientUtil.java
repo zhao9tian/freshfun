@@ -240,7 +240,8 @@ public class HttpClientUtil {
 			HttpResponse httpresponse = httpClient.execute(httppost);
 			// 获取返回数据
 			HttpEntity entity = httpresponse.getEntity();
-			body = EntityUtils.toString(entity);
+			body = EntityUtils.toString(entity,"UTF-8");
+//			String result = new String("11", "utf-8");
 			EntityUtils.consume(entity);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();

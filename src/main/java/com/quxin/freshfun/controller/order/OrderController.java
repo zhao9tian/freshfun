@@ -50,8 +50,8 @@ public class OrderController {
 	 */
 	@RequestMapping("/findAllOrders")
 	@ResponseBody
-	public List<OrderDetailsPOJO> findAllOrders(String userId,Integer currentPage,Integer pageSize){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<OrderDetailsPOJO> findAllOrders(HttpServletRequest request,Integer currentPage,Integer pageSize){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderDetailsPOJO> orders =setGoodsList(orderManager.findAll(ui, currentPage, pageSize) , 1);
 		orders = setGoodsMoney(orders);
 		return orders;
@@ -89,23 +89,22 @@ public class OrderController {
 	 */
 	@RequestMapping("/selectPendingPaymentOrder")
 	@ResponseBody
-	public List<OrderDetailsPOJO> selectPendingPaymentOrder(String userId,Integer currentPage,Integer pageSize){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<OrderDetailsPOJO> selectPendingPaymentOrder(Integer currentPage,Integer pageSize,HttpServletRequest request){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderDetailsPOJO> orders = orderManager.selectPendingPaymentOrder(ui, currentPage, pageSize);
 		orders = setGoodsMoney(orders);
 		return setGoodsList(orders,null);
 	}
 	/**
 	 * 分页查询待发货信息
-	 * @param userId
 	 * @param currentPage
 	 * @param pageSize
 	 * @return
 	 */
 	@RequestMapping("/selectAwaitDeliverOrder")
 	@ResponseBody
-	public List<OrderDetailsPOJO> selectAwaitDeliverOrder(String userId,Integer currentPage,Integer pageSize){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<OrderDetailsPOJO> selectAwaitDeliverOrder(Integer currentPage,Integer pageSize,HttpServletRequest request){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectAwaitDeliverOrder(ui,currentPage,pageSize),null);
 		orders = setGoodsMoney(orders);
 		return orders;
@@ -113,59 +112,54 @@ public class OrderController {
 
 	/**
 	 * 查询待收货订单
-	 * @param userId
 	 * @param currentPage
 	 * @param pageSize
 	 * @return
 	 */
 	@RequestMapping("/selectAwaitGoodsReceipt")
 	@ResponseBody
-	public List<OrderDetailsPOJO> selectAwaitGoodsReceipt(String userId,Integer currentPage,Integer pageSize){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<OrderDetailsPOJO> selectAwaitGoodsReceipt(HttpServletRequest request,Integer currentPage,Integer pageSize){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectAwaitGoodsReceipt(ui, currentPage, pageSize),null);
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
 	/**
 	 * 查询待评价订单
-	 * @param userId
 	 * @param currentPage
 	 * @param pageSize
 	 * @return
 	 */
 	@RequestMapping("/selectStayAssessOrder")
 	@ResponseBody
-	public List<OrderDetailsPOJO> selectAwaitComment(String userId,Integer currentPage,Integer pageSize){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<OrderDetailsPOJO> selectAwaitComment(HttpServletRequest request,Integer currentPage,Integer pageSize){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectAwaitComment(ui, currentPage, pageSize),null);
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
 	/**
 	 * 查询退货订单
-	 * @param userId
 	 * @param currentPage
 	 * @param pageSize
 	 * @return
 	 */
 	@RequestMapping("/selectCancelOrder")
 	@ResponseBody
-	public List<OrderDetailsPOJO> selectCancelOrder(String userId,Integer currentPage,Integer pageSize){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<OrderDetailsPOJO> selectCancelOrder(HttpServletRequest request,Integer currentPage,Integer pageSize){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderDetailsPOJO> orders = setGoodsList(orderManager.selectCancelOrder(ui, currentPage, pageSize),null);
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
 	/**
 	 * 根据用户编号查询购物车信息
-	 * @param userId
+	 * @param request
 	 * @return
 	 */
 	@RequestMapping("/selectShoppingCartByUserId")
 	@ResponseBody
-	public Map<String,Object> selectShoppingCartByUserId(String userId,HttpServletRequest request){
-
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public Map<String,Object> selectShoppingCartByUserId(HttpServletRequest request){
 		Long uId = CookieUtil.getUserIdFromCookie(request);
 		return orderManager.selectShoppingCartByUserId(uId);
 	}
@@ -228,10 +222,10 @@ public class OrderController {
 	 */
 	@RequestMapping(value="/addShoppingCart")
 	@ResponseBody
-	public Map<String, Integer> addShoppingCart(String userId,Integer goodsId ){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public Map<String, Integer> addShoppingCart(HttpServletRequest request,Integer goodsId ){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		Integer addStatus = orderManager.addShoppingCart(ui, goodsId);
-		Map<String, Integer> map = new HashMap<>();
+		Map<String, Integer> map = new HashMap<String, Integer>();
 		map.put("status", addStatus);
 		return map;
 	}
@@ -322,13 +316,12 @@ public class OrderController {
 
 	/**
 	 * 查询订单数量
-	 * @param userId 用户Id
 	 * @return 返回所有状态的订单数量
 	 */
 	@RequestMapping("/selectordercounts")
 	@ResponseBody
-	public Map<String, Object> selectOrderCounts(String userId){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public Map<String, Object> selectOrderCounts(HttpServletRequest request){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<OrderStatusInfo> statusCounts = orderManager.selectStatusCounts(ui);
 		//查询出待付款且并未过期的订单数
 		int awaitPaymentCount =  orderManager.selectPayCounts(ui);

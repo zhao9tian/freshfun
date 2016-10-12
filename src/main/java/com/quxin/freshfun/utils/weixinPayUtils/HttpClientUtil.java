@@ -113,12 +113,12 @@ public class HttpClientUtil {
 	 * @param queryString
 	 * @return
 	 */
-	public static Map queryString2Map(String queryString) {
+	public static Map<String,Object> queryString2Map(String queryString) {
 		if(null == queryString || "".equals(queryString)) {
 			return null;
 		}
 
-		Map m = new HashMap();
+		Map<String,Object> m = new HashMap<String,Object>();
 		String[] strArray = queryString.split("&");
 		for(int index = 0; index < strArray.length; index++) {
 			String pair = strArray[index];
@@ -135,7 +135,7 @@ public class HttpClientUtil {
 	 * @param pair name=value
 	 * @param m
 	 */
-	public static void putMapByPair(String pair, Map m) {
+	public static void putMapByPair(String pair, Map<String,Object> m) {
 
 		if(null == pair || "".equals(pair)) {
 			return;

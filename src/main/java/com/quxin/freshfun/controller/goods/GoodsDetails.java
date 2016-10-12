@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import com.quxin.freshfun.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,8 @@ import com.quxin.freshfun.model.StidVsGid;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 @RequestMapping("/goods/")
 public class GoodsDetails {
@@ -34,7 +37,7 @@ public class GoodsDetails {
 	 */
 	@RequestMapping("/goods")
 	@ResponseBody
-	public AllGoods findMongoGoods(Integer goodsId){
+	public Map<String , Object> findMongoGoods(Integer goodsId, HttpServletRequest request){
 		AllGoods allGoods = new AllGoods();
 		List<GoodsMongo> goodsMongo = goodsService.findGoodsMongo(goodsId);
 		allGoods.setGoodsMongo(goodsMongo);
@@ -44,7 +47,11 @@ public class GoodsDetails {
 		goodsMysql.setShopPrice(null);
 		goodsMysql.setMarketPrice(null);
 		allGoods.setGoodsPOJO(goodsMysql);
-		return allGoods;
+		Long userId = CookieUtil.getUserIdFromCookie(request);
+		Map<String , Object> map = new HashMap<String , Object>();
+		map.put("allGoods",allGoods);
+		map.put("userId",userId);
+		return map;
 	}
 	
 
@@ -54,7 +61,7 @@ public class GoodsDetails {
 	 */
 	@RequestMapping(value="/goodstheme",method={RequestMethod.POST})
 	@ResponseBody
-	public List<StidVsGid> findThemeGoods(@RequestBody GoodsThemeInfo goodsThemeIngo){
+	public Map<String , Object> findThemeGoods(@RequestBody GoodsThemeInfo goodsThemeIngo,HttpServletRequest request){
 		Integer pagetime = goodsThemeIngo.getPagetime();
 		Integer themeId = goodsThemeIngo.getThemeId();
 		Map<String, Integer> themeMap = new HashMap<String, Integer>(2);
@@ -62,7 +69,11 @@ public class GoodsDetails {
 		themeMap.put("themeId", themeId);
 		themeMap.put("page", page);
 		List<StidVsGid> specialTheme = goodsService.findThemeGoods(themeMap);
-		return specialTheme;
+		Long userId = CookieUtil.getUserIdFromCookie(request);
+		Map<String , Object> map = new HashMap<String , Object>();
+		map.put("specialTheme",specialTheme);
+		map.put("userId",userId);
+		return map;
 	}
 	
 	/**
@@ -71,17 +82,19 @@ public class GoodsDetails {
 	 */
 	@RequestMapping(value="/goodsmall",method={RequestMethod.POST})
 	@ResponseBody
-	public List<SmidVsGid> findMallGoods(@RequestBody GoodsThemeInfo goodsThemeIngo){
+	public Map<String , Object> findMallGoods(@RequestBody GoodsThemeInfo goodsThemeIngo,HttpServletRequest request){
 		Integer pagetime = goodsThemeIngo.getPagetime();
 		Integer themeId = goodsThemeIngo.getThemeId();
-		System.out.println(pagetime);
-		System.out.println(themeId);
 		Map<String, Integer> mallMap = new HashMap<String, Integer>(2);
 		Integer page = (pagetime - 1) * 20;
 		mallMap.put("mallId", themeId);
 		mallMap.put("page", page);
 		List<SmidVsGid> mallTheme = goodsService.findMallGoods(mallMap);
-		return mallTheme;
+		Long userId = CookieUtil.getUserIdFromCookie(request);
+		Map<String , Object> map = new HashMap<String , Object>();
+		map.put("mallTheme",mallTheme);
+		map.put("userId",userId);
+		return map;
 	}
 
 }

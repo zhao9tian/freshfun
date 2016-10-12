@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_NULL)
 public class AllGoods {
-	
+
 	private GoodsPOJO goodsPOJO;
 	
 	private GoodsLimit goodsLimit;
-	
+
 	public GoodsLimit getGoodsLimit() {
 		return goodsLimit;
 	}

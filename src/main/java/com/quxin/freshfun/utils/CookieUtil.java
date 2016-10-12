@@ -55,6 +55,8 @@ public class CookieUtil {
      * @return  用户id
      */
     public static Long getUserIdFromCookie(HttpServletRequest request){
+        if(getCookieByName(request,"userId")==null||"".equals(getCookieByName(request,"userId")))
+            return null;
         String valueString = getFromBase64(getCookieByName(request,"userId").getValue());
         String[] strArray = valueString.split("-");
         Long userId = Long.parseLong(strArray[0]);//用户id

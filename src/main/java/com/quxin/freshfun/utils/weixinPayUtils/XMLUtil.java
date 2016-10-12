@@ -27,21 +27,21 @@ public class XMLUtil {
 	 * @throws JDOMException
 	 * @throws IOException
 	 */
-	public static Map doXMLParse(String strxml) throws JDOMException, IOException {
+	public static Map<String,Object> doXMLParse(String strxml) throws JDOMException, IOException {
 		strxml = strxml.replaceFirst("encoding=\".*\"", "encoding=\"UTF-8\"");
 
 		if(null == strxml || "".equals(strxml)) {
 			return null;
 		}
 
-		Map m = new HashMap();
+		Map<String,Object> m = new HashMap<String,Object>();
 
 		InputStream in = new ByteArrayInputStream(strxml.getBytes("UTF-8"));
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = builder.build(in);
 		Element root = doc.getRootElement();
-		List list = root.getChildren();
-		Iterator it = list.iterator();
+		List<Object> list = root.getChildren();
+		Iterator<Object> it = list.iterator();
 		while(it.hasNext()) {
 			Element e = (Element) it.next();
 			String k = e.getName();
@@ -70,7 +70,7 @@ public class XMLUtil {
 	public static String getChildrenText(List children) {
 		StringBuffer sb = new StringBuffer();
 		if(!children.isEmpty()) {
-			Iterator it = children.iterator();
+			Iterator<Object> it = children.iterator();
 			while(it.hasNext()) {
 				Element e = (Element) it.next();
 				String name = e.getName();

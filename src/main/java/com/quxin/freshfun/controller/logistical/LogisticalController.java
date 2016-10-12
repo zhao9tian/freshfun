@@ -53,14 +53,14 @@ public class LogisticalController {
 		Logistical logistical = new Logistical();
 		String result=GtexMd5B32Util.insertPostHttp(waybill,company);
 
-		Map map = JSON.parseObject(result,java.util.Map.class);
+		Map<String,Object> map = JSON.parseObject(result,java.util.Map.class);
 		JSONArray jsonArray = (JSONArray) map.get("gtex_traces");
 		Object[] objArr = jsonArray.toArray();
 
 		List<LogisticalContent> list = new ArrayList<LogisticalContent>();
 		for(int i=0;i<objArr.length;i++) {
 			LogisticalContent p = new LogisticalContent();
-			Map ma =  (Map)objArr[i];
+			Map<String,Object> ma =  (Map)objArr[i];
 			p.setContent(ma.get("content").toString());
 			p.setTime(ma.get("time").toString());
 			list.add(p);

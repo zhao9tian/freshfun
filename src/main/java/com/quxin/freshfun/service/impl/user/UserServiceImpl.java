@@ -95,7 +95,11 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public Long WZLogin(WxInfo wxinfo) throws BusinessException {
+	public Long WZLogin(WxInfo wxinfo) throws BusinessException, NullPointerException {
+		if(wxinfo == null){
+			error_log.error("获取用户微信信息失败");
+			throw new NullPointerException();
+		}
 		Long userId = null;
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
@@ -164,8 +168,23 @@ public class UserServiceImpl implements UserService{
 			return null;
 		//获取用户信息
 		WxInfo wxInfo = getUserInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
-        Long userId = WZLogin(wxInfo);
+		//WxInfo userInfo = getUserInfo(code);
+		Long userId = WZLogin(wxInfo);
         return userId;
+	}
+
+	/**
+	 * 获取用户信息
+	 * @param code
+	 */
+	private WxInfo getUserInfo(String code) {
+		StringBuilder sb = new StringBuilder();
+		String url = "https://www.freshfun365.com/wz_pay/wx/wx_access.php?method=getWXUserInfo&code=";
+		sb.append(url);
+		sb.append(code);
+		WxInfo wxInfo = new WxInfo();
+		wxInfo = sendWxRequest(sb,wxInfo);
+		return wxInfo;
 	}
 
 	/**

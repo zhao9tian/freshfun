@@ -6,10 +6,7 @@ import com.quxin.freshfun.model.pojo.WithdrawPOJO;
 import com.quxin.freshfun.model.outparam.WithdrawOutParam;
 import com.quxin.freshfun.model.param.WithdrawParam;
 import com.quxin.freshfun.service.withdraw.WithdrawService;
-import com.quxin.freshfun.utils.DateUtils;
-import com.quxin.freshfun.utils.ListSortUtil;
-import com.quxin.freshfun.utils.MoneyFormat;
-import com.quxin.freshfun.utils.ResultUtil;
+import com.quxin.freshfun.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -175,10 +174,11 @@ public class WithdrawController {
      */
     @RequestMapping(value = "/inOutDetails" , method = RequestMethod.GET)
     @ResponseBody
-    public Map<String , Object> inOutDetails(String userId){
+    public Map<String , Object> inOutDetails(HttpServletRequest request){
         Map<String , Object> resultMap = null;
+        Long userId = CookieUtil.getUserIdFromCookie(request);
         if(userId != null && !"".equals(userId)){
-            String uId = userId.replace("\"","");
+            String uId = userId.toString();
             List<InOutDetailsPOJO> inOutDetailsPOJOs  = withdrawService.queryIncomeRecords(uId);
             List<InOutDetailsPOJO> withdraws = withdrawService.queryWithdrawRecord(uId);
             List<InOutDetailsOutParam> allInOut = new ArrayList<>();
@@ -214,15 +214,15 @@ public class WithdrawController {
 
     /**
      * 查询申请记录
-     * @param userId
      * @return
      */
     @RequestMapping(value="/withdrawRecords" , method = RequestMethod.GET)
     @ResponseBody
-    public Map<String , Object> withdrawRecords(String userId){
+    public Map<String , Object> withdrawRecords(HttpServletRequest request){
         Map<String , Object> resultMap = null;
+        Long userId = CookieUtil.getUserIdFromCookie(request);
         if(userId != null && !"".equals(userId)){
-            String uId = userId.replace("\"","");
+            String uId = userId.toString();
             List<InOutDetailsPOJO> inOutDetailsPOJOs  = withdrawService.queryWithdrawRecord(uId);
             List<WithdrawOutParam> withdrawOutParams = new  ArrayList<>();
             for(InOutDetailsPOJO inOutDetailsPOJO : inOutDetailsPOJOs){
@@ -246,15 +246,15 @@ public class WithdrawController {
 
     /**
      * 查询C端累计入账收益明细
-     * @param userId
      * @return
      */
     @RequestMapping(value="/getRecordDetails" , method = RequestMethod.GET)
     @ResponseBody
-    public Map<String , Object> getRecordList(String userId){
+    public Map<String , Object> getRecordList(HttpServletRequest request){
         Map<String , Object> resultMap = null;
+        Long userId = CookieUtil.getUserIdFromCookie(request);
         if(userId != null && !"".equals(userId)){
-            String uId = userId.replace("\"","");
+            String uId = userId.toString();
             List<InOutDetailsPOJO> inOutDetailsPOJOs  = withdrawService.queryRecordDetails(uId);
             List<InOutDetailsOutParam> incomeDetails = new ArrayList<>();
             for(InOutDetailsPOJO inOutDetailsPOJO : inOutDetailsPOJOs ){
@@ -274,15 +274,15 @@ public class WithdrawController {
 
     /**
      * 查询C端未入账收益明细
-     * @param userId
      * @return
      */
     @RequestMapping(value="/getUnrecordDetails" , method = RequestMethod.GET)
     @ResponseBody
-    public Map<String , Object> getUnrecordList(String userId){
+    public Map<String , Object> getUnrecordList(HttpServletRequest request){
         Map<String , Object> resultMap = null;
+        Long userId = CookieUtil.getUserIdFromCookie(request);
         if(userId != null && !"".equals(userId)){
-            String uId = userId.replace("\"","");
+            String uId = userId.toString();
             List<InOutDetailsPOJO> inOutDetailsPOJOs  = withdrawService.queryUnrecordDetails(uId);
             List<InOutDetailsOutParam> incomeDetails = new ArrayList<>();
             for(InOutDetailsPOJO inOutDetailsPOJO : inOutDetailsPOJOs ){

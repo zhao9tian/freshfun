@@ -33,16 +33,27 @@ public class UserLoginController {
 	private UserService userService;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public Map<String,Object> chackAuth(@RequestBody String code,HttpServletRequest request,HttpServletResponse response){
+	/**
+	 * 校验cookie
+	 * @param code
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping("/checkLogin")
+	@ResponseBody
+	public Map<String,Object> checkLogin(String code,HttpServletRequest request,HttpServletResponse response){
 		//校验cookie    true为可用cookie
+		Map<String ,Object> map = new HashMap<String, Object>();
 		boolean authResult = CookieUtil.checkAuth(request);
 		if(!authResult){//cookie无效
-			if("".equals(code)){  //没有code
-				ResultUtil.fail(1004,"无效cookie并且没有code");
+			if(code==null||"".equals(code)){  //没有code
+				return ResultUtil.fail(1022,"无效cookie并且没有code");
 			}else{//有code
 				Long userId = null;  //获取userId
 				try {
 					userId = userService.WzPlatformLogin(code);
+					logger.info("校验cookie      ***************************      userId="+userId);
 				} catch (BusinessException e) {
 					e.printStackTrace();
 				}
@@ -53,11 +64,14 @@ public class UserLoginController {
 					cookie.setDomain(".freshfun365.com");
 					cookie.setPath("/");
 					response.addCookie(cookie);
-					return ResultUtil.success("成功种植cookie");
+					map.put("userId",userId);
+					return ResultUtil.success(map);
 				}
 			}
 		}
-		return ResultUtil.success("cookie有效");
+		Long userId = CookieUtil.getUserIdFromCookie(request);
+		map.put("userId",userId);
+		return ResultUtil.success(map);
 	}
 
 	@ResponseBody
@@ -159,6 +173,7 @@ public class UserLoginController {
 		Long userId = null;
 		try {
 			userId = userService.WZLogin(wxinfo);
+			logger.info("wzLogin******userId="+userId);
 			Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
 			cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 			cookie.setDomain(".freshfun365.com");

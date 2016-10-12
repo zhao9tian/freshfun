@@ -47,7 +47,7 @@ public interface UserService {
 	 * @param wxinfo
 	 * @return
 	 */
-	public Long WZLogin(WxInfo wxinfo) throws BusinessException;
+	public Long WZLogin(WxInfo wxinfo) throws BusinessException, NullPointerException;
 
 	/**
 	 * 公众平台微站登录

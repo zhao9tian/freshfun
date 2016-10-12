@@ -8,6 +8,7 @@ import com.quxin.freshfun.model.pojo.CommentPOJO;
 import com.quxin.freshfun.service.UserAddressService;
 import com.quxin.freshfun.service.comment.CommentService;
 import com.quxin.freshfun.service.order.OrderManager;
+import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,8 +68,8 @@ public class UserMessageController {
 	 */
 	@RequestMapping("/userismobile")
 	@ResponseBody
-	public Map<String, Object> FindUserIsMobile(String userId){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public Map<String, Object> FindUserIsMobile(HttpServletRequest request){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		Map<String, Object> stateMap = new HashMap<String, Object>();
 		UsersPOJO userInfo = userAddressService.findIsMobile(ui);
 		String mobile;

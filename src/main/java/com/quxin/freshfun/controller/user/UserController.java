@@ -4,31 +4,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.quxin.freshfun.model.AddressInfo;
 import com.quxin.freshfun.model.UserAddress;
 import com.quxin.freshfun.service.UserAddressService;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/useraddress")
 public class UserController {
 	@Autowired
 	private UserAddressService userAddressService;
-	
+
+	@RequestMapping("/setCookie")
+	@ResponseBody
+	public String setCookie(HttpServletResponse response){
+		Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(556716l));
+		cookie.setMaxAge(CookieUtil.getCookieMaxAge());
+		cookie.setDomain(".freshfun365.com");
+		cookie.setPath("/");
+		response.addCookie(cookie);
+		return  "556716";
+	}
+
 	/**
 	 * 通过userID获取用户地址
 	 * @return
 	 */
 	@RequestMapping("/useraddress")
 	@ResponseBody
-	public List<UserAddress> FindUserAddress(String userId){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<UserAddress> FindUserAddress(HttpServletRequest request){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		return userAddressService.userAddress(ui);
 	}
 	
@@ -38,8 +51,8 @@ public class UserController {
 	 */
 	@RequestMapping("/userdefaultaddress")
 	@ResponseBody
-	public List<UserAddress> FindUseDefaultrAddress(String userId){
-		Long ui = Long.parseLong(userId.replace("\"", ""));
+	public List<UserAddress> FindUseDefaultrAddress(HttpServletRequest request){
+		Long ui = CookieUtil.getUserIdFromCookie(request);
 		return userAddressService.userDefaultAddress(ui);
 	}
 	
@@ -59,10 +72,9 @@ public class UserController {
 	 */
 	@RequestMapping(value="/addaddress",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, Object> AddNewAddress(@RequestBody AddressInfo addressInfo){
+	public Map<String, Object> AddNewAddress(@RequestBody AddressInfo addressInfo,HttpServletRequest request){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		String uId = addressInfo.getUserId();
-		Long userID = Long.parseLong(uId.replace("\"", ""));
+		Long userID = CookieUtil.getUserIdFromCookie(request);
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();
 		String city = addressInfo.getCity();
