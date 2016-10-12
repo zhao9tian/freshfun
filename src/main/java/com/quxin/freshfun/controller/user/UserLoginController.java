@@ -86,10 +86,15 @@ public class UserLoginController {
 			Message message = new Message();
 			message.setToken(token);
 			message.setCode(code);
-			String phoneNum = userService.validateAppCode(message);
+			String phoneNum="";
+			//app store 审核专用号
+			if("0000".equals(code)&&"XXXXXXXXXXXXXXXX".equals(token))
+				phoneNum = "15890658117";
+			else
+				phoneNum = userService.validateAppCode(message);
 			if(phoneNum != null){
 				String nickName = nickNameService.queryRandNickName();
-				String headUrl = "http://pic1.freshfun365.com/image/2016/9/13/1473757743180.jpg";
+				String headUrl = "/image/2016/9/13/1473757743180.jpg";
 				Long userId =userService.PhoneLogin(phoneNum, deviceId,nickName,headUrl);
 				UsersPOJO user = userService.queryUserById(userId);
 				if(user !=null){
