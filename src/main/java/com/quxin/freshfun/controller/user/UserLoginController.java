@@ -51,10 +51,10 @@ public class UserLoginController {
 		boolean authResult = CookieUtil.checkAuth(request);
         //判断userId是否有效，在数据库中是否存在
         if(authResult) {
-			logger.error("校验cookie  存在cookie，开始校验userId有效性");
+			//校验cookie  存在cookie，开始校验userId有效性
             UsersPOJO user = userService.queryUserById(CookieUtil.getUserIdFromCookie(request));
             if (user == null){
-				logger.error("校验cookie  存在cookie，userId无效");
+				//校验cookie  存在cookie，userId无效
 				authResult = false;
 				Cookie cookie = new Cookie("userId", null);
 				cookie.setMaxAge(0);
@@ -64,22 +64,21 @@ public class UserLoginController {
 			}
         }
 		if(!authResult){//cookie无效
-			logger.error("校验cookie  不存在cookie，开始校验code");
+			//校验cookie  不存在cookie，开始校验code
 			if(code==null||"".equals(code)){  //没有code
-				logger.error("校验cookie  不存在cookie，并且没有接收到code");
+				//校验cookie  不存在cookie，并且没有接收到code
 				return ResultUtil.fail(1022,"无效cookie并且没有code");
 			}else{//有code
-				logger.error("校验cookie  不存在cookie，有接收到code");
+				//校验cookie  不存在cookie，有接收到code
 				Long userId = null;  //获取userId
 				try {
 					userId = userService.WzPlatformLogin(code);
-					logger.error("校验cookie  有code,获取到微信信息，插入数据，userId="+userId);
+					//校验cookie  有code,获取到微信信息，插入数据
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				if(userId!=null){
-					//种植code
-					logger.error("校验cookie  有code,获取到微信信息，插入数据，userId="+userId+",种植cookie");
+					//种植code，校验cookie  有code,获取到微信信息，插入数据
 					Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
 					cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 					cookie.setDomain(".freshfun365.com");
@@ -88,12 +87,12 @@ public class UserLoginController {
 					map.put("userId",FreshFunEncoder.idToUrl(userId));
 					return ResultUtil.success(map);
 				}else{
-					logger.error("校验cookie  有code,获取到微信信息，插入数据，userId为空");
+					//校验cookie  有code,获取到微信信息，插入数据，userId为空
 					return ResultUtil.fail(1022,"用户创建失败");
 				}
 			}
 		}
-		logger.error("校验cookie  获取有效cookie");
+		//校验cookie  获取有效cookie
 		Long userId = CookieUtil.getUserIdFromCookie(request);
 		map.put("userId", FreshFunEncoder.idToUrl(userId));
 		return ResultUtil.success(map);
