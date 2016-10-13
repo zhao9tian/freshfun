@@ -75,7 +75,7 @@ public class GoodsDetails {
 			GoodsMongo goodsMongo = goodsService.queryGoodsDetailById(goodsId);
 			String des = goodsMongo.getDes();
 			if(des != null && !"".equals(des)){
-				String[] desArr = des.split("@");
+				String[] desArr = des.split("@`");
 				goodsInfoPOJO.setGoodsName(desArr[0]);
 				goodsInfoPOJO.setGoodsDes(desArr[1]);
 				goodsInfoPOJO.setFfunerSaid(desArr[2]);
