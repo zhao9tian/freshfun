@@ -47,7 +47,7 @@ public interface OrderService {
 	 * @param order
 	 * @return
 	 */
-	ResponseResult awaitPayOrder(OrderPayPOJO order);
+	ResponseResult awaitPayOrder(OrderPayPOJO order,Long userId);
 	
 	int PayCallback(InputStream in);
 	

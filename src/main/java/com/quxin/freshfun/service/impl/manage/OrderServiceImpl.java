@@ -652,13 +652,15 @@ public class OrderServiceImpl implements OrderService {
 	 * 订单支付
 	 */
 	@Override
-	public ResponseResult awaitPayOrder(OrderPayPOJO order) {
+	public ResponseResult awaitPayOrder(OrderPayPOJO order,Long userId) {
 		OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(order.getOrderId());
 		String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
+		//获取用户openId
+		String openId = usersMapper.selectOpenId(userId);
 		StringBuilder sb = new StringBuilder();
 		sb.append("W");
 		sb.append(order.getOrderId());
-		ResponseResult orderPay = orderPay(sb.toString(),payMoney,order.getCode(),order.getOpenId());
+		ResponseResult orderPay = orderPay(sb.toString(),payMoney,order.getCode(),openId);
 		return orderPay;
 	}
 

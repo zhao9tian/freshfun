@@ -297,9 +297,10 @@ public class OrderController {
 
 	@RequestMapping(value="/awaitPayOrder",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, ResponseResult> awaitPayOrder(@RequestBody OrderPayPOJO orderPay){
+	public Map<String, ResponseResult> awaitPayOrder(@RequestBody OrderPayPOJO orderPay,HttpServletRequest httpServletRequest){
 		Map<String, ResponseResult> map = Maps.newHashMap();
-		ResponseResult result = orderService.awaitPayOrder(orderPay);
+		Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
+		ResponseResult result = orderService.awaitPayOrder(orderPay,userId);
 		map.put("payResult", result);
 		return map;
 	}
