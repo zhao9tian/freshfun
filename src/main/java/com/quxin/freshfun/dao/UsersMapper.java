@@ -86,6 +86,13 @@ public interface UsersMapper {
     UsersPOJO selectParentIdByUserId(Long userId);
 
 	/**
+	 * 查询用户openId
+	 * @param userId
+	 * @return
+	 */
+	String selectOpenId(Long userId);
+
+	/**
 	 * 查询用户头像和昵称
 	 * @param userId
 	 * @return

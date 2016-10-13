@@ -441,6 +441,10 @@
   <select id="selectUserInfo" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.outparam.WxUserInfo">
     select user_head_url as headimgurl,user_name as nickname,mobile_phone as mobilePhone from users where id = #{userId}
   </select>
+  <!--查询用户openId-->
+  <select id="selectOpenId" parameterType="java.lang.Long" resultType="java.lang.String">
+    select openid from user_info where user_id = #{userId}
+  </select>
 
   <!--删除验证码-->
   <delete id="deleteVerifyCode" >

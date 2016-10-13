@@ -65,6 +65,7 @@ public interface OrderService {
 	 */
 	OrderDetailsPOJO getOrderLogistic(String orderDetailId);
 
+	String getOpenId(Long userId);
 
 	/**
 	 * 获取总收益

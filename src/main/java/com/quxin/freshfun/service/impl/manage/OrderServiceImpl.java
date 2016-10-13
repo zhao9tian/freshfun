@@ -116,8 +116,7 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 		//获取用户openId
-		UsersPOJO usersPOJO = usersMapper.selectByPrimaryKey(uId);
-		String openId = usersPOJO.getWzId();
+		String openId = usersMapper.selectOpenId(uId);
 		//生成订单后 调用支付
 		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
 		StringBuilder payId = new StringBuilder();
@@ -137,6 +136,10 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 		return payResult;
+	}
+	@Override
+	public String getOpenId(Long userId){
+		return usersMapper.selectOpenId(userId);
 	}
 
 	/**
@@ -701,12 +704,14 @@ public class OrderServiceImpl implements OrderService {
 			billLogger.error("商户："+info.getUserId()+"添加商户代理信息失败");
 			throw new BusinessException("添加商户代理信息失败");
 		}else{
+			//获取用户openId
+			String openId = usersMapper.selectOpenId(userId);
 			//支付
 			StringBuilder sb = new StringBuilder();
 			sb.append("B");
 			sb.append(agent.getId());
 			//发起支付请求
-			ResponseResult payResult = orderPay(sb.toString(),agentPrice.toString(),info.getCode(),info.getOpenId());
+			ResponseResult payResult = orderPay(sb.toString(),agentPrice.toString(),info.getCode(),openId);
 			return payResult;
 		}
 	}
