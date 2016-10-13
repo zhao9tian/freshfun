@@ -51,8 +51,14 @@ public class UserLoginController {
         //判断userId是否有效，在数据库中是否存在
         if(authResult) {
             UsersPOJO user = userService.queryUserById(CookieUtil.getUserIdFromCookie(request));
-            if (user == null)
-                authResult = false;
+            if (user == null){
+				authResult = false;
+				Cookie cookie = new Cookie("userId", null);
+				cookie.setMaxAge(0);
+				cookie.setDomain(".freshfun365.com");
+				cookie.setPath("/");
+				response.addCookie(cookie);
+			}
         }
 		if(!authResult){//cookie无效
 			if(code==null||"".equals(code)){  //没有code

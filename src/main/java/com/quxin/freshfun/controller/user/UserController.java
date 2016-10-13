@@ -26,12 +26,12 @@ public class UserController {
 	@RequestMapping("/setCookie")
 	@ResponseBody
 	public String setCookie(HttpServletResponse response){
-		Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(556716l));
+		Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(000001l));
 		cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 		cookie.setDomain(".freshfun365.com");
 		cookie.setPath("/");
 		response.addCookie(cookie);
-		return  "556716";
+		return  "000001";
 	}
 
 	/**
