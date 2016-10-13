@@ -48,6 +48,12 @@ public class UserLoginController {
 		//校验cookie    true为可用cookie
 		Map<String ,Object> map = new HashMap<String, Object>();
 		boolean authResult = CookieUtil.checkAuth(request);
+        //判断userId是否有效，在数据库中是否存在
+        if(authResult) {
+            UsersPOJO user = userService.queryUserById(CookieUtil.getUserIdFromCookie(request));
+            if (user == null)
+                authResult = false;
+        }
 		if(!authResult){//cookie无效
 			if(code==null||"".equals(code)){  //没有code
 				return ResultUtil.fail(1022,"无效cookie并且没有code");
