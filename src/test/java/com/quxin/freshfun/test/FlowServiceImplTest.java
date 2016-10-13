@@ -4,33 +4,47 @@ package com.quxin.freshfun.test;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.model.param.FlowParam;
+import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.model.pojo.FlowPOJO;
 import com.quxin.freshfun.service.flow.FlowService;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.goods.HomePageService;
+import com.quxin.freshfun.service.impl.user.UserServiceImpl;
+import com.quxin.freshfun.service.user.UserService;
+import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.HttpClientUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FlowServiceImplTest extends TestBase{
+public class FlowServiceImplTest extends TestBase {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     private FlowService flowService;
+
+    private UserService userService;
 
     @Before
     public void setUp() throws Exception {
         flowService = getContext().getBean("flowService", FlowService.class);
+        userService = getContext().getBean("userService", UserService.class);
     }
 
-    
+
     @After
     public void tearDown() throws Exception {
         getContext().close();
@@ -39,7 +53,7 @@ public class FlowServiceImplTest extends TestBase{
     @Test
     public void add() {
         boolean res;
-        long now = System.currentTimeMillis()/1000;
+        long now = System.currentTimeMillis() / 1000;
         long agentBalance = 100l;
         long orderId = 13565665;
         FlowParam flowParam = new FlowParam();
@@ -61,7 +75,7 @@ public class FlowServiceImplTest extends TestBase{
     @Test
     public void queryFlowListByUserId() {
 
-        List<FlowPOJO> resList = flowService.queryFlowListByUserId(556677l,11,10);
+        List<FlowPOJO> resList = flowService.queryFlowListByUserId(556677l, 11, 10);
         logger.info(JSON.toJSONString(resList));
     }
 
@@ -76,23 +90,29 @@ public class FlowServiceImplTest extends TestBase{
 
         int cnt = flowService.getCount(556677l);
         logger.info(String.valueOf(cnt));
+
+        logger.error("error~~~");
+
+        logger.error("哈哈哈哈");
+        logger.error("哈哈哈哈");
     }
 
     @Test
-    public void test() {
-        String result_code = "{\"result_code\":\"0\",\"reason\":\"SUCCESS\",\"order\":{\"carrier_code\":\"yuantong\",\"status\":\"8\",\"bill_code\":\"500407865990\"},\"gtex_traces\":[{\"time\":\"2016-09-29 22:47:08\",\"content\":\"快件在【河北省衡水市公司】已发出 苏文胜\"},{\"time\":\"2016-09-29 21:58:20\",\"content\":\"快件在【河北省衡水市公司】已收件 取件人: 由海军\"}]}";
+    public void test() throws BusinessException {
 
-        Map map = JSON.parseObject(result_code,java.util.Map.class);
-        JSONArray jsonArray = (JSONArray) map.get("gtex_traces");
-        Object[] objArr = jsonArray.toArray();
+        String code = "001EbLu20Ubbqz1RO3y20chGu20EbLus";
 
-        for(int i=0;i<objArr.length;i++) {
-            Map  ma =  (Map)objArr[0];
-            System.out.println(ma.get("content"));
-            System.out.println(ma.get("time"));
-        }
-
-
+        userService.WzPlatformLogin(code);
+//        String userName = "%E4%BC%9A%E5%8F%91%E5%85%89%E7%9A%84m%E8%AE%B0%F0%9F%8D%9F";
+//        try {
+//            System.out.println(URLDecoder.decode(userName, "utf-8"));
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
     }
+
+
+
 }
+
 

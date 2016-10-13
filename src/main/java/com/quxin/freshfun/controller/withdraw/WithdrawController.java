@@ -93,36 +93,32 @@ public class WithdrawController {
     @ResponseBody
     public Map<String,Object> applyWithdrawB(@RequestBody WithdrawParam extractMoney,HttpServletRequest request) {
         Map<String, Object> resultMap = null;
-        if(extractMoney.getUserId() != null && !"".equals(extractMoney.getUserId())){
-            String uId = CookieUtil.getUserIdFromCookie(request).toString();
-            Double extractmoney = withdrawService.queryWithdrawCashB(uId);
-            String userId = uId;
-            String extractMoneyStr = extractMoney.getMoney();
-            if(userId == null){
-                resultMap = ResultUtil.fail(1004,"userId 为空");
-            }else if(extractmoney == null){
-                resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
-            }else if(extractMoneyStr == null){
-                resultMap = ResultUtil.fail(1004,"提现金额必须大于0");
-            }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
-                resultMap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
-            }else{
-                WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
-                withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
-                withdrawPOJO.setUserId(Long.parseLong(extractMoney.getUserId()));
-                withdrawPOJO.setWithDrawType(extractMoney.getPayway());
-                withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
-                withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));
-                withdrawPOJO.setWithdrawSource(20);
-                Integer record = withdrawService.addWithdraw(withdrawPOJO);
-                if(record == null){
-                    resultMap = ResultUtil.fail(1004,"申请提现失败");
-                }else{
-                    resultMap = ResultUtil.success(1);
-                }
-            }
-        }else{
+        String uId = CookieUtil.getUserIdFromCookie(request).toString();
+        Double extractmoney = withdrawService.queryWithdrawCashB(uId);
+        String userId = uId;
+        String extractMoneyStr = extractMoney.getMoney();
+        if(userId == null){
             resultMap = ResultUtil.fail(1004,"用户Id不能为空");
+        }else if(extractmoney == null){
+            resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
+        }else if(extractMoneyStr == null){
+            resultMap = ResultUtil.fail(1004,"提现金额必须大于0");
+        }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
+            resultMap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
+        }else{
+            WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
+            withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
+            withdrawPOJO.setUserId(Long.parseLong(extractMoney.getUserId()));
+            withdrawPOJO.setWithDrawType(extractMoney.getPayway());
+            withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
+            withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));
+            withdrawPOJO.setWithdrawSource(20);
+            Integer record = withdrawService.addWithdraw(withdrawPOJO);
+            if(record == null){
+                resultMap = ResultUtil.fail(1004,"申请提现失败");
+            }else{
+                resultMap = ResultUtil.success(1);
+            }
         }
         return resultMap;
     }
@@ -135,35 +131,31 @@ public class WithdrawController {
     @ResponseBody
     public Map<String,Object> applyWithdrawC(@RequestBody WithdrawParam extractMoney,HttpServletRequest request) {
         Map<String, Object> resultMap = null;
-        if(extractMoney.getUserId() != null && !"".equals(extractMoney.getUserId())) {
-            String uId = CookieUtil.getUserIdFromCookie(request).toString();
-            Double extractmoney = withdrawService.queryWithdrawCashC(uId);
-            String extractMoneyStr = extractMoney.getMoney();
-            if(uId == null){
-                resultMap = ResultUtil.fail(1004,"userId 为空");
-            }else if(extractmoney == null){
-                resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
-            }else if(extractMoneyStr == null){
-                resultMap = ResultUtil.fail(1004,"提现金额必须大于0");
-            }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
-                resultMap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
-            }else{
-                WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
-                withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
-                withdrawPOJO.setUserId(Long.parseLong(uId));
-                withdrawPOJO.setWithDrawType(extractMoney.getPayway());
-                withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
-                withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));
-                withdrawPOJO.setWithdrawSource(10);
-                Integer record = withdrawService.addWithdraw(withdrawPOJO);
-                if(record == null){
-                    resultMap = ResultUtil.fail(1004,"申请提现失败");
-                }else{
-                    resultMap = ResultUtil.success(1);
-                }
-            }
+        String uId = CookieUtil.getUserIdFromCookie(request).toString();
+        Double extractmoney = withdrawService.queryWithdrawCashC(uId);
+        String extractMoneyStr = extractMoney.getMoney();
+        if(uId == null){
+            resultMap = ResultUtil.fail(1004,"userId 为空");
+        }else if(extractmoney == null){
+            resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
+        }else if(extractMoneyStr == null){
+            resultMap = ResultUtil.fail(1004,"提现金额必须大于0");
+        }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
+            resultMap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
         }else{
-            resultMap = ResultUtil.fail(1004,"用户Id不能为空");
+            WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
+            withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
+            withdrawPOJO.setUserId(Long.parseLong(uId));
+            withdrawPOJO.setWithDrawType(extractMoney.getPayway());
+            withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
+            withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));
+            withdrawPOJO.setWithdrawSource(10);
+            Integer record = withdrawService.addWithdraw(withdrawPOJO);
+            if(record == null){
+                resultMap = ResultUtil.fail(1004,"申请提现失败");
+            }else{
+                resultMap = ResultUtil.success(1);
+            }
         }
         return resultMap;
     }

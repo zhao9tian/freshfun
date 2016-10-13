@@ -53,7 +53,10 @@
         </encoder>
     </appender>
 
-    <logger name="org.apache.ibatis" level="WARN">
+    <logger name="org.apache.ibatis" level="DEBUG">
+    </logger>
+
+    <logger name="com.quxin.freshfun.dao" level="WARN">
         <appender-ref ref="DATASOURCE_FILE" />
     </logger>
 
