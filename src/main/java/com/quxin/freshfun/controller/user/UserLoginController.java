@@ -68,6 +68,8 @@ public class UserLoginController {
 					response.addCookie(cookie);
 					map.put("userId",userId);
 					return ResultUtil.success(map);
+				}else{
+					return ResultUtil.fail(1022,"用户没登陆");
 				}
 			}
 		}
