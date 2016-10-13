@@ -93,11 +93,10 @@ public class WithdrawController {
     @ResponseBody
     public Map<String,Object> applyWithdrawB(@RequestBody WithdrawParam extractMoney,HttpServletRequest request) {
         Map<String, Object> resultMap = null;
-        String uId = CookieUtil.getUserIdFromCookie(request).toString();
-        Double extractmoney = withdrawService.queryWithdrawCashB(uId);
-        String userId = uId;
+        Long userId = CookieUtil.getUserIdFromCookie(request);
+        Double extractmoney = withdrawService.queryWithdrawCashB(userId.toString());
         String extractMoneyStr = extractMoney.getMoney();
-        if(userId == null){
+        if(userId == null || userId == 0){
             resultMap = ResultUtil.fail(1004,"用户Id不能为空");
         }else if(extractmoney == null){
             resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
@@ -108,7 +107,7 @@ public class WithdrawController {
         }else{
             WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
             withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
-            withdrawPOJO.setUserId(Long.parseLong(extractMoney.getUserId()));
+            withdrawPOJO.setUserId(userId);
             withdrawPOJO.setWithDrawType(extractMoney.getPayway());
             withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
             withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));
@@ -131,10 +130,10 @@ public class WithdrawController {
     @ResponseBody
     public Map<String,Object> applyWithdrawC(@RequestBody WithdrawParam extractMoney,HttpServletRequest request) {
         Map<String, Object> resultMap = null;
-        String uId = CookieUtil.getUserIdFromCookie(request).toString();
-        Double extractmoney = withdrawService.queryWithdrawCashC(uId);
+        Long userId = CookieUtil.getUserIdFromCookie(request);
+        Double extractmoney = withdrawService.queryWithdrawCashC(userId.toString());
         String extractMoneyStr = extractMoney.getMoney();
-        if(uId == null){
+        if(userId == null || userId == 0){
             resultMap = ResultUtil.fail(1004,"userId 为空");
         }else if(extractmoney == null){
             resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
@@ -145,7 +144,7 @@ public class WithdrawController {
         }else{
             WithdrawPOJO withdrawPOJO = new WithdrawPOJO();
             withdrawPOJO.setCreateDate(System.currentTimeMillis()/1000);
-            withdrawPOJO.setUserId(Long.parseLong(uId));
+            withdrawPOJO.setUserId(userId);
             withdrawPOJO.setWithDrawType(extractMoney.getPayway());
             withdrawPOJO.setPaymentAccount(extractMoney.getAccount());
             withdrawPOJO.setWithDrawPrice((long)(Double.parseDouble(extractMoney.getMoney())*100));
