@@ -434,7 +434,6 @@
 
   <!--插入用户详情 -->
   <insert id="insertUserDetails" parameterType="com.quxin.freshfun.model.UserDetailPOJO" useGeneratedKeys="true" keyProperty="id">
-    set names 'utf8mb4'
     INSERT INTO user_info(user_id , province , openid , headimgurl , language , city , country , unionid , nickname )
     VALUES (#{userId} , #{province} ,#{openid} , #{headimgurl} , #{language} , #{city} , #{country} , #{unionid} , #{nickname} )
   </insert>
