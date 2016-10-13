@@ -100,7 +100,7 @@ public class WithdrawController {
             resultMap = ResultUtil.fail(1004,"用户Id不能为空");
         }else if(extractmoney == null){
             resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
-        }else if(extractMoneyStr == null){
+        }else if(extractMoneyStr == null || "0".equals(extractMoneyStr)){
             resultMap = ResultUtil.fail(1004,"提现金额必须大于0");
         }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
             resultMap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
@@ -137,7 +137,7 @@ public class WithdrawController {
             resultMap = ResultUtil.fail(1004,"userId 为空");
         }else if(extractmoney == null){
             resultMap = ResultUtil.fail(1004,"该用户提现金额为0");
-        }else if(extractMoneyStr == null){
+        }else if(extractMoneyStr == null || "0".equals(extractMoneyStr)){
             resultMap = ResultUtil.fail(1004,"提现金额必须大于0");
         }else if(Double.parseDouble(extractMoneyStr) > extractmoney){
             resultMap = ResultUtil.fail(1004,"提现金额不能大于可提现金额");
