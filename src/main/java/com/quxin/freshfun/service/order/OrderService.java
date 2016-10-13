@@ -34,7 +34,7 @@ public interface OrderService {
 	 * @param payInfo
 	 * @return
 	 */
-	ResponseResult addQuanMingPay(QuanMingPayInfo payInfo) throws BusinessException;
+	ResponseResult addQuanMingPay(QuanMingPayInfo payInfo,Long userId) throws BusinessException;
 
 	/**
 	 * App订单支付

@@ -69,7 +69,7 @@ public class UserLoginController {
 				try {
 					userId = userService.WzPlatformLogin(code);
 					logger.info("校验cookie      ***************************      userId="+userId);
-				} catch (BusinessException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 				if(userId!=null){

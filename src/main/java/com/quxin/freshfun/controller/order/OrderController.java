@@ -287,7 +287,7 @@ public class OrderController {
 		try{
 			Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
 			payInfo.setUserId(userId);
-			payResult = orderService.addQuanMingPay(payInfo);
+			payResult = orderService.addQuanMingPay(payInfo,userId);
 		}catch (BusinessException e){
 			resultLogger.error("商户代理信息添加失败",e);
 		}

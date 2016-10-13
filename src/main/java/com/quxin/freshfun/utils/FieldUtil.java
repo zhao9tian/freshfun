@@ -5,6 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.model.Share;
@@ -51,6 +53,22 @@ public class FieldUtil {
 //	}
 
     /**
+     * 微信表情过滤
+     * @return
+     */
+    public static String EmojiFilter(String nickname){
+        if(nickname.trim().isEmpty()){
+            return nickname;
+        }
+        String pattern = "[\ud83c\udc00-\ud83c\udfff]|[\ud83d\udc00-\ud83d\udfff]|[\u2600-\u27ff]";
+        String reStr = "";
+        Pattern emoji = Pattern.compile(pattern);
+        Matcher emojiMatcher = emoji.matcher(nickname);
+        nickname = emojiMatcher.replaceAll(reStr);
+        return nickname;
+    }
+
+    /**
      * json字符串转Xml字符串
      * @param jsonStr
      * @return
@@ -77,8 +95,8 @@ public class FieldUtil {
         System.out.println(ss);*/
 
         //String str = new String("绛惧悕閿欒\uE1E4".getBytes("",""));
-        String s = "æ\u0099´å¤";
-        String str = new String(s.getBytes("GBK"),"utf-8");
+        String s = "会发光的m记\uD83C\uDF5F";
+        String str = new String(s.getBytes("utf-8"),"unicode");
         System.out.println(str);
 
     }
