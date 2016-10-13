@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.outparam.WxUserInfo;
 import com.quxin.freshfun.service.user.NickNameService;
@@ -78,7 +79,7 @@ public class UserLoginController {
 					cookie.setDomain(".freshfun365.com");
 					cookie.setPath("/");
 					response.addCookie(cookie);
-					map.put("userId",userId);
+					map.put("userId",FreshFunEncoder.idToUrl(userId));
 					return ResultUtil.success(map);
 				}else{
 					return ResultUtil.fail(1022,"用户没登陆");
@@ -86,7 +87,7 @@ public class UserLoginController {
 			}
 		}
 		Long userId = CookieUtil.getUserIdFromCookie(request);
-		map.put("userId",userId);
+		map.put("userId", FreshFunEncoder.idToUrl(userId));
 		return ResultUtil.success(map);
 	}
 
