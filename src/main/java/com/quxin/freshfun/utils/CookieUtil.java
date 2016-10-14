@@ -55,6 +55,14 @@ public class CookieUtil {
      * @return  用户id
      */
     public static Long getUserIdFromCookie(HttpServletRequest request){
+        String isApp = request.getParameter("isApp");
+        if(isApp!=null&&"1".equals(isApp)){
+            String userId = request.getParameter("userId");
+            if(userId==null||"".equals(userId))
+                return null;
+            else
+                return Long.parseLong(userId.replace("\"",""));
+        }
         if(getCookieByName(request,"userId")==null||"".equals(getCookieByName(request,"userId")))
             return null;
         String valueString = getFromBase64(getCookieByName(request,"userId").getValue());
