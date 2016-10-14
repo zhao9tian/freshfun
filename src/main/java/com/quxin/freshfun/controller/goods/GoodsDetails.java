@@ -4,7 +4,6 @@ import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.goods.GoodsInfoPOJO;
 import com.quxin.freshfun.service.goods.GoodsService;
-import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.MoneyFormat;
 import com.quxin.freshfun.utils.ResultUtil;
@@ -25,9 +24,7 @@ import java.util.Map;
 public class GoodsDetails {
 	@Autowired
 	private GoodsService goodsService;
-	@Autowired
-	private UserService userService;
-	
+
 	/**
 	 * 商品详情页
 	 * @return List<GoodsMongo>
@@ -87,9 +84,6 @@ public class GoodsDetails {
 			goodsInfoPOJO.setDetailImg(goodsMongo.getDetailImgPath());
 			Map<String , Object> map = new HashMap<String , Object>();
 			map.put("goodsInfo" , goodsInfoPOJO);
-			Long userId = CookieUtil.getUserIdFromCookie(request);
-			if(userService.findIsMobile(userId))
-				map.put("fetcherId",FreshFunEncoder.idToUrl(userId));
 			result = ResultUtil.success(map);
 		}else{
 			result = ResultUtil.fail(1004 ,"该商品已经下架或者没有该商品" );
@@ -112,11 +106,8 @@ public class GoodsDetails {
 		themeMap.put("themeId", themeId);
 		themeMap.put("page", page);
 		List<StidVsGid> specialTheme = goodsService.findThemeGoods(themeMap);
-		//Long userId = CookieUtil.getUserIdFromCookie(request);
 		Map<String , Object> map = new HashMap<String , Object>();
 		map.put("specialTheme",specialTheme);
-		//if(userService.findIsMobile(userId))
-			//map.put("fetcherId",FreshFunEncoder.idToUrl(userId));
 		return map;
 	}
 	
@@ -134,11 +125,8 @@ public class GoodsDetails {
 		mallMap.put("mallId", themeId);
 		mallMap.put("page", page);
 		List<SmidVsGid> mallTheme = goodsService.findMallGoods(mallMap);
-		//Long userId = CookieUtil.getUserIdFromCookie(request);
 		Map<String , Object> map = new HashMap<String , Object>();
 		map.put("mallTheme",mallTheme);
-		//if(userService.findIsMobile(userId))
-			//map.put("fetcherId",FreshFunEncoder.idToUrl(userId));
 		return map;
 	}
 
