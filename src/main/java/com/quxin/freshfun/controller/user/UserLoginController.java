@@ -30,6 +30,8 @@ import java.util.Map;
 @RequestMapping("/login")
 public class UserLoginController {
 
+
+
 	@Autowired
 	private NickNameService nickNameService;
 	@Autowired
@@ -45,7 +47,7 @@ public class UserLoginController {
 	 */
 	@RequestMapping("/checkLogin")
 	@ResponseBody
-	public Map<String,Object> checkLogin(String code,HttpServletRequest request,HttpServletResponse response){
+	public Map<String,Object> checkLogin(String code,HttpServletRequest request,HttpServletResponse response) throws BusinessException {
 		//校验cookie    true为可用cookie
 		Map<String ,Object> map = new HashMap<String, Object>();
 		boolean authResult = CookieUtil.checkAuth(request);
@@ -75,7 +77,8 @@ public class UserLoginController {
 					userId = userService.WzPlatformLogin(code);
 					//校验cookie  有code,获取到微信信息，插入数据
 				} catch (Exception e) {
-					e.printStackTrace();
+					logger.error("插入用户信息失败",e);
+					throw e;
 				}
 				if(userId!=null){
 					//种植code，校验cookie  有code,获取到微信信息，插入数据
