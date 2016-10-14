@@ -87,9 +87,9 @@ public class GoodsDetails {
 			goodsInfoPOJO.setDetailImg(goodsMongo.getDetailImgPath());
 			Map<String , Object> map = new HashMap<String , Object>();
 			map.put("goodsInfo" , goodsInfoPOJO);
-			//Long userId = CookieUtil.getUserIdFromCookie(request);
-			//if(userService.findIsMobile(userId))
-				//map.put("fetcherId",FreshFunEncoder.idToUrl(userId));
+			Long userId = CookieUtil.getUserIdFromCookie(request);
+			if(userService.findIsMobile(userId))
+				map.put("fetcherId",FreshFunEncoder.idToUrl(userId));
 			result = ResultUtil.success(map);
 		}else{
 			result = ResultUtil.fail(1004 ,"该商品已经下架或者没有该商品" );
