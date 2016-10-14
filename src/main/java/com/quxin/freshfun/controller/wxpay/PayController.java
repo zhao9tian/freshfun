@@ -5,6 +5,7 @@ import com.quxin.freshfun.model.OrderInfo;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
@@ -44,6 +45,9 @@ public class PayController{
         Map<String, Object>  map = new HashMap<String, Object>();
         Map<String, Object>  resultMap = new HashMap<String, Object>();
         try {
+            if(orderInfo.getUserId()==null||"".equals(orderInfo.getUserId())){
+                orderInfo.setUserId(CookieUtil.getUserIdFromCookie(request));
+            }
             WxPayInfo info = orderService.addWeixinAppPay(orderInfo, request, response);
             map.put("code",1001);
             map.put("msg","请求成功");

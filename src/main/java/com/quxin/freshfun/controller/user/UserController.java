@@ -74,7 +74,12 @@ public class UserController {
 	@ResponseBody
 	public Map<String, Object> AddNewAddress(@RequestBody AddressInfo addressInfo,HttpServletRequest request){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		Long userID = CookieUtil.getUserIdFromCookie(request);
+		Long userID = null;
+		if(addressInfo.getUserId()==null||"".equals(addressInfo.getUserId())){
+			userID = CookieUtil.getUserIdFromCookie(request);
+		}else{
+			userID = Long.parseLong(addressInfo.getUserId());
+		}
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();
 		String city = addressInfo.getCity();
@@ -139,7 +144,13 @@ public class UserController {
 	@ResponseBody
 	public Map<String, Object> UpdateUserAddress(@RequestBody AddressInfo addressInfo,HttpServletRequest request){
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
-		Long userId = CookieUtil.getUserIdFromCookie(request);
+
+		Long userId = null;
+		if(addressInfo.getUserId()==null&&"".equals(addressInfo.getUserId())){
+			userId = CookieUtil.getUserIdFromCookie(request);
+		}else{
+			userId = Long.parseLong(addressInfo.getUserId());
+		}
 		Integer addressId = addressInfo.getAddressId();
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();

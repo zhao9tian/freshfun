@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,14 +41,14 @@ public class UserMessageController {
 	@RequestMapping(value="/usermessage",method={RequestMethod.POST})
 	@ResponseBody
 	public Map<String, Object> UpdateUserDefaultAddress(@RequestBody UserMessageInfo userMessageInfo,HttpServletRequest request){
-		Long userId = CookieUtil.getUserIdFromCookie(request);
 	    String message = userMessageInfo.getMessage();
-	    
-	    System.out.println(userId);
-	    System.out.println(message);
-	    
+
 		UserMessage userMessage = new UserMessage();
-		userMessage.setUserId(userId);
+		//判断参数中是否带有userId
+		if(userMessageInfo.getUserId()==null){
+			Long userId = CookieUtil.getUserIdFromCookie(request);
+			userMessage.setUserId(userId);
+		}
 		userMessage.setMessage(message);
 		long nowTime = System.currentTimeMillis()/1000;
 		userMessage.setGmtModified(nowTime);
@@ -93,7 +94,7 @@ public class UserMessageController {
 	 */
 	@RequestMapping(value = "/addusercomment" , method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> addUserComment(@RequestBody CommentParam commentParam){
+	public Map<String, Object> addUserComment(@RequestBody CommentParam commentParam,HttpServletRequest request){
 		CommentPOJO comment = new CommentPOJO();
 		if(commentParam.getOrderId() != null && !"".equals(commentParam.getOrderId())){
 			try{
@@ -105,7 +106,12 @@ public class UserMessageController {
 			}
 			comment.setOrderId(Long.parseLong(commentParam.getOrderId()));
 			comment.setGoodsId(Integer.parseInt(commentParam.getGoodsId()));
-			comment.setUserId(Long.parseLong(commentParam.getUserId()));
+			//判断参数中是否带有userId
+			if(commentParam.getUserId()!=null&&!"".equals(commentParam.getUserId())){
+				comment.setUserId(Long.parseLong(commentParam.getUserId()));
+			}else{
+				comment.setUserId(CookieUtil.getUserIdFromCookie(request));
+			}
 			comment.setContent(commentParam.getContent());
 			comment.setGeneralLevel(commentParam.getGeneralLevel());
 			comment.setPackLevel(commentParam.getPackLevel());
