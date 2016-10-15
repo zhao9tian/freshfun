@@ -102,7 +102,11 @@ public class UserLoginController {
 					cookie.setDomain(".freshfun365.com");
 					cookie.setPath("/");
 					response.addCookie(cookie);
-					map.put("userId",FreshFunEncoder.idToUrl(userId));
+					Integer result = userService.queryFetcherByUserId(userId);
+					if(result==1)
+						map.put("userId",FreshFunEncoder.idToUrl(userId));
+					else
+						map.put("userId","");
 					return ResultUtil.success(map);
 				}else{
 					//校验cookie  有code,获取到微信信息，插入数据，userId为空

@@ -61,6 +61,10 @@
   <update id="updateUserIdentify" parameterType="java.lang.Long">
       update users set user_identify = 1 where id = #{userId}
   </update>
+
+  <select id="selectFetcherByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    SELECT count(id) from users where id=#{userId} and user_identify=1
+  </select>
   
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select 

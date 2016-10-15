@@ -33,6 +33,13 @@ public interface UsersMapper {
 	 */
 	UsersPOJO selectUserById(Long id);
 
+	/**
+	 * 根据userId查询是否为捕手，0：不是捕手，1：是捕手
+	 * @param userId  userId
+	 * @return 数量
+	 */
+	Integer selectFetcherByUserId(Long userId);
+
     /**
      * Query entity according to id not user_id 
      * @param id

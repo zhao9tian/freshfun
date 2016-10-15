@@ -105,4 +105,11 @@ public interface UserService {
 	String genertCode(String phone) throws BusinessException;
 
 	public boolean findIsMobile(Long userId);
+
+	/**
+	 * 根据userId查询是否为捕手，0：不是捕手，1：是捕手
+	 * @param userId  userId
+	 * @return 数量
+	 */
+	Integer queryFetcherByUserId(Long userId);
 }

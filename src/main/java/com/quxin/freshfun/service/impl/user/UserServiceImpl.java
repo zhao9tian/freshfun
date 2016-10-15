@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService{
 				user.setGmtModified(System.currentTimeMillis()/1000);
 				user.setLoginMethod("wz");
 				user.setUserCredit((byte)1);
-				user.setUserIdentify((byte)1);
+				user.setUserIdentify((byte)0);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
 				int status = userDao.insert(user);
@@ -466,4 +466,18 @@ public class UserServiceImpl implements UserService{
 		return false;
 	}
 
+
+	/**
+	 * 根据userId查询是否为捕手，0：不是捕手，1：是捕手
+	 * @param userId  userId
+	 * @return 数量
+	 */
+	@Override
+	public Integer queryFetcherByUserId(Long userId){
+		if(userId==null||userId==0){
+			logger.error("根据userId查询是否为捕手,入参接口有误");
+			return 0;
+		}
+		return userDao.selectFetcherByUserId(userId);
+	}
 }
