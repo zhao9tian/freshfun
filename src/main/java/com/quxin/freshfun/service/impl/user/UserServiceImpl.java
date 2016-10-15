@@ -114,16 +114,17 @@ public class UserServiceImpl implements UserService{
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
 		if(wxId!=null && wzId != null){
-
 			//1.判断wxId是否存在数据库中
 			userId = userDao.getUserIdByWxId(wxId);
 			if(userId != null){
+				logger.error("根据微信信息，获取userId");
 				//3.判断wzId是否在用户表里面,wzId唯一
 				String wzIdDB = userDao.getWzIdBywxId(wxId);
 				if( wzIdDB!= null && !wzId.equals(wzIdDB)){
 					updateUser(userId, wzId);
 				}
 			}else{
+				logger.error("根据微信信息，未获取userId");
 				//2.插入新用户
 				UsersPOJO user = new UsersPOJO();
 				user.setWxId(wxId);
@@ -167,6 +168,8 @@ public class UserServiceImpl implements UserService{
 				userDetailPOJO.setOpenid(wxinfo.getOpenid());
 				userDao.insertUserDetails(userDetailPOJO);
 			}
+		}else{
+			logger.error("微信信息获取不为空，但是openId或unionId为空");
 		}
 		return userId;
 	}
