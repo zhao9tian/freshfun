@@ -39,6 +39,20 @@ public class UserLoginController {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
+	 * 清除cookie，测试专用
+	 */
+	@RequestMapping("/cleanCookie")
+	@ResponseBody
+	public Map<String, Object> cleanCookie(HttpServletResponse response) {
+		Cookie cookie = new Cookie("userId", null);
+		cookie.setMaxAge(0);
+		cookie.setDomain(".freshfun365.com");
+		cookie.setPath("/");
+		response.addCookie(cookie);
+		return ResultUtil.success("成功清除cookie");
+	}
+
+	/**
 	 * 校验cookie
 	 * @param code
 	 * @param request
@@ -58,6 +72,7 @@ public class UserLoginController {
             if (user == null){
 				//校验cookie  存在cookie，userId无效
 				authResult = false;
+				//清除cookie
 				Cookie cookie = new Cookie("userId", null);
 				cookie.setMaxAge(0);
 				cookie.setDomain(".freshfun365.com");
