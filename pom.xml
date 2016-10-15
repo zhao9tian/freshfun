@@ -328,7 +328,7 @@
     </profiles>
 
     <build>
-        <defaultGoal>compile</defaultGoal>
+        <defaultGoal>install</defaultGoal>
         <finalName>FreshFun</finalName>
         <resources>
             <resource>
