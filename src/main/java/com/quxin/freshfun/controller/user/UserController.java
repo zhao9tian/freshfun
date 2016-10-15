@@ -26,12 +26,12 @@ public class UserController {
 	@RequestMapping("/setCookie")
 	@ResponseBody
 	public String setCookie(HttpServletResponse response){
-		Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(000001l));
+		Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(557144l));
 		cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 		cookie.setDomain(".freshfun365.com");
 		cookie.setPath("/");
 		response.addCookie(cookie);
-		return  "000001";
+		return  "557144";
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class UserController {
 		if(addressInfo.getUserId()==null||"".equals(addressInfo.getUserId())){
 			userID = CookieUtil.getUserIdFromCookie(request);
 		}else{
-			userID = Long.parseLong(addressInfo.getUserId());
+			userID = Long.parseLong(addressInfo.getUserId().replace("\"",""));
 		}
 		String name = addressInfo.getName();
 		String tel = addressInfo.getTel();
@@ -146,10 +146,10 @@ public class UserController {
 		Map<String, Object> stateMap = new HashMap<String, Object>(1);
 
 		Long userId = null;
-		if(addressInfo.getUserId()==null&&"".equals(addressInfo.getUserId())){
+		if(addressInfo.getUserId()==null||"".equals(addressInfo.getUserId())){
 			userId = CookieUtil.getUserIdFromCookie(request);
 		}else{
-			userId = Long.parseLong(addressInfo.getUserId());
+			userId = Long.parseLong(addressInfo.getUserId().replace("\"",""));
 		}
 		Integer addressId = addressInfo.getAddressId();
 		String name = addressInfo.getName();
