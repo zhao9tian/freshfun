@@ -106,7 +106,7 @@ public class UserLoginController {
 					return ResultUtil.success(map);
 				}else{
 					//校验cookie  有code,获取到微信信息，插入数据，userId为空
-					return ResultUtil.fail(1022,"用户创建失败");
+					return ResultUtil.fail(1023,"用户创建失败");
 				}
 			}
 		}
