@@ -328,6 +328,7 @@
     </profiles>
 
     <build>
+        <defaultGoal>compile</defaultGoal>
         <finalName>FreshFun</finalName>
         <resources>
             <resource>
