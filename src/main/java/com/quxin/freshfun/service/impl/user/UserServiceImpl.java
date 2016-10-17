@@ -148,9 +148,9 @@ public class UserServiceImpl implements UserService{
 				user.setUserIdentify((byte)0);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
-				int status = userDao.insert(user);
-				if(status <= 0){
-					logger.error("用户添加失败");
+				int addResForUsers = userDao.insert(user);
+				if(addResForUsers == 0){
+					logger.error("users表添加失败");
 					throw new BusinessException("用户添加失败");
 				}else{
 					userId = user.getId();
@@ -166,7 +166,11 @@ public class UserServiceImpl implements UserService{
 				userDetailPOJO.setNickname(wxinfo.getNickname());
 				userDetailPOJO.setUnionid(wxinfo.getUnionid());
 				userDetailPOJO.setOpenid(wxinfo.getOpenid());
-				userDao.insertUserDetails(userDetailPOJO);
+				int addResForUserInfo = userDao.insertUserDetails(userDetailPOJO);
+				if (addResForUserInfo == 0) {
+					logger.error("user_info表添加失败");
+					throw new BusinessException("用户添加失败");
+				}
 			}
 		}else{
 			logger.error("微信信息获取不为空，但是openId或unionId为空");
