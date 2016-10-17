@@ -105,6 +105,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 		//订单父级编号
 		Long orderId = orderPOJO.getId();
+		//订单详情编号
+		Long orderDetailsId = null;
 		for (int i = 0;i < orderPayInfos.length;i++){
 			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
 			OrderDetailsPOJO orderDetail = makeOrderDetail(orderPayInfos[i],goodsInfo,orderInfo,orderId);
@@ -113,6 +115,8 @@ public class OrderServiceImpl implements OrderService {
 			if(orderDetailStatus <= 0){
 				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
 				throw new BusinessException("订单详情生成失败");
+			}else{
+				orderDetailsId = orderDetail.getId();
 			}
 		}
 		//获取用户openId
@@ -123,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
-		payResult.setOrderId(orderId);
+		payResult.setOrderId(orderDetailsId);
 		//修改支付状态
 		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
@@ -133,6 +137,8 @@ public class OrderServiceImpl implements OrderService {
 					throw new BusinessException("修改购物车状态");
 				}
 			}
+		}else{
+			logger.error("购物车传递参数错误");
 		}
 		return payResult;
 	}

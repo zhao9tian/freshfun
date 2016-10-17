@@ -22,7 +22,7 @@ public class AutoConfirmTask {
     private VerifiedCodeService verifiedCodeService;
 
     /**
-     * 7天自动确认收货时添加账单信息
+     * 14天自动确认收货时添加账单信息
      * 每天凌晨1,2,3,4点触发
      */
     @Scheduled(cron="0 0 1,2,3,4 * * ? ")
