@@ -1,5 +1,6 @@
 package com.quxin.freshfun.service.impl.user;
 
+import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.dao.UsersMapper;
@@ -106,10 +107,12 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public Long WZLogin(WxInfo wxinfo) throws BusinessException {
+
 		if(wxinfo == null){
 			logger.error("WZLogin方法 入参不能为空");
 			throw new BusinessException("用户添加失败");
 		}
+		logger.error(JSON.toJSONString(wxinfo));
 		Long userId = null;
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
