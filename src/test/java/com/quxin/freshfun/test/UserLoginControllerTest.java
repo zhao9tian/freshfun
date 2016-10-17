@@ -46,7 +46,7 @@ public class UserLoginControllerTest extends TestBase{
     }
     @Test
     public void getVerifyCode() throws Exception {
-        userService.WXLogin("011MK0H81jU28S1HK8K81Cp4H81MK0H1","12313");
+        userService.WzPlatformLogin("031N7y8e1xorHu00fV5e1Iiu8e1N7y8h");
     }
 
     @Test

@@ -83,7 +83,7 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insertUsers" parameterType="com.quxin.freshfun.model.UsersPOJO" useGeneratedKeys="true" keyProperty="id">
-      insert into users (id, user_id, gmt_create, gmt_modified, 
+      insert into users (gmt_create, gmt_modified,
       user_name, user_head_url, mobile_phone, 
       device_id, wx_id, wz_id, 
       login_method, is_received, parent_id, 
@@ -91,7 +91,7 @@
       frozen_money, user_identify, income_identify, 
       user_enter, user_info_id, is_deleted, 
       user_address)
-    values (#{id,jdbcType=BIGINT}, #{id,jdbcType=BIGINT}, #{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
+    values (#{gmtCreate,jdbcType=BIGINT}, #{gmtModified,jdbcType=BIGINT},
       #{userName,jdbcType=VARCHAR}, #{userHeadUrl,jdbcType=VARCHAR}, #{mobilePhone,jdbcType=VARCHAR},
       #{deviceId,jdbcType=VARCHAR}, #{wxId,jdbcType=VARCHAR}, #{wzId,jdbcType=VARCHAR},
       #{loginMethod,jdbcType=VARCHAR}, #{isReceived,jdbcType=TINYINT}, #{parentId,jdbcType=BIGINT},
