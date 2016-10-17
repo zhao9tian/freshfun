@@ -237,6 +237,10 @@ public class UserServiceImpl implements UserService{
 		WxUserInfo info = null;
 		//获取用户信息
 		WxInfo wxInfo = getUserInfo(code,ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
+		if (wxInfo == null) {
+			logger.error("获取不到微信信息 code:" + code);
+			throw new BusinessException("获取不到微信信息 code:" + code);
+		}
 		Long userId = null;
 		if(wxInfo!=null){
 			UserInfoPOJO userInfo = new UserInfoPOJO();
