@@ -31,8 +31,23 @@ public class UserAddressServiceImpl implements UserAddressService {
 	}
 	
 	@Override
-	public List<UserAddress> userDefaultAddress(Long userId) {
-		return userAddressMapper.selectdefaultByUserID(userId);
+	public UserAddress userDefaultAddress(Long userId) {
+		List<UserAddress> userAddresses = userAddressMapper.selectdefaultByUserID(userId);
+		//获取默认地址
+		if(userAddresses != null) {
+			for (int i = 0; i < userAddresses.size(); i++) {
+				if (userAddresses.get(i).getIsDefault() == 1) {
+					return userAddresses.get(i);
+				} else {
+					userAddresses.get(i).setIsDefault(null);
+				}
+			}
+		}
+		//如果没有默认地址
+		if(userAddresses != null && userAddresses.size() > 0){
+			return userAddresses.get(0);
+		}
+		return null;
 	}
 
 	@Override

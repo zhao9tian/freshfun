@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -742,9 +743,9 @@ public class OrderController {
 	public Map<String, Object> deliverOrder(@RequestBody OrderDetailsPOJO order){
 		Map<String, Object>  map = new HashMap<String, Object>();
 		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(order.getOrderId() == null){
+		if(StringUtils.isEmpty(order.getOrderId())||StringUtils.isEmpty(order.getActualMoney())){
 			map.put("code",1004);
-			map.put("msg","发货错误");
+			map.put("msg","参数有误");
 			resultMap.put("status",map);
 			return resultMap;
 		}else{

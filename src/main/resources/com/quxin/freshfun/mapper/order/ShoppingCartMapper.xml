@@ -35,7 +35,7 @@
   </select>
   <!-- 根据用户编号查询购物车信息 -->
   <select id="selectShoppingCartByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
-      select sc_id, user_id, goods_id, goods_totals, goods_totals_price from shopping_cart where user_id = #{userId} and pay_status = 0 and is_delete = 0
+      select sc_id, user_id, goods_id, goods_totals, goods_totals_price from shopping_cart where user_id = #{userId} and pay_status = 0 and is_delete = 0 order by create_date desc
   </select>
   <!-- 根据购物车编号查询购物车信息 -->
   <select id="selectShoppingCart" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.ShoppingCartPOJO">

@@ -53,11 +53,7 @@ public class PayController{
             map.put("msg","请求成功");
             resultMap.put("status",map);
             resultMap.put("data",info);
-        } catch (BusinessException e) {
-            log.error("App支付失败",e);
-        } catch (JSONException e) {
-            log.error("App支付失败",e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             log.error("App支付失败",e);
         }
         return resultMap;

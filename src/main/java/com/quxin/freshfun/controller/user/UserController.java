@@ -51,7 +51,7 @@ public class UserController {
 	 */
 	@RequestMapping("/userdefaultaddress")
 	@ResponseBody
-	public List<UserAddress> FindUseDefaultrAddress(HttpServletRequest request){
+	public UserAddress FindUseDefaultrAddress(HttpServletRequest request){
 		Long ui = CookieUtil.getUserIdFromCookie(request);
 		return userAddressService.userDefaultAddress(ui);
 	}
@@ -97,7 +97,7 @@ public class UserController {
 			addressMap.put("address", address);
 			addressMap.put("isDefault", isDefault);
 			long nowTime = System.currentTimeMillis()/1000;
-			addressMap.put("gmtCreat", nowTime);
+			addressMap.put("gmtCreate", nowTime);
 			addressMap.put("gmtModified", nowTime);
 			
 			int demo = userAddressService.addNewAddress(addressMap);

@@ -97,6 +97,8 @@ public class PrepayIdRequestHandler extends RequestHandler {
 			WxPayInfo info = strToJsonObject(resultJson);
 			if("SUCCESS".equals(info.getResult_code())){
 				prepayid = info.getPrepay_id();
+			}else{
+
 			}
 		}
 		return prepayid;

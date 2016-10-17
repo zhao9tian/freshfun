@@ -55,6 +55,12 @@ public interface UserAddressMapper {
     int updateByPrimaryKey(UserAddress record);
     
     List<UserAddress> selectAllByUserID(Long userID);
+
+    /**
+     * 获取用户默认地址
+     * @param userID
+     * @return
+     */
     List<UserAddress> selectdefaultByUserID(Long userID);
     
     int insertNewAddress(Map<String, Object> addressMap);

@@ -34,8 +34,7 @@
   </select>
   
   <select id="selectdefaultByUserID" parameterType="java.lang.Long" resultMap="BaseResultMap">
-      select id, user_id, name, tel, city, address, is_default from user_address where user_id = #{userId} and is_default = 1
-      
+     select id, user_id, name, tel, city, address, is_default from user_address where user_id = #{userId} order by gmt_create desc
   </select>
   
   <update id="updateIsDefault" parameterType="java.lang.Long">

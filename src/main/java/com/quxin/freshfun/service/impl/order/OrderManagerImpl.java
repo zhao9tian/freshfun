@@ -23,6 +23,8 @@ import com.quxin.freshfun.model.ShoppingCartPOJO;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
+import org.springframework.util.StringUtils;
+
 @Service("orderManager")
 public class OrderManagerImpl implements OrderManager {
 	@Autowired
@@ -424,6 +426,9 @@ public class OrderManagerImpl implements OrderManager {
 
 	@Override
 	public Integer deliverOrder(OrderDetailsPOJO order) {
+		if(StringUtils.isEmpty(order.getActualMoney()) || StringUtils.isEmpty(order.getOrderId())) {
+			return 0;
+		}
 		Long currentDate = DateUtils.getCurrentDate();
 		Map<String,Object> map = Maps.newHashMap();
 		map.put("orderId",order.getOrderId());

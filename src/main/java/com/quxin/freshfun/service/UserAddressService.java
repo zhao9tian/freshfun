@@ -18,7 +18,7 @@ public interface UserAddressService {
 	 */
 	public List<UserAddress> userAddress(Long userId);
 	
-	public List<UserAddress> userDefaultAddress(Long userId);
+	public UserAddress userDefaultAddress(Long userId);
 	/**
 	 * 添加用户地址
 	 * @param addressMap
