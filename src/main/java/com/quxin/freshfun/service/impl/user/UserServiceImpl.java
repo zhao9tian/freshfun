@@ -29,8 +29,7 @@ public class UserServiceImpl implements UserService{
 
 	@Autowired
 	public UsersMapper userDao;
-	private Logger logger = LoggerFactory.getLogger("info_log");
-	private Logger error_log = LoggerFactory.getLogger("error_log");
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public UsersPOJO queryUserById(Long id){
@@ -108,7 +107,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Long WZLogin(WxInfo wxinfo) throws BusinessException, NullPointerException {
 		if(wxinfo == null){
-			error_log.error("获取用户微信信息失败");
+			logger.error("获取用户微信信息失败");
 			throw new NullPointerException();
 		}
 		Long userId = null;
@@ -181,8 +180,10 @@ public class UserServiceImpl implements UserService{
 	 */
 	@Override
 	public Long WzPlatformLogin(String code) throws BusinessException {
-		if(code == null || "".equals(code))
+		if(code == null || "".equals(code)) {
+			logger.error("code为空");
 			return null;
+		}
 		//获取用户信息
 		WxInfo wxInfo = getUserInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
 		//WxInfo userInfo = getUserInfo(code);
@@ -457,7 +458,7 @@ public class UserServiceImpl implements UserService{
 		//添加数据库
 		int status = userDao.insertMessage(message);
 		if(status <= 0){
-			error_log.error("用户登录添加验证码信息失败");
+			logger.error("用户登录添加验证码信息失败");
 			throw new BusinessException("登录添加验证码失败");
 		}
 		return token;
