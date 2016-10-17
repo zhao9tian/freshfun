@@ -87,6 +87,7 @@ public class UserServiceImpl implements UserService{
 				user.setIsReceived((byte)1);
 				user.setIsDeleted((byte)0);
 				userDao.insert(user);
+				userId=user.getId();
 			}
 		}
 		return userId;
