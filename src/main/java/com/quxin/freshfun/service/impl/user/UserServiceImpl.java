@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public int insertUser(UsersPOJO user) {
-		return userDao.insert(user);
+		return userDao.insertUsers(user);
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService{
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
 				user.setIsDeleted((byte)0);
-				userDao.insert(user);
+				userDao.insertUsers(user);
 				userId=user.getId();
 			}
 		}
@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService{
 			user.setUserIdentify((byte)0);
 			user.setUserEnter((byte)1);
 			user.setIsReceived((byte)1);
-			int addResForUsers = userDao.insert(user);
+			int addResForUsers = userDao.insertUsers(user);
 			if(addResForUsers == 0){
 				logger.error("users表添加失败");
 				throw new BusinessException("用户添加失败");
@@ -278,7 +278,7 @@ public class UserServiceImpl implements UserService{
 				user.setUserIdentify((byte)1);
 				user.setUserEnter((byte)1);
 				user.setIsReceived((byte)1);
-				int status = userDao.insert(user);
+				int status = userDao.insertUsers(user);
 				if(status <= 0){
 					logger.error("用户添加失败");
 					throw new BusinessException("用户添加失败");

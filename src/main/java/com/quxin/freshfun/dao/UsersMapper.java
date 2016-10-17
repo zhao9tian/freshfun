@@ -12,7 +12,7 @@ import com.quxin.freshfun.model.UsersPOJO;
 
 public interface UsersMapper {
     int deleteByPrimaryKey(Integer id);
-    int insert(UsersPOJO record);
+    int insertUsers(UsersPOJO record);
     int insertSelective(UsersPOJO record);
     UsersPOJO selectByPrimaryKey(Long id);
     int updateByPrimaryKeySelective(UsersPOJO record);

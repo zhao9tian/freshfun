@@ -82,7 +82,7 @@
     delete from users
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.quxin.freshfun.model.UsersPOJO" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insertUsers" parameterType="com.quxin.freshfun.model.UsersPOJO" useGeneratedKeys="true" keyProperty="id">
       insert into users (id, user_id, gmt_create, gmt_modified, 
       user_name, user_head_url, mobile_phone, 
       device_id, wx_id, wz_id, 
