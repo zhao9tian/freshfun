@@ -68,9 +68,11 @@ public class UserLoginController {
 		boolean authResult = CookieUtil.checkAuth(request);
         //判断userId是否有效，在数据库中是否存在
         if(authResult) {
+			logger.error("*************存在cookie");
 			//校验cookie  存在cookie，开始校验userId有效性
             UsersPOJO user = userService.queryUserById(CookieUtil.getUserIdFromCookie(request));
             if (user == null){
+				logger.error("*************cookie无效");
 				//校验cookie  存在cookie，userId无效
 				authResult = false;
 				//清除cookie
@@ -81,12 +83,15 @@ public class UserLoginController {
 				response.addCookie(cookie);
 			}
         }
-		if(!authResult){//cookie无效
+		if(!authResult){//cookie不存在
+
 			//校验cookie  不存在cookie，开始校验code
 			if(code==null||"".equals(code)){  //没有code
+				logger.error("*************不存在cookie并且没有code");
 				//校验cookie  不存在cookie，并且没有接收到code
 				return ResultUtil.fail(1022,"无效cookie并且没有code");
 			}else{//有code
+				logger.error("*************不存在cookie并且有code");
 				//校验cookie  不存在cookie，有接收到code
 				Long userId = null;  //获取userId
 				try {
@@ -98,11 +103,13 @@ public class UserLoginController {
 				}
 				if(userId!=null){
 					//种植code，校验cookie  有code,获取到微信信息，插入数据
+					logger.error("***************种植code，校验没有cookie，有code,获取到微信信息，插入数据，userId="+userId);
 					Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
 					cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 					cookie.setDomain(".freshfun365.com");
 					cookie.setPath("/");
 					response.addCookie(cookie);
+					//检查用户是否为捕手
 					Integer result = userService.queryFetcherByUserId(userId);
 					if(result==1)
 						map.put("userId",FreshFunEncoder.idToUrl(userId));
@@ -117,6 +124,7 @@ public class UserLoginController {
 		}
 		//校验cookie  获取有效cookie
 		Long userId = CookieUtil.getUserIdFromCookie(request);
+		logger.error("***************Cookie种植成功，userId="+userId);
 		map.put("userId", FreshFunEncoder.idToUrl(userId));
 		return ResultUtil.success(map);
 	}
