@@ -7,6 +7,7 @@ import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.MoneyFormat;
@@ -34,7 +35,13 @@ public class OrderController {
 	private OrderService orderService;
 	@Autowired
 	private OrderManager orderManager;
+	@Autowired
+	private UserService userService;
 	private static Integer orderOutTime;
+	/**
+	 * 日志
+	 */
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 
 	private Logger resultLogger = LoggerFactory.getLogger("info_log");
@@ -270,8 +277,20 @@ public class OrderController {
 		ResponseResult payResult = null;
 		try {
 			Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
-			orderInfo.setUserId(userId);
-			payResult = orderService.addOrder(orderInfo);
+			if(userId != null){
+				orderInfo.setUserId(userId);
+				payResult = orderService.addOrder(orderInfo);
+				//判断用户是否绑定了手机
+				boolean isMobile = userService.findIsMobile(userId);
+				if(isMobile){
+					payResult.setIsPhone(1);
+				}else{
+					payResult.setIsPhone(0);
+				}
+			}else{
+				logger.error("用户创建订单时userId为null");
+			}
+
 		} catch (BusinessException e) {
 			resultLogger.error("添加订单失败",e);
 		}

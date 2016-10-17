@@ -5,9 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.common.FreshFunEncoder;
-import com.quxin.freshfun.controller.wxpay.AccessTokenRequestHandler;
 import com.quxin.freshfun.controller.wxpay.ClientRequestHandler;
-import com.quxin.freshfun.controller.wxpay.PackageRequestHandler;
 import com.quxin.freshfun.controller.wxpay.PrepayIdRequestHandler;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
@@ -125,6 +123,7 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
+		payResult.setOrderId(orderId);
 		//修改支付状态
 		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
@@ -232,14 +231,16 @@ public class OrderServiceImpl implements OrderService {
 		od.setActualPrice(payInfo.getGoodsPrice());
 		od.setPayTime(currentTime);
 		od.setOrderStatus(10);
-		//判断是否是捕手
+		//判断是否有上级
 		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
 			od.setFetcherId(userPOJO.getParentId());
 			//计算捕手需要获取的提成
 			Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
 			od.setFetcherPrice(fetcherMoney.intValue());
+			od.setPayPlateform(1);
 		}else{
 			String sign = orderInfo.getFetcherId();
+			od.setPayPlateform(0);
 			if (sign != null && !"".equals(sign)){
 				Long id = FreshFunEncoder.urlToId(sign);
 				if(id != null) {
@@ -248,7 +249,7 @@ public class OrderServiceImpl implements OrderService {
                     if(count > 0){
                         int status = usersMapper.updateUserParentId(id, uid);
                         if (status <= 0) {
-                            billLogger.error("添加分享标记失败");
+							logger.error("添加分享标记失败");
                         }else{
                             //添加分享提成
                             od.setFetcherId(id);
@@ -268,13 +269,7 @@ public class OrderServiceImpl implements OrderService {
 			Double agentMoney = payInfo.getGoodsPrice()*Constant.AGENT_COMPONENT;
 			od.setAgentPrice(agentMoney.intValue());
 		}
-		if(null == orderInfo.getPaySign() || "".equals(orderInfo.getPaySign())){
-			if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0){
-				od.setPayPlateform(1);
-			}else{
-				od.setPayPlateform(0);
-			}
-		}else{
+		if(null != orderInfo.getPaySign() || !"".equals(orderInfo.getPaySign())){
 			od.setPayPlateform(2);
 		}
 		od.setCount(goodsInfo.getCount());
