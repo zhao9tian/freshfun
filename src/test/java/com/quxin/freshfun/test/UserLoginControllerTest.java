@@ -4,6 +4,9 @@ import com.quxin.freshfun.controller.user.UserLoginController;
 import com.quxin.freshfun.controller.withdraw.WithdrawController;
 import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.model.param.WithdrawParam;
+import com.quxin.freshfun.service.flow.FlowService;
+import com.quxin.freshfun.service.impl.user.UserServiceImpl;
+import com.quxin.freshfun.service.user.UserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +18,12 @@ import org.junit.Test;
 public class UserLoginControllerTest extends TestBase{
 
 
-    private UserLoginController userLoginController;
+    private UserService userService;
 
     @Before
     public void setUp() throws Exception {
-        userLoginController = getContext().getBean("userLoginController", UserLoginController.class);
+        userService = getContext().getBean("userService", UserService.class);
+
     }
 
 
@@ -42,7 +46,7 @@ public class UserLoginControllerTest extends TestBase{
     }
     @Test
     public void getVerifyCode() throws Exception {
-//        System.out.println(withdrawController.getAllMoneyC("556677"));
+        userService.WXLogin("011MK0H81jU28S1HK8K81Cp4H81MK0H1","12313");
     }
 
     @Test

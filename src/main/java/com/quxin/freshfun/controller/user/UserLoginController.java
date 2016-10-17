@@ -4,6 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.outparam.WxUserInfo;
@@ -253,6 +254,7 @@ public class UserLoginController {
 		}
 		UsersPOJO user = userService.queryInfoByUserId(userId);
 		if(user==null){
+			logger.error("用户信息为空 " + JSON.toJSONString(user));
 			return ResultUtil.fail(1004,"获取用户头像昵称失败");
 		}
 		Map<String ,Object> map = new HashMap<String,Object>();
