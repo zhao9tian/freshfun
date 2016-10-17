@@ -105,75 +105,75 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public Long WZLogin(WxInfo wxinfo) throws BusinessException, NullPointerException {
+	public Long WZLogin(WxInfo wxinfo) throws BusinessException {
 		if(wxinfo == null){
-			logger.error("获取用户微信信息失败");
-			throw new NullPointerException();
+			logger.error("WZLogin方法 入参不能为空");
+			throw new BusinessException("用户添加失败");
 		}
 		Long userId = null;
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
-		if(wxId!=null && wzId != null){
-			//1.判断wxId是否存在数据库中
-			userId = userDao.getUserIdByWxId(wxId);
-			if(userId != null){
-				logger.error("根据微信信息，获取userId");
-				//3.判断wzId是否在用户表里面,wzId唯一
-				String wzIdDB = userDao.getWzIdBywxId(wxId);
-				if( wzIdDB!= null && !wzId.equals(wzIdDB)){
-					updateUser(userId, wzId);
-				}
-			}else{
-				logger.error("根据微信信息，未获取userId");
-				//2.插入新用户
-				UsersPOJO user = new UsersPOJO();
-				user.setWxId(wxId);
-				user.setWzId(wzId);
-				if(null != wxinfo.getCode() && !"".equals(wxinfo.getCode())){
-					try{
-						String parentId = AESUtil.decodeStr(wxinfo.getCode()).split("\\|")[0];
-						user.setParentId(Long.parseLong(parentId.replace("\"", "")));
-					}catch (Exception e){
-						logger.error("code不正确导致, parentId出错", e);
-					}
-				}
-				String wxHeadUrl = OSSUtils.uploadWxHeadImg(wxinfo.getHeadimgurl());
-				//不为空
-				user.setUserName(wxinfo.getNickname());
-				user.setUserHeadUrl(wxHeadUrl);
-				user.setGmtCreate(System.currentTimeMillis()/1000);
-				user.setGmtModified(System.currentTimeMillis()/1000);
-				user.setLoginMethod("wz");
-				user.setUserCredit((byte)1);
-				user.setUserIdentify((byte)0);
-				user.setUserEnter((byte)1);
-				user.setIsReceived((byte)1);
-				int addResForUsers = userDao.insert(user);
-				if(addResForUsers == 0){
-					logger.error("users表添加失败");
-					throw new BusinessException("用户添加失败");
-				}else{
-					userId = user.getId();
-				}
-				//插入一条用户信息到DB
-				UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
-				userDetailPOJO.setUserId(userId);
-				userDetailPOJO.setProvince(wxinfo.getProvince());
-				userDetailPOJO.setCity(wxinfo.getCity());
-				userDetailPOJO.setCountry(wxinfo.getCountry());
-				userDetailPOJO.setHeadimgurl(wxinfo.getHeadimgurl());
-				userDetailPOJO.setLanguage(wxinfo.getLanguage());
-				userDetailPOJO.setNickname(wxinfo.getNickname());
-				userDetailPOJO.setUnionid(wxinfo.getUnionid());
-				userDetailPOJO.setOpenid(wxinfo.getOpenid());
-				int addResForUserInfo = userDao.insertUserDetails(userDetailPOJO);
-				if (addResForUserInfo == 0) {
-					logger.error("user_info表添加失败");
-					throw new BusinessException("用户添加失败");
-				}
+		if(wxId!=null && wzId != null) {
+			logger.error("微信信息获取不为空，但是openId或unionId为空");
+			throw new BusinessException("微信信息获取不为空，但是openId或unionId为空");
+		}
+		//1.判断wxId是否存在数据库中
+		userId = userDao.getUserIdByWxId(wxId);
+		if(userId != null){
+			logger.error("根据微信信息，获取userId");
+			//3.判断wzId是否在用户表里面,wzId唯一
+			String wzIdDB = userDao.getWzIdBywxId(wxId);
+			if( wzIdDB!= null && !wzId.equals(wzIdDB)){
+				updateUser(userId, wzId);
 			}
 		}else{
-			logger.error("微信信息获取不为空，但是openId或unionId为空");
+			logger.error("根据微信信息，未获取userId");
+			//2.插入新用户
+			UsersPOJO user = new UsersPOJO();
+			user.setWxId(wxId);
+			user.setWzId(wzId);
+			if(null != wxinfo.getCode() && !"".equals(wxinfo.getCode())){
+				try{
+					String parentId = AESUtil.decodeStr(wxinfo.getCode()).split("\\|")[0];
+					user.setParentId(Long.parseLong(parentId.replace("\"", "")));
+				}catch (Exception e){
+					logger.error("code不正确导致, parentId出错", e);
+				}
+			}
+			String wxHeadUrl = OSSUtils.uploadWxHeadImg(wxinfo.getHeadimgurl());
+			//不为空
+			user.setUserName(wxinfo.getNickname());
+			user.setUserHeadUrl(wxHeadUrl);
+			user.setGmtCreate(System.currentTimeMillis()/1000);
+			user.setGmtModified(System.currentTimeMillis()/1000);
+			user.setLoginMethod("wz");
+			user.setUserCredit((byte)1);
+			user.setUserIdentify((byte)0);
+			user.setUserEnter((byte)1);
+			user.setIsReceived((byte)1);
+			int addResForUsers = userDao.insert(user);
+			if(addResForUsers == 0){
+				logger.error("users表添加失败");
+				throw new BusinessException("用户添加失败");
+			}else{
+				userId = user.getId();
+			}
+			//插入一条用户信息到DB
+			UserDetailPOJO userDetailPOJO = new UserDetailPOJO();
+			userDetailPOJO.setUserId(userId);
+			userDetailPOJO.setProvince(wxinfo.getProvince());
+			userDetailPOJO.setCity(wxinfo.getCity());
+			userDetailPOJO.setCountry(wxinfo.getCountry());
+			userDetailPOJO.setHeadimgurl(wxinfo.getHeadimgurl());
+			userDetailPOJO.setLanguage(wxinfo.getLanguage());
+			userDetailPOJO.setNickname(wxinfo.getNickname());
+			userDetailPOJO.setUnionid(wxinfo.getUnionid());
+			userDetailPOJO.setOpenid(wxinfo.getOpenid());
+			int addResForUserInfo = userDao.insertUserDetails(userDetailPOJO);
+			if (addResForUserInfo == 0) {
+				logger.error("user_info表添加失败");
+				throw new BusinessException("用户添加失败");
+			}
 		}
 		return userId;
 	}
