@@ -124,7 +124,12 @@ public class UserServiceImpl implements UserService{
 			//3.判断wzId是否在用户表里面,wzId唯一
 			String wzIdDB = userDao.getWzIdBywxId(wxId);
 			if( wzIdDB!= null && !wzId.equals(wzIdDB)){
-				updateUser(userId, wzId);
+
+				int updateRes = updateUser(userId, wzId);
+				if (updateRes == 0) {
+					logger.error("更新users表失败，userId：" + userId);
+					throw new BusinessException("微信信息获取不为空，但是openId或unionId为空");
+				}
 			}
 		}else{
 			logger.error("根据微信信息，未获取userId");
@@ -214,11 +219,11 @@ public class UserServiceImpl implements UserService{
 	 * @param userId
 	 * @param wzId
 	 */
-	private void updateUser(Long userId, String wzId) {
+	private Integer updateUser(Long userId, String wzId) {
 		Map<String, Object> map = new HashMap<>();
 		map.put("userId", userId);
 		map.put( "wzId", wzId);
-		userDao.updateUser(map);
+		return userDao.updateUser(map);
 	}
 
 	@Override
