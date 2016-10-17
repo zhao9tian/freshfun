@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService{
 		Long userId = null;
 		String wxId = wxinfo.getUnionid();
 		String wzId = wxinfo.getOpenid();
-		if(wxId!=null && wzId != null) {
+		if(wxId==null || wzId == null) {
 			logger.error("微信信息获取不为空，但是openId或unionId为空");
 			throw new BusinessException("微信信息获取不为空，但是openId或unionId为空");
 		}
