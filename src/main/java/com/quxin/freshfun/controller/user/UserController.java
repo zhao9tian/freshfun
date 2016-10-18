@@ -56,7 +56,9 @@ public class UserController {
 		Long ui = CookieUtil.getUserIdFromCookie(request);
 		List<UserAddress> addressList = Lists.newArrayList();
 		UserAddress userAddress = userAddressService.userDefaultAddress(ui);
-		addressList.add(userAddress);
+		if(userAddress != null){
+			addressList.add(userAddress);
+		}
 		return addressList;
 	}
 	

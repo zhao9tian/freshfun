@@ -129,16 +129,14 @@ public class OrderServiceImpl implements OrderService {
 		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
 		payResult.setOrderId(orderDetailsId);
 		//修改支付状态
-		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
-			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
+		if(orderInfo.getGoodsInfo().get(0).getScId() != null) {
+			for (int i = 0; i < orderInfo.getGoodsInfo().size(); i++) {
 				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
-				if(status <= 0){
-					resultLogger.error(orderInfo.getUserId()+"修改购物车状态失败");
+				if (status <= 0) {
+					resultLogger.error(orderInfo.getUserId() + "修改购物车状态失败");
 					throw new BusinessException("修改购物车状态");
 				}
 			}
-		}else{
-			logger.error("购物车传递参数错误");
 		}
 		return payResult;
 	}
@@ -896,7 +894,7 @@ public class OrderServiceImpl implements OrderService {
 		prepayReqHandler.setParameter("nonce_str", noncestr);
 		prepayReqHandler.setParameter("notify_url", notify_url);
 		prepayReqHandler.setParameter("out_trade_no", payId);
-		prepayReqHandler.setParameter("total_fee","10"); //商品金额,以分为单位
+		prepayReqHandler.setParameter("total_fee",payMoney); //商品金额,以分为单位
 		prepayReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
 		prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
 		prepayReqHandler.setParameter("trade_type","APP");
