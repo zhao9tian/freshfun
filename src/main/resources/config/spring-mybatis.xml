@@ -69,11 +69,10 @@
             <tx:attributes>
                 <tx:method name="insert*" propagation="REQUIRED"/>
                 <tx:method name="create*" propagation="REQUIRED"/>
-                <tx:method name="add*" propagation="REQUIRED"/>
+                <tx:method name="add*" propagation="REQUIRED" rollback-for="com.quxin.freshfun.utils.BusinessException"/>
                 <tx:method name="update*" propagation="REQUIRED"/>
                 <tx:method name="del*" propagation="REQUIRED"/>
                 <tx:method name="delete*" propagation="REQUIRED"/>
-                
                 <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
                 <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
                 <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
