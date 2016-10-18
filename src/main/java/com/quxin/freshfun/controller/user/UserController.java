@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.quxin.freshfun.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -51,9 +52,12 @@ public class UserController {
 	 */
 	@RequestMapping("/userdefaultaddress")
 	@ResponseBody
-	public UserAddress FindUseDefaultrAddress(HttpServletRequest request){
+	public List<UserAddress> FindUseDefaultrAddress(HttpServletRequest request){
 		Long ui = CookieUtil.getUserIdFromCookie(request);
-		return userAddressService.userDefaultAddress(ui);
+		List<UserAddress> addressList = Lists.newArrayList();
+		UserAddress userAddress = userAddressService.userDefaultAddress(ui);
+		addressList.add(userAddress);
+		return addressList;
 	}
 	
 	/**
