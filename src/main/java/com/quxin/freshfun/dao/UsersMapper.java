@@ -41,7 +41,7 @@ public interface UsersMapper {
 	Integer selectFetcherByUserId(Long userId);
 
     /**
-     * Query entity according to id not user_id 
+     * Query entity according to id not user_id
      * @param id
      * @return
      */
