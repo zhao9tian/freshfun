@@ -20,7 +20,23 @@ public class WxConstantUtil {
     public static String EXPIRE_ERRCODE = "42001";//access_token失效后请求返回的errcode
     public static String FAIL_ERRCODE = "40001";//重复获取导致上一次获取的access_token失效,返回错误码
     public static String GATEURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//获取预支付id的接口url
-    //"https://api.weixin.qq.com/pay/genprepay?access_token="
+    /**
+     * 微信oAuth认证获取accessToken地址
+     */
+    public static String OAUTH_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=";
+
+    public static String ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential";
+    /**
+     * 获取微信用户信息地址
+     */
+    public static String WX_USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=";
+    /**
+     * 获取jsapi_ticket地址
+     */
+    public static String WX_TICKET_URL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=";
+    //接收财付通通知的URL
+    public static String NOTIFY_URL = "https://www.freshfun365.com/FreshFun/payCallback.do";
+
     public static String ACCESS_TOKEN = "access_token";//access_token常量值
     public static String ERRORCODE = "errcode";//用来判断access_token是否失效的值
     public static String SIGN_METHOD = "sha1";//签名算法常量值

@@ -8,12 +8,14 @@ import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxUserInfo;
+import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.model.pojo.UserBasePOJO;
 import com.quxin.freshfun.service.user.IdentifiedCodeService;
 import com.quxin.freshfun.service.user.NickNameService;
 import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +103,7 @@ public class UserLoginController {
 				try {
 					//userId = userService.WzPlatformLogin(code);
 					//获取微信中的用户信息
-					WxInfo weChatInfo = WeChatUtil.getWeChatInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
+					WxInfo weChatInfo = getWxUserInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
 					String unionId = weChatInfo.getUnionid();
 					String openId = weChatInfo.getOpenid();
 					if(unionId==null || openId == null) {
@@ -181,6 +183,28 @@ public class UserLoginController {
 		logger.error("***************Cookie种植成功，userId="+userId);
 		map.put("userId", FreshFunEncoder.idToUrl(userId));
 		return ResultUtil.success(map);
+	}
+
+	/**
+	 * 获取微信用户基本信息
+	 * @param code
+	 * @param appId
+	 * @param appSecret
+	 * @return
+	 */
+	private WxInfo getWxUserInfo(String code, String appId, String appSecret) {
+		WxAccessTokenInfo accessToken = WXUtil.getOauthAccessToken(appId, appSecret, code);
+		if(accessToken != null){
+			String token = accessToken.getAccess_token();
+			if(token != null){
+				return WXUtil.getWxUserInfo(token, accessToken.getOpenid());
+			}else{
+				logger.error("用户token为null");
+			}
+		}else{
+			logger.error("获取用户accessToken失败");
+		}
+		return null;
 	}
 
 	@ResponseBody
@@ -299,10 +323,8 @@ public class UserLoginController {
 		Map<String,Object> mapUser = new HashMap<String, Object>();
 		if(code != null){
 			try {
-				//WxUserInfo wxInfo =userService.WXLogin(code,deviceId);
-				WxUserInfo wxInfo = null;
 				//获取用户信息
-				WxInfo weChatInfo = WeChatUtil.getWeChatInfo(code, ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
+				WxInfo weChatInfo = getWxUserInfo(code, ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
 				if (weChatInfo == null) {
 					logger.error("获取不到微信信息 code:" + code);
 					throw new BusinessException("获取不到微信信息 code:" + code);

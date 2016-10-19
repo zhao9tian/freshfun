@@ -17,11 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Service
 public interface OrderService {
-	/**
-	 * 查询所有订单
-	 * @return
-	 */
-	public List<OrdersPOJO> findAllOrders();
+
 	/**
 	 * 添加订单信息
 	 * @param orderInfo
