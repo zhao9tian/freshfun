@@ -99,4 +99,9 @@
         where user_id=#{userId} and is_deleted=0
     </update>
 
+    <!---为用户添加父级捕手id-->
+    <update id="updateFetcherForUser" parameterType="java.util.Map">
+        update user_base set fetcher_id=#{fetcherId} where user_id=#{userId} and is_deleted=0
+    </update>
+
 </mapper>

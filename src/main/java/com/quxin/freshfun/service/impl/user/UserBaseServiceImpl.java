@@ -245,6 +245,24 @@ public class UserBaseServiceImpl implements UserBaseService {
     }
 
     /**
+     * 为用户添加父级捕手id
+     * @param userId 用户id
+     * @param fetcherId 捕手id
+     * @return 受影响行数
+     */
+    public Integer modifyFetcherForUser(Long userId,Long fetcherId){
+        if(userId==null||fetcherId==null){
+            logger.error("为用户添加父级捕手id时，入参有误");
+            return null;
+        }else{
+            Map<String,Object> map = new HashMap<String,Object>();
+            map.put("userId",userId);
+            map.put("fetcherId",fetcherId);
+            return userBaseMapper.updateFetcherForUser(map);
+        }
+    }
+
+    /**
      * 根据微信id查询用户id
      * @param unionId  微信id
      * @return 用户id

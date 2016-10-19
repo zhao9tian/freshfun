@@ -23,6 +23,13 @@ public interface UserBaseMapper {
     Integer updateUserIdById(Long id);
 
     /**
+     * 为用户添加父级捕手id
+     * @param map 参数map（userId，fetcherId）
+     * @return 受影响行数
+     */
+    Integer updateFetcherForUser(Map<String,Object> map);
+
+    /**
      * 根据userId查询上级捕手Id
      * @param userId userId
      * @return fetcherId

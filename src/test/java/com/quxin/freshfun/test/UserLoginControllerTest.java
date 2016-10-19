@@ -155,4 +155,16 @@ public class UserLoginControllerTest extends TestBase{
         }
     }
 
+    @Test
+    public void updateFetcherForUser(){//为用户添加父级捕手
+        Integer result = userBaseService.modifyFetcherForUser(372913l,372912l);
+        if(result==null){
+            System.out.println("入参有误");
+        }else if(result==1){
+            System.out.println("添加成功");
+        }else{
+            System.out.println("添加失败");
+        }
+    }
+
 }

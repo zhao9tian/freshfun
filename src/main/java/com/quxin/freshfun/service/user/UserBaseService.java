@@ -23,6 +23,14 @@ public interface UserBaseService {
     Long queryFetcherIdByUserId(Long userId);
 
     /**
+     * 为用户添加父级捕手id
+     * @param userId 用户id
+     * @param fetcherId 捕手id
+     * @return 受影响行数
+     */
+    Integer modifyFetcherForUser(Long userId,Long fetcherId);
+
+    /**
      * 根据userId获取用户的信息（userId，头像，昵称，手机号）
      * @param userId userId
      * @param type 0是微站，1是APP
