@@ -1,7 +1,7 @@
 package com.quxin.freshfun.model.goods;
 
 /**
- *
+ *  商品详情出参
  * Created by qucheng on 2016/10/12.
  */
 public class GoodsInfoPOJO {
