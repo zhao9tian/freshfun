@@ -6,10 +6,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.common.FreshFunEncoder;
-import com.quxin.freshfun.model.UsersPOJO;
+import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxUserInfo;
+import com.quxin.freshfun.model.pojo.UserBasePOJO;
+import com.quxin.freshfun.service.user.IdentifiedCodeService;
 import com.quxin.freshfun.service.user.NickNameService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.*;
+import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.quxin.freshfun.model.Message;
-import com.quxin.freshfun.model.ReturnStatus;
-import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.service.user.UserService;
 
 import java.io.UnsupportedEncodingException;
@@ -37,6 +39,10 @@ public class UserLoginController {
 	private NickNameService nickNameService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private UserBaseService userBaseService;
+	@Autowired
+	private IdentifiedCodeService identifiedCodeService;
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
@@ -70,8 +76,9 @@ public class UserLoginController {
         if(authResult) {
 			logger.error("*************存在cookie");
 			//校验cookie  存在cookie，开始校验userId有效性
-            UsersPOJO user = userService.queryUserById(CookieUtil.getUserIdFromCookie(request));
-            if (user == null){
+            //UsersPOJO user = userService.queryUserById();
+			Integer count = userBaseService.checkUserId(CookieUtil.getUserIdFromCookie(request));
+            if(count==0){
 				logger.error("*************cookie无效");
 				//校验cookie  存在cookie，userId无效
 				authResult = false;
@@ -84,18 +91,65 @@ public class UserLoginController {
 			}
         }
 		if(!authResult){//cookie不存在
-
 			//校验cookie  不存在cookie，开始校验code
 			if(code==null||"".equals(code)){  //没有code
-				logger.error("*************不存在cookie并且没有code");
 				//校验cookie  不存在cookie，并且没有接收到code
 				return ResultUtil.fail(1022,"无效cookie并且没有code");
 			}else{//有code
-				logger.error("*************不存在cookie并且有code");
 				//校验cookie  不存在cookie，有接收到code
 				Long userId = null;  //获取userId
 				try {
-					userId = userService.WzPlatformLogin(code);
+					//userId = userService.WzPlatformLogin(code);
+					//获取微信中的用户信息
+					WxInfo weChatInfo = WeChatUtil.getWeChatInfo(code, WxConstantUtil.APP_ID,WxConstantUtil.APP_SECRET);
+					String unionId = weChatInfo.getUnionid();
+					String openId = weChatInfo.getOpenid();
+					if(unionId==null || openId == null) {
+						logger.error("微信信息获取不为空，但是openId或unionId为空");
+						throw new BusinessException("微信信息获取不为空，但是openId或unionId为空");
+					}else{
+						//校验用户unionId是否存在
+						userId = userBaseService.queryUserIdByUnionId(unionId);
+						if(userId!=null){//用户存在
+							//存在unionId，判断openId是否一致，不一致就修改
+							String theOpenId = userBaseService.queryOpenIdByUnionId(unionId);
+							if(!openId.equals(theOpenId)){//openId不一致
+								Integer meshResult = userBaseService.modifyUserToMesh(userId,null,openId,null);
+								if(meshResult<1){
+									logger.error("更新users表失败，userId：" + userId);
+									throw new BusinessException("更新users表失败，userId：" + userId);
+								}
+							}
+						}else{//用户不存在,插入新用户
+							UserBasePOJO userBase = new UserBasePOJO();
+							String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
+							userBase.setUserName(userName);
+							String wxHeadUrl = OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
+							userBase.setUserHeadImg(wxHeadUrl);
+							userBase.setUnionId(unionId);
+							userBase.setOpenId(openId);
+							userBase.setDeviceId("");
+							userBase.setCity(weChatInfo.getCity());
+							userBase.setProvince(weChatInfo.getProvince());
+							userBase.setCountry(weChatInfo.getCountry());
+							userBase.setSource((byte)0);
+							userBase.setFetcherId(0l);
+							userBase.setPhoneNumber("");
+							userBase.setIdentity((byte)0);
+							userBase.setLoginType((byte)3);
+							userBase.setIsFetcher((byte)0);
+							userBase.setUserNameCount(0);
+							userBase.setCreated(System.currentTimeMillis()/1000);
+							userBase.setUpdated(System.currentTimeMillis()/1000);
+							userBase.setIsDeleted(0);
+							Integer result = userBaseService.addUserBaseInfo(userBase);
+							if(result==1){
+								userId = userBase.getId();
+							}else{
+								logger.error("用户数据插入失败");
+							}
+						}
+					}
 					//校验cookie  有code,获取到微信信息，插入数据
 				} catch (Exception e) {
 					logger.error("插入用户信息失败",e);
@@ -103,15 +157,15 @@ public class UserLoginController {
 				}
 				if(userId!=null){
 					//种植code，校验cookie  有code,获取到微信信息，插入数据
-					logger.error("***************种植code，校验没有cookie，有code,获取到微信信息，插入数据，userId="+userId);
 					Cookie cookie = new Cookie("userId",CookieUtil.getCookieValueByUserId(userId));
 					cookie.setMaxAge(CookieUtil.getCookieMaxAge());
 					cookie.setDomain(".freshfun365.com");
 					cookie.setPath("/");
 					response.addCookie(cookie);
 					//检查用户是否为捕手
-					Integer result = userService.queryFetcherByUserId(userId);
-					if(result==1)
+					//Integer result = userService.queryFetcherByUserId(userId);
+					boolean result = userBaseService.checkIsFetcherByUserId(userId);
+					if(result)
 						map.put("userId",FreshFunEncoder.idToUrl(userId));
 					else
 						map.put("userId","");
@@ -135,25 +189,58 @@ public class UserLoginController {
 		Map<String, Object>  map = new HashMap<String, Object>();
 		if(token != null && code != null && deviceId != null){
 			//查询验证码信息
-			Message message = new Message();
+			/*Message message = new Message();
 			message.setToken(token);
-			message.setCode(code);
+			message.setCode(code);*/
 			String phoneNum="";
 			//app store 审核专用号
 			if("0000".equals(code)&&"XXXXXXXXXXXXXXXX".equals(token))
 				phoneNum = "15890658117";
 			else
-				phoneNum = userService.validateAppCode(message);
+				//phoneNum = userService.validateAppCode(message);
+				phoneNum=identifiedCodeService.queryPhoneNumberByCode(token,code);
 			if(phoneNum != null){
-				String nickName = nickNameService.queryRandNickName();
+				String nickName = nickNameService.queryRandNickName(null);
 				String headUrl = "/image/2016/9/13/1473757743180.jpg";
-				Long userId =userService.PhoneLogin(phoneNum, deviceId,nickName,headUrl);
-				UsersPOJO user = userService.queryUserById(userId);
-				if(user !=null){
-					map.put("userId",user.getId());
-					map.put("nickname",user.getUserName());
-					map.put("headimgurl",user.getUserHeadUrl());
-					map.put("mobilePhone",user.getMobilePhone());
+				Long userId = userBaseService.queryUserIdByPhoneNumber(phoneNum);
+				//Long userId =userService.PhoneLogin(phoneNum, deviceId,nickName,headUrl);
+				if(userId!=null){
+					//3.判断该手机号是否有设备号（之前在微站上登录过,没在手机登录）,如果没有插入设备号
+					String device = userBaseService.queryDeviceIdByPhoneNumber(phoneNum);
+					if(device==null || "".equals(device)){
+						userBaseService.modifyUserToMesh(userId,deviceId,null,null);
+					}
+				}else{
+					UserBasePOJO userBase = new UserBasePOJO();
+					String userName = nickNameService.queryRandNickName(nickName);
+					userBase.setUserName(userName);
+					String wxHeadUrl = OSSUtils.uploadWxHeadImg(headUrl);
+					userBase.setUserHeadImg(wxHeadUrl);
+					userBase.setPhoneNumber(phoneNum);
+					userBase.setUnionId("");
+					userBase.setOpenId("");
+					userBase.setDeviceId("");
+					userBase.setCity("");
+					userBase.setProvince("");
+					userBase.setCountry("");
+					userBase.setSource((byte)0);
+					userBase.setFetcherId(0l);
+					userBase.setIdentity((byte)0);
+					userBase.setLoginType((byte)1);
+					userBase.setIsFetcher((byte)0);
+					userBase.setUserNameCount(0);
+					userBase.setCreated(System.currentTimeMillis()/1000);
+					userBase.setUpdated(System.currentTimeMillis()/1000);
+					userBase.setIsDeleted(0);
+					Integer result = userBaseService.addUserBaseInfo(userBase);
+					if(result==1){
+						userId = userBase.getId();
+					}else{
+						logger.error("用户数据插入失败");
+					}
+				}
+				if(userId !=null){
+					map = userBaseService.queryUserInfoByUserId(userId,1);
 				}else{
 					return ResultUtil.fail(1004,"账户有误");
 				}
@@ -183,7 +270,8 @@ public class UserLoginController {
 			resultMap.put("status",map);
 			return resultMap;
 		}
-		String token = userService.genertCode(phone);
+		//String token = userService.genertCode(phone);
+		String token = identifiedCodeService.genertCode(phone);
 		if(token != null){
 			map.put("code",1001);
 			map.put("msg","请求成功");
@@ -208,13 +296,70 @@ public class UserLoginController {
 	public Map<String, Object>  wxLogin(String code,String deviceId) throws UnsupportedEncodingException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object>  resultMap = new HashMap<String, Object>();
+		Map<String,Object> mapUser = new HashMap<String, Object>();
 		if(code != null){
 			try {
-				WxUserInfo wxInfo =userService.WXLogin(code,deviceId);
+				//WxUserInfo wxInfo =userService.WXLogin(code,deviceId);
+				WxUserInfo wxInfo = null;
+				//获取用户信息
+				WxInfo weChatInfo = WeChatUtil.getWeChatInfo(code, ConstantUtil.APP_ID,ConstantUtil.APP_SECRET);
+				if (weChatInfo == null) {
+					logger.error("获取不到微信信息 code:" + code);
+					throw new BusinessException("获取不到微信信息 code:" + code);
+				}
+				Long userId = null;
+				if(weChatInfo!=null){
+					UserInfoPOJO userInfo = new UserInfoPOJO();
+					userInfo.setWxInfo(weChatInfo);
+					String unionId = weChatInfo.getUnionid();
+					//1.判断wxid是否存在数据库中
+					userId = userBaseService.queryUserIdByUnionId(unionId);
+					if(userId != null){
+						//3.判断deviceId是否在用户表里面,deviceId唯一
+						if(deviceId != null && !"".equals(deviceId)) {
+							userId = userBaseService.queryUserIdByDeviceId(deviceId);
+							if (userId != null) {
+								//修改用户信息
+								userBaseService.modifyUserToMesh(userId,deviceId,null,null);
+							}
+						}
+						//查询用户头像信息
+						mapUser = userBaseService.queryUserInfoByUserId(userId,1);
+					}else{
+						UserBasePOJO userBase = new UserBasePOJO();
+						String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
+						userBase.setUserName(userName);
+						String wxHeadUrl = OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
+						userBase.setUserHeadImg(wxHeadUrl);
+						userBase.setPhoneNumber("");
+						userBase.setUnionId("");
+						userBase.setOpenId("");
+						userBase.setDeviceId("");
+						userBase.setCity("");
+						userBase.setProvince("");
+						userBase.setCountry("");
+						userBase.setSource((byte)0);
+						userBase.setFetcherId(0l);
+						userBase.setIdentity((byte)0);
+						userBase.setLoginType((byte)2);
+						userBase.setIsFetcher((byte)0);
+						userBase.setUserNameCount(0);
+						userBase.setCreated(System.currentTimeMillis()/1000);
+						userBase.setUpdated(System.currentTimeMillis()/1000);
+						userBase.setIsDeleted(0);
+						Integer result = userBaseService.addUserBaseInfo(userBase);
+						if(result==1){
+							userId = userBase.getId();
+							mapUser = userBaseService.queryUserInfoByUserId(userId,1);
+						}else{
+							logger.error("用户数据插入失败");
+						}
+					}
+				}
 				map.put("code",1001);
 				map.put("msg","请求成功");
 				resultMap.put("status",map);
-				resultMap.put("data",wxInfo);
+				resultMap.put("data",mapUser);
 			} catch (BusinessException e) {
 				logger.error("添加用户失败",e);
 			}
@@ -226,7 +371,7 @@ public class UserLoginController {
 		}
 		return resultMap;
 	}
-	@ResponseBody
+	/*@ResponseBody
 	@RequestMapping("/wzLogin")
 	public String wzLogin(@RequestBody WxInfo wxinfo,HttpServletResponse response){
 		Long userId = null;
@@ -242,7 +387,7 @@ public class UserLoginController {
 			logger.error("用户生成失败",e);
 		}
 		return userId.toString();
-	}
+	}*/
 
 	@ResponseBody
 	@RequestMapping("/getVerifyCode")
@@ -260,22 +405,32 @@ public class UserLoginController {
 		if(userId==null){
 			return ResultUtil.fail(1004,"获取用户cookie失败");
 		}
-		UsersPOJO user = userService.queryInfoByUserId(userId);
-		if(user==null){
-			logger.error("用户信息为空 " + JSON.toJSONString(user));
-			return ResultUtil.fail(1004,"获取用户头像昵称失败");
-		}
 		Map<String ,Object> map = new HashMap<String,Object>();
-		map.put("userImg",user.getUserHeadUrl());
-		map.put("nickName",user.getUserName());
+		map = userBaseService.queryUserInfoByUserId(userId,0);
 		return ResultUtil.success(map);
 	}
 	
 	@ResponseBody
 	@RequestMapping("/validateVerifyCode")
 	public ReturnStatus bindPhone(@RequestBody Message message , HttpServletRequest request){
-		message.setUserId(CookieUtil.getUserIdFromCookie(request).toString());
-		Integer status = userService.validateMessage(message);
+		Long userId = null;
+		if(message.getUserId()!=null&&!"".equals(message.getUserId()))
+			userId = Long.parseLong(message.getUserId());
+		else
+			userId = CookieUtil.getUserIdFromCookie(request);
+		Integer status = 0;
+		Integer count = identifiedCodeService.checkCode(message.getPhoneNum(),message.getCode());
+		if(count > 0){
+			boolean result  = identifiedCodeService.checkCodeOvertime(message.getPhoneNum(),message.getCode());
+			if(result){
+				//1.1id不为空说明该验证码有效
+				status = 2;
+				userBaseService.modifyUserToMesh(userId,null,null,message.getPhoneNum());
+			}else{
+				//1.2id为空说明验证码已经过期
+				status = 1;
+			}
+		}
 		ReturnStatus rs = new ReturnStatus();
 		rs.setStatus(status);
 		return rs;

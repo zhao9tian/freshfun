@@ -71,7 +71,7 @@ public class UserLoginControllerTest extends TestBase{
         userBase.setIsDeleted(0);
         Integer result = userBaseService.addUserBaseInfo(userBase);
         if(result==1){
-            System.out.println("用户新增成功！");
+            System.out.println("用户新增成功！"+userBase.getId());
         }
     }
     @Test
@@ -132,7 +132,7 @@ public class UserLoginControllerTest extends TestBase{
 
     @Test
     public void selectUserInfoByUserId(){//获取用户头像等信息
-        Map<String,Object> map = userBaseService.queryUserInfoByUserId(372897l);
+        Map<String,Object> map = userBaseService.queryUserInfoByUserId(372897l,1);
         if(map==null){
             System.out.println("用户不存在或已注销");
         }else{

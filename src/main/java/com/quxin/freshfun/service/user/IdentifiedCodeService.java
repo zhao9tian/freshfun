@@ -1,5 +1,7 @@
 package com.quxin.freshfun.service.user;
 
+import com.quxin.freshfun.utils.BusinessException;
+
 import java.util.Map;
 
 /**
@@ -46,4 +48,10 @@ public interface IdentifiedCodeService {
      */
     Integer removeIdentifiedCode();
 
+    /**
+     * 生成验证码
+     * @param phone 手机号
+     * @return token凭证
+     */
+    public String genertCode(String phone) throws BusinessException;
 }

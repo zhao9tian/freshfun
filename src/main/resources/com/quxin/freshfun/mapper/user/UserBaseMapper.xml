@@ -4,7 +4,7 @@
 
     <!--插入用户数据-->
     <insert id="insertUserBaseInfo" parameterType="com.quxin.freshfun.model.pojo.UserBasePOJO">
-        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Long">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()
         </selectKey>
         insert into user_base (user_id,user_name,user_head_img,user_name_count,phone_number,device_id,open_id,union_id,login_type,source,
@@ -12,6 +12,15 @@
         #{phoneNumber},#{deviceId},#{openId},#{unionId},#{loginType},#{source},#{identity},#{fetcherId},#{isFetcher},#{city},#{province},
         #{country},#{created},#{updated},#{isDeleted})
     </insert>
+
+    <update id="updateUserIdById" parameterType="java.lang.Long">
+        update user_base set user_id=#{id} where id=#{id}
+    </update>
+
+    <!--校验用户userId是否有效-->
+    <select id="validateUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(id) from user_base where user_id=#{userId} and is_deleted=0
+    </select>
 
     <!--根据userId查询上级捕手Id-->
     <select id="selectFetcherIdByUserId" parameterType="java.lang.Long" resultType="java.lang.Long">
@@ -41,6 +50,11 @@
     <!--根据手机号查询userId-->
     <select id="selectUserIdByPhoneNumber" parameterType="java.lang.String" resultType="java.lang.Long">
         select user_id from user_base where phone_number=#{phoneNumber} and is_deleted=0
+    </select>
+
+    <!--根据手机号查询userId-->
+    <select id="selectUserIdByDeviceId" parameterType="java.lang.String" resultType="java.lang.Long">
+        select user_id from user_base where device_id=#{deviceId} and is_deleted=0
     </select>
 
     <!--根据手机号查询设备号deviceId-->

@@ -16,6 +16,13 @@ public interface UserBaseMapper {
     Integer insertUserBaseInfo(UserBasePOJO userBase);
 
     /**
+     * 根据id更新userId
+     * @param id
+     * @return
+     */
+    Integer updateUserIdById(Long id);
+
+    /**
      * 根据userId查询上级捕手Id
      * @param userId userId
      * @return fetcherId
@@ -93,9 +100,23 @@ public interface UserBaseMapper {
     String selectDeviceIdByUnionId(String unionId);
 
     /**
+     * 根据设备号查询
+     * @param deviceId  设备号
+     * @return userID
+     */
+    Long selectUserIdByDeviceId(String deviceId);
+
+    /**
      * 根据userId查询微站id
      * @param userId  用户id
      * @return 微站id
      */
     String selectOpenIdByUserId(Long userId);
+
+    /**
+     * 校验userId是否有效
+     * @param userId 用户id
+     * @return 总数
+     */
+    Integer validateUserId(Long userId);
 }

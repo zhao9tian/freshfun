@@ -25,9 +25,10 @@ public interface UserBaseService {
     /**
      * 根据userId获取用户的信息（userId，头像，昵称，手机号）
      * @param userId userId
+     * @param type 0是微站，1是APP
      * @return map对象（userId，头像，昵称，手机号）
      */
-    Map<String,Object> queryUserInfoByUserId(Long userId);
+    Map<String,Object> queryUserInfoByUserId(Long userId,Integer type);
 
     /**
      * 根据userId获取用户手机号
@@ -102,4 +103,18 @@ public interface UserBaseService {
      * @return 微站id
      */
     String queryOpenIdByUserId(Long userId);
+
+    /**
+     * 校验userId是否有效
+     * @param userId 用户id
+     * @return 总数
+     */
+    Integer checkUserId(Long userId);
+
+    /**
+     * 根据设备号查询
+     * @param deviceId  设备号
+     * @return userID
+     */
+    Long queryUserIdByDeviceId(String deviceId);
 }

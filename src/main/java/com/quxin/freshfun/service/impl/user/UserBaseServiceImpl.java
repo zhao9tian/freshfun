@@ -48,10 +48,31 @@ public class UserBaseServiceImpl implements UserBaseService {
             }
         }
         if(checkPram){
-            return userBaseMapper.insertUserBaseInfo(userBase);
+            Integer resultId = userBaseMapper.insertUserBaseInfo(userBase);
+            Integer resultUserId = userBaseMapper.updateUserIdById(userBase.getId());
+            if(resultId==1&&resultUserId==1)
+                return 1;
+            else
+                return 0;
         }
         return 0;
     }
+
+    /**
+     * 校验userId是否有效
+     * @param userId 用户id
+     * @return 总数
+     */
+    public Integer checkUserId(Long userId){
+        if(userId==null){
+            logger.error("校验userId是否有效时，userId为空");
+            return null;
+        }else{
+            Integer count = userBaseMapper.validateUserId(userId);
+            return count;
+        }
+    }
+
     /**
      * 根据userId查询上级捕手Id
      * @param userId userId
@@ -71,11 +92,12 @@ public class UserBaseServiceImpl implements UserBaseService {
     }
 
     /**
-     * 根据userId获取用户的信息（userId，头像，昵称，手机号）    --app使用
+     * 根据userId获取用户的信息（userId，头像，昵称，手机号）
      * @param userId userId
+     * @param type 0是微站，1是APP
      * @return map对象（userId，头像，昵称，手机号）
      */
-    public Map<String,Object> queryUserInfoByUserId(Long userId){
+    public Map<String,Object> queryUserInfoByUserId(Long userId,Integer type){
         if(userId==null){
             logger.error("根据userId获取用户的信息（userId，头像，昵称，手机号）时，userId为空");
             return null;
@@ -86,10 +108,16 @@ public class UserBaseServiceImpl implements UserBaseService {
                 return null;
             }else{
                 Map<String,Object> map = new HashMap<String,Object>();
-                map.put("userId",user.getUserId());
-                map.put("userName",user.getUserName());
-                map.put("userHeadImg",user.getUserHeadImg());
-                map.put("phoneNumber",user.getPhoneNumber());
+                if(type==0){
+                    map.put("userId",user.getUserId());
+                    map.put("nickName",user.getUserName());
+                    map.put("userImg",user.getUserHeadImg());
+                }else{
+                    map.put("userId",user.getUserId());
+                    map.put("userName",user.getUserName());
+                    map.put("userHeadImg",user.getUserHeadImg());
+                    map.put("phoneNumber",user.getPhoneNumber());
+                }
                 return map;
             }
         }
@@ -269,6 +297,20 @@ public class UserBaseServiceImpl implements UserBaseService {
             return null;
         }else{
             return userBaseMapper.selectOpenIdByUserId(userId);
+        }
+    }
+
+    /**
+     * 根据设备号查询userId
+     * @param deviceId  设备号
+     * @return userID
+     */
+    public Long queryUserIdByDeviceId(String deviceId){
+        if(deviceId==null||"".equals(deviceId)){
+            logger.error("根据设备号查询userId时，deviceId为空");
+            return null;
+        }else{
+            return userBaseMapper.selectUserIdByDeviceId(deviceId);
         }
     }
 }

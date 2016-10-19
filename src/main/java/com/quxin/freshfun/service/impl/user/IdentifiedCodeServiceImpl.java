@@ -3,6 +3,10 @@ package com.quxin.freshfun.service.impl.user;
 import com.quxin.freshfun.dao.IdentifiedCodeMapper;
 import com.quxin.freshfun.model.Message;
 import com.quxin.freshfun.service.user.IdentifiedCodeService;
+import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.DateUtils;
+import com.quxin.freshfun.utils.IdGenerate;
+import com.quxin.freshfun.utils.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,6 +114,31 @@ public class IdentifiedCodeServiceImpl implements IdentifiedCodeService {
             logger.error("删除2分钟前的验证码时，删除失败");
         }
         return result;
+    }
+
+    /**
+     * 生成验证码
+     * @return
+     */
+    @Override
+    public String genertCode(String phone) throws BusinessException {
+        //发送短信
+        String code = MessageUtils.createMessage(phone);
+        IdGenerate idGenerate = new IdGenerate();
+        String token = idGenerate.generateStr();
+
+        Message message = new Message();
+        message.setCode(code);
+        message.setDate(DateUtils.getCurrentDate());
+        message.setToken(token);
+        message.setPhoneNum(phone);
+        //添加数据库
+        int status = identifiedCodeMapper.insertMessageInfo(message);
+        if(status <= 0){
+            logger.error("用户登录添加验证码信息失败");
+            throw new BusinessException("登录添加验证码失败");
+        }
+        return token;
     }
 
 }
