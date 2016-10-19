@@ -274,4 +274,37 @@ public class GoodsPOJO {
     public void setReservedField(String reservedField) {
         this.reservedField = reservedField;
     }
+
+    @Override
+    public String toString() {
+        return "GoodsPOJO{" +
+                "id=" + id +
+                ", gmtCreate=" + gmtCreate +
+                ", gmtModified=" + gmtModified +
+                ", goodsName='" + goodsName + '\'' +
+                ", goodsDes='" + goodsDes + '\'' +
+                ", goodsImg='" + goodsImg + '\'' +
+                ", goodsType='" + goodsType + '\'' +
+                ", shopPrice=" + shopPrice +
+                ", marketPrice=" + marketPrice +
+                ", storeId=" + storeId +
+                ", goodsWeight=" + goodsWeight +
+                ", goodsStorage=" + goodsStorage +
+                ", warnning=" + warnning +
+                ", isOnSale=" + isOnSale +
+                ", isNew=" + isNew +
+                ", isHot=" + isHot +
+                ", isPromote=" + isPromote +
+                ", merchantProxyId=" + merchantProxyId +
+                ", goodsMoney='" + goodsMoney + '\'' +
+                ", marketMoney='" + marketMoney + '\'' +
+                ", shareUrl='" + shareUrl + '\'' +
+                ", goodsSelection=" + goodsSelection +
+                ", agencyFees=" + agencyFees +
+                ", sales=" + sales +
+                ", SalesMoney=" + SalesMoney +
+                ", goodsDetailImg='" + goodsDetailImg + '\'' +
+                ", reservedField='" + reservedField + '\'' +
+                '}';
+    }
 }

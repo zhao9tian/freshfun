@@ -1,6 +1,7 @@
 package com.quxin.freshfun.model.goods;
 
 /**
+ *
  * Created by qucheng on 2016/10/12.
  */
 public class GoodsInfoPOJO {

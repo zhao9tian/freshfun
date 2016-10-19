@@ -686,6 +686,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public ResponseResult addQuanMingPay(QuanMingPayInfo info,Long userId) throws BusinessException {
+		if(userId == null)
+			return null;
 		long [] users = {556686,556682,556681};
 		//商户支付金额
 		Double agentPrice = 30000.00;

@@ -373,4 +373,29 @@
 
 
 
+  <!--查询所有排序商品 -->
+  <select id="selectSortGoods" parameterType="java.util.List" resultType="com.quxin.freshfun.model.GoodsPOJO">
+    select id , goods_name as goodsName , goods_img as goodsImg , shop_price as shopPrice ,goods_des as goodsDes
+    from goods where id in
+    <foreach item="item" index="index" collection="list" open="(" separator="," close=")">	#{item}	</foreach>
+    and is_on_sale = 1
+  </select>
+  <!--查询排序的json字符串-->
+  <select id="selectPictureWall" parameterType="java.lang.String" resultType="java.lang.String">
+    select sort_value from goods_sort where sort_key = #{sort_key}
+  </select>
+
+  <!--查询bannerId -->
+  <select id="selectBannerById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.goods.BannerPOJO">
+    select id as bannerId, mall_info_img as bannerImg, mall_des as bannerDes , mall_info_content as mallInfoContent , gmt_create as created ,
+    gmt_modified as updated from special_mall
+    where id = #{bannerId} and is_deleted = 0
+  </select>
+
+  <select id="selectThemeById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.goods.ThemePOJO">
+    select id as themeId , theme_des as themeDes , theme_info_img as themeImg , theme_info_content as themeInfoContent ,  gmt_create as created ,
+    gmt_modified as updated from special_theme
+    where id = #{themeId} and is_deleted = 0
+  </select>
+
 </mapper>

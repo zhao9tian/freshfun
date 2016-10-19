@@ -103,7 +103,7 @@ public class GtexMd5B32Util {
         return responseMsg;
 	}
 
-//	public static void main(String[] args) {
-//		System.out.println(insertPostHttp("410212319098","zhongtong"));
-//	}
+	public static void main(String[] args) {
+		System.out.println(insertPostHttp("410212319098","zhongtong1"));
+	}
 }
