@@ -422,6 +422,7 @@ public class UserLoginController {
 		Integer count = identifiedCodeService.checkCode(message.getPhoneNum(),message.getCode());
 		if(count > 0){
 			boolean result  = identifiedCodeService.checkCodeOvertime(message.getPhoneNum(),message.getCode());
+			logger.error("--------------------------validateVerifyCode--"+message.getPhoneNum()+"--"+message.getCode()+"--"+result);
 			if(result){
 				//1.1id不为空说明该验证码有效
 				status = 2;
