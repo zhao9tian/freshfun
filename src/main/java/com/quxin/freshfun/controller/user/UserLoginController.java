@@ -31,6 +31,7 @@ import com.quxin.freshfun.service.user.UserService;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 @RequestMapping("/login")
@@ -217,7 +218,7 @@ public class UserLoginController {
 				phoneNum = identifiedCodeService.queryPhoneNumberByCode(token, code);
 			if (phoneNum != null) {
 				String nickName = nickNameService.queryRandNickName(null);
-				String headUrl = "/image/2016/9/13/1473757743180.jpg";
+				String headUrl = getHeadImgUrl();
 				userInfo = userBaseService.queryUserInfoByPhoneNumber(phoneNum);
 				//Long userId =userService.PhoneLogin(phoneNum, deviceId,nickName,headUrl);
 				if (userInfo != null) {
@@ -231,8 +232,7 @@ public class UserLoginController {
 					UserBasePOJO userBase = new UserBasePOJO();
 					String userName = nickNameService.queryRandNickName(nickName);
 					userBase.setUserName(userName);
-					String wxHeadUrl = OSSUtils.uploadWxHeadImg(headUrl);
-					userBase.setUserHeadImg(wxHeadUrl);
+					userBase.setUserHeadImg(headUrl);
 					userBase.setPhoneNumber(phoneNum);
 					userBase.setUnionId("");
 					userBase.setOpenId("");
@@ -259,15 +259,25 @@ public class UserLoginController {
 				if (userId != null) {
 					userInfo = userBaseService.queryUserInfoByUserId(userId);
 					map.put("userId", userInfo.getUserId());
-					map.put("userName", userInfo.getUserName());
-					map.put("userHeadImg", userInfo.getUserHeadImg());
-					map.put("phoneNumber", userInfo.getPhoneNumber());
+					map.put("nickname", userInfo.getUserName());
+					map.put("headimgurl", userInfo.getUserHeadImg());
+					map.put("phonenumber", userInfo.getPhoneNumber());
 				} else {
 					return ResultUtil.fail(1004, "账户有误");
 				}
 			}
 		}
 		return ResultUtil.success(map);
+	}
+
+	/**
+	 * 获取随机头像
+	 * @return
+	 */
+	private static String getHeadImgUrl() {
+		int number = new Random().nextInt(8);
+		String headImgUrl = "/image/20161013/"+(number+1)+".png";
+		return headImgUrl;
 	}
 
 	/**
@@ -374,9 +384,9 @@ public class UserLoginController {
 					}
 				}
 				mapUser.put("userId", userInfo.getUserId());
-				mapUser.put("userName", userInfo.getUserName());
-				mapUser.put("userHeadImg", userInfo.getUserHeadImg());
-				mapUser.put("phoneNumber", userInfo.getPhoneNumber());
+				mapUser.put("nickname", userInfo.getUserName());
+				mapUser.put("headimgurl", userInfo.getUserHeadImg());
+				mapUser.put("phonenumber", userInfo.getPhoneNumber());
 				map.put("code", 1001);
 				map.put("msg", "请求成功");
 				resultMap.put("status", map);
