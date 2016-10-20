@@ -2,6 +2,7 @@ package com.quxin.freshfun.service.impl.user;
 
 import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.dao.UserBaseMapper;
+import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.model.pojo.UserBasePOJO;
 import com.quxin.freshfun.service.user.UserBaseService;
 import org.slf4j.Logger;
@@ -30,114 +31,67 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param userBase  用户信息对象
      * @return 受影响行数
      */
-    public Integer addUserBaseInfo(UserBasePOJO userBase){
-        //校验参数
-        boolean checkPram = true;
-        if(userBase==null){
-            logger.error("插入用户信息时，入参为空");
-            checkPram=false;
-        }else{
-            if(userBase.getOpenId()==null||"".equals(userBase.getOpenId())){
-                logger.error("插入用户信息时，入参openId为空");
-                checkPram=false;
-            }else if(userBase.getUnionId()==null||"".equals(userBase.getUnionId())){
-                logger.error("插入用户信息时，入参unionId为空");
-                checkPram=false;
-            }else if(userBase.getUserHeadImg()==null||"".equals(userBase.getUserHeadImg())||userBase.getUserName()==null||"".equals(userBase.getUserName())){
-                logger.error("插入用户信息时，入参头像信息或昵称为空");
-            }
-        }
-        if(checkPram){
-            Integer resultId = userBaseMapper.insertUserBaseInfo(userBase);
-            Integer resultUserId = userBaseMapper.updateUserIdById(userBase.getId());
-            if(resultId==1&&resultUserId==1)
-                return 1;
-            else
-                return 0;
-        }
-        return 0;
-    }
+     public Integer addUserBaseInfo(UserBasePOJO userBase) {
+         //校验参数
+         boolean checkPram = true;
+         if (userBase == null) {
+             logger.warn("插入用户信息时，入参为空");
+             checkPram = false;
+         } else {
+             if (userBase.getOpenId() == null || "".equals(userBase.getOpenId())) {
+                 logger.warn("插入用户信息时，入参openId为空");
+                 checkPram = false;
+             } else if (userBase.getUnionId() == null || "".equals(userBase.getUnionId())) {
+                 logger.warn("插入用户信息时，入参unionId为空");
+                 checkPram = false;
+             } else if (userBase.getUserHeadImg() == null || "".equals(userBase.getUserHeadImg()) || userBase.getUserName() == null || "".equals(userBase.getUserName())) {
+                 logger.warn("插入用户信息时，入参头像信息或昵称为空");
+             }
+         }
+         if (checkPram) {
+             Integer resultId = userBaseMapper.insertUserBaseInfo(userBase);
+             Integer resultUserId = userBaseMapper.updateUserIdById(userBase.getId());
+             if (resultId == 1 && resultUserId == 1)
+                 return 1;
+             else
+                 return 0;
+         }
+         return 0;
+     }
 
     /**
      * 校验userId是否有效
      * @param userId 用户id
      * @return 总数
      */
-    public Integer checkUserId(Long userId){
-        if(userId==null){
-            logger.error("校验userId是否有效时，userId为空");
+    public Integer checkUserId(Long userId) {
+        if (userId == null || userId == 0) {
+            logger.warn("校验userId是否有效时，userId为空");
             return null;
-        }else{
+        } else {
             Integer count = userBaseMapper.validateUserId(userId);
             return count;
         }
     }
 
     /**
-     * 根据userId查询上级捕手Id
+     * 根据userId获取用户的信息
      * @param userId userId
-     * @return fetcherId
+     * @return user对象
      */
-    public Long queryFetcherIdByUserId(Long userId){
-        if(userId==null){
-            logger.error("根据userId查询上级捕手Id时，userId为空");
+    @Override
+    public UserInfoOutParam queryUserInfoByUserId(Long userId) {
+        if (userId == null || userId == 0) {
+            logger.warn("根据userId获取用户的信息（userId，头像，昵称，手机号）时，userId为空");
             return null;
-        }else{
-            Long fetcherId = userBaseMapper.selectFetcherIdByUserId(userId);
-            if(fetcherId==null){
-                logger.error("根据userId查询上级捕手Id时，user不存在或已注销");
-            }
-            return fetcherId;
-        }
-    }
-
-    /**
-     * 根据userId获取用户的信息（userId，头像，昵称，手机号）
-     * @param userId userId
-     * @param type 0是微站，1是APP
-     * @return map对象（userId，头像，昵称，手机号）
-     */
-    public Map<String,Object> queryUserInfoByUserId(Long userId,Integer type){
-        if(userId==null){
-            logger.error("根据userId获取用户的信息（userId，头像，昵称，手机号）时，userId为空");
-            return null;
-        }else{
-            UserBasePOJO user = userBaseMapper.selectUserInfoByUserId(userId);
-            if(user==null){
-                logger.error("根据userId获取用户的信息手机号时，user不存在或已注销");
+        } else {
+            UserInfoOutParam user = userBaseMapper.selectUserInfoByUserId(userId);
+            if (user == null) {
+                logger.warn("根据userId获取用户的信息手机号时，user不存在或已注销");
                 return null;
-            }else{
-                Map<String,Object> map = new HashMap<String,Object>();
-                if(type==0){
-                    map.put("userId",user.getUserId());
-                    map.put("nickName",user.getUserName());
-                    map.put("userImg",user.getUserHeadImg());
-                }else{
-                    map.put("userId",user.getUserId());
-                    map.put("userName",user.getUserName());
-                    map.put("userHeadImg",user.getUserHeadImg());
-                    map.put("phoneNumber",user.getPhoneNumber());
-                }
-                return map;
+            } else {
+                return user;
             }
-        }
-    }
-
-    /**
-     * 根据userId获取用户手机号
-     * @param userId userId
-     * @return 手机号
-     */
-    public String queryPhoneNumberByUserId(Long userId){
-        if(userId==null){
-            logger.error("根据userId获取用户的信息手机号时，userId为空");
-            return null;
-        }else{
-            String phoneNumber = userBaseMapper.selectPhoneNumberByUserId(userId);
-            if(phoneNumber==null){
-                logger.error("根据userId获取用户的信息手机号时，user不存在或已注销");
-            }
-            return phoneNumber;
         }
     }
 
@@ -146,15 +100,16 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param userId userId
      * @return 结果
      */
-    public boolean checkIsFetcherByUserId(Long userId){
-        if(userId==null){
-            logger.error("根据userId判断该用户是否为捕手时，userId为空");
+    @Override
+    public boolean checkIsFetcherByUserId(Long userId) {
+        if (userId == null||userId==0) {
+            logger.warn("根据userId判断该用户是否为捕手时，userId为空");
             return false;
-        }else{
+        } else {
             Integer count = userBaseMapper.validateIsFetcherByUserId(userId);
-            if(count==1){
+            if (count == 1) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
@@ -166,17 +121,18 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param userId   用户id
      * @return 受影响行数
      */
-    public Integer modifyToBeFetcher(String phoneNumber,Long userId){
-        if(userId==null){
-            logger.error("更新用户成为捕手时，userId为空");
+    @Override
+    public Integer modifyToBeFetcher(String phoneNumber, Long userId) {
+        if (userId == null || userId == 0) {
+            logger.warn("更新用户成为捕手时，userId为空");
             return null;
-        }else if(phoneNumber==null||"".equals(phoneNumber)){
-            logger.error("更新用户成为捕手时，手机号为空");
+        } else if (phoneNumber == null || "".equals(phoneNumber)) {
+            logger.warn("更新用户成为捕手时，手机号为空");
             return null;
-        }else{
-            Map<String,Object> map = new HashMap<String,Object>();
-            map.put("userId",userId);
-            map.put("phoneNumber",phoneNumber);
+        } else {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("userId", userId);
+            map.put("phoneNumber", phoneNumber);
             return userBaseMapper.updateToBeFetcher(map);
         }
     }
@@ -189,58 +145,31 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param phoneNumber 手机号
      * @return 受影响行数
      */
-    public Integer modifyUserToMesh(Long userId,String deviceId,String openId,String phoneNumber){
-        Map<String,Object> map = new HashMap<String,Object>();
+    @Override
+    public Integer modifyUserToMesh(Long userId, String deviceId, String openId, String phoneNumber) {
+        Map<String, Object> map = new HashMap<String, Object>();
         boolean pramBoo = false;
-        if(userId==null){
+        if (userId == null || userId == 0) {
             logger.error("更新用户信息（设备号，微站号，手机号）时，userId为空");
             return null;
         }
-        map.put("userId",userId);
-        if(deviceId!=null&&!"".equals(deviceId)){
-            map.put("deviceId",deviceId);
-            pramBoo=true;
+        map.put("userId", userId);
+        if (deviceId != null && !"".equals(deviceId)) {
+            map.put("deviceId", deviceId);
+            pramBoo = true;
         }
-        if(openId!=null&&!"".equals(openId)){
-            map.put("openId",openId);
-            pramBoo=true;
+        if (openId != null && !"".equals(openId)) {
+            map.put("openId", openId);
+            pramBoo = true;
         }
-        if(phoneNumber!=null&&!"".equals(phoneNumber)){
-            map.put("phoneNumber",phoneNumber);
-            pramBoo=true;
+        if (phoneNumber != null && !"".equals(phoneNumber)) {
+            map.put("phoneNumber", phoneNumber);
+            pramBoo = true;
         }
-        if(pramBoo){
+        if (pramBoo) {
             return userBaseMapper.updateUserToMesh(map);
-        }else{
+        } else {
             return null;
-        }
-    }
-
-    /**
-     * 根据手机号查询userId
-     * @param phoneNumber 手机号
-     * @return 用户id
-     */
-    public Long queryUserIdByPhoneNumber(String phoneNumber){
-        if(phoneNumber==null||"".equals(phoneNumber)){
-            logger.error("根据手机号查询userId时，手机号phoneNumber为空");
-            return 0l;
-        }else{
-            return userBaseMapper.selectUserIdByPhoneNumber(phoneNumber);
-        }
-    }
-
-    /**
-     * 根据手机号查询设备号
-     * @param phoneNumber 手机号
-     * @return 设备号
-     */
-    public String queryDeviceIdByPhoneNumber(String phoneNumber){
-        if(phoneNumber==null||"".equals(phoneNumber)){
-            logger.error("根据手机号查询设备号时，手机号phoneNumber为空");
-            return null;
-        }else{
-            return userBaseMapper.selectDeviceIdByPhoneNumber(phoneNumber);
         }
     }
 
@@ -250,71 +179,16 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param fetcherId 捕手id
      * @return 受影响行数
      */
-    public Integer modifyFetcherForUser(Long userId,Long fetcherId){
-        if(userId==null||fetcherId==null){
-            logger.error("为用户添加父级捕手id时，入参有误");
+    @Override
+    public Integer modifyFetcherForUser(Long userId, Long fetcherId) {
+        if (userId == null || fetcherId == null) {
+            logger.warn("为用户添加父级捕手id时，入参有误");
             return null;
-        }else{
-            Map<String,Object> map = new HashMap<String,Object>();
-            map.put("userId",userId);
-            map.put("fetcherId",fetcherId);
+        } else {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("userId", userId);
+            map.put("fetcherId", fetcherId);
             return userBaseMapper.updateFetcherForUser(map);
-        }
-    }
-
-    /**
-     * 根据微信id查询用户id
-     * @param unionId  微信id
-     * @return 用户id
-     */
-    public Long queryUserIdByUnionId(String unionId){
-        if(unionId==null||"".equals(unionId)){
-            logger.error("根据微信id查询用户id时，unionId为空");
-            return null;
-        }else{
-            return userBaseMapper.selectUserIdByUnionId(unionId);
-        }
-    }
-
-    /**
-     * 根据微信id查询微站id
-     * @param unionId  微信id
-     * @return 微站id
-     */
-    public String queryOpenIdByUnionId(String unionId){
-        if(unionId==null||"".equals(unionId)){
-            logger.error("根据微信id查询微站id时，unionId为空");
-            return null;
-        }else{
-            return userBaseMapper.selectOpenIdByUnionId(unionId);
-        }
-    }
-
-    /**
-     * 根据微信id查询设备号
-     * @param unionId  微信id
-     * @return 设备号
-     */
-    public String queryDeviceIdByUnionId(String unionId){
-        if(unionId==null||"".equals(unionId)){
-            logger.error("根据微信id查询设备号时，unionId为空");
-            return null;
-        }else{
-            return userBaseMapper.selectDeviceIdByUnionId(unionId);
-        }
-    }
-
-    /**
-     * 根据userId查询微站id
-     * @param userId  用户id
-     * @return 微站id
-     */
-    public String queryOpenIdByUserId(Long userId){
-        if(userId==null){
-            logger.error("根据userId查询微站id时，userId为空");
-            return null;
-        }else{
-            return userBaseMapper.selectOpenIdByUserId(userId);
         }
     }
 
@@ -323,12 +197,70 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param deviceId  设备号
      * @return userID
      */
-    public Long queryUserIdByDeviceId(String deviceId){
-        if(deviceId==null||"".equals(deviceId)){
+    @Override
+    public Long queryUserIdByDeviceId(String deviceId) {
+        if (deviceId == null || "".equals(deviceId)) {
             logger.error("根据设备号查询userId时，deviceId为空");
             return null;
-        }else{
+        } else {
             return userBaseMapper.selectUserIdByDeviceId(deviceId);
         }
+    }
+
+    /**
+     * 查询昵称的使用次数
+     * @param nickName  昵称
+     * @return  目标用户信息
+     */
+    @Override
+    public UserBasePOJO queryUserNameCount(String nickName){
+        if(nickName==null||"".equals(nickName)){
+            return null;
+        }
+        UserBasePOJO userInfo = userBaseMapper.selectUserNameCount(nickName);
+        return userInfo;
+    }
+
+    /**
+     * 更新昵称的使用次数
+     * @param userId  用户id
+     * @param count  使用次数
+     * @return  受影响行数
+     */
+    @Override
+    public Integer modifyUserNameCount(Long userId,Integer count){
+        if(userId==null||userId==0||count==null){
+            return 0;
+        }
+        Map<String,Object> mapUser = new HashMap<String,Object>();
+        mapUser.put("userId",userId);
+        mapUser.put("count",count);
+        return userBaseMapper.updateUserNameCount(mapUser);
+    }
+
+    /**
+     * 根据手机号查询用户信息
+     * @param phoneNumber  手机号
+     * @return 用户信息
+     */
+    @Override
+    public UserInfoOutParam queryUserInfoByPhoneNumber(String phoneNumber) {
+        if (phoneNumber==null||"".equals(phoneNumber)){
+            return null;
+        }
+        return userBaseMapper.selectUserInfoByPhoneNumber(phoneNumber);
+    }
+
+    /**
+     * 根据微信id查询用户信息
+     * @param unionId  微信id
+     * @return 用户信息
+     */
+    @Override
+    public UserInfoOutParam queryUserInfoByUnionId(String unionId) {
+        if (unionId==null||"".equals(unionId)){
+            return null;
+        }
+        return userBaseMapper.selectUserInfoByUnionId(unionId);
     }
 }

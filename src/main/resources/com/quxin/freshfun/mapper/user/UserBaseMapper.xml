@@ -17,29 +17,33 @@
         update user_base set user_id=#{id} where id=#{id}
     </update>
 
+    <!--根据userId查询用户信息-->
+    <select id="selectUserInfoByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
+        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
+        device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        user_id = #{userId} and is_deleted=0
+    </select>
+
+    <!--根据手机号查询用户信息-->
+    <select id="selectUserInfoByPhoneNumber" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
+        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
+        device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        phone_number = #{phoneNumber} and is_deleted=0
+    </select>
+
+    <!--根据unionId查询用户信息-->
+    <select id="selectUserInfoByUnionId" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
+        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
+        device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        union_id = #{unionId} and is_deleted=0
+    </select>
+
     <!--校验用户userId是否有效-->
     <select id="validateUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
         select count(id) from user_base where user_id=#{userId} and is_deleted=0
-    </select>
-
-    <!--根据userId查询上级捕手Id-->
-    <select id="selectFetcherIdByUserId" parameterType="java.lang.Long" resultType="java.lang.Long">
-        select fetcher_id from user_base where user_id=#{userId} and is_deleted=0
-    </select>
-
-    <!--根据userId查询用户信息*userId*头像*昵称*手机号-->
-    <select id="selectUserInfoByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.UserBasePOJO">
-        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber from user_base where user_id=#{userId} and is_deleted=0
-    </select>
-
-    <!--根据userId查询微站openId-->
-    <select id="selectOpenIdByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
-        select open_id from user_base where user_id=#{userId} and is_deleted=0
-    </select>
-
-    <!--根据userId查询用户手机号-->
-    <select id="selectPhoneNumberByUserId" parameterType="java.lang.Long" resultType="java.lang.String">
-        select phone_number from user_base where user_id=#{userId} and is_deleted=0
     </select>
 
     <!--根据userId查询用户是否为捕手-->
@@ -47,34 +51,11 @@
         select count(id) from user_base where user_id=#{userId} and is_fetcher=1 and is_deleted=0
     </select>
 
-    <!--根据手机号查询userId-->
-    <select id="selectUserIdByPhoneNumber" parameterType="java.lang.String" resultType="java.lang.Long">
-        select user_id from user_base where phone_number=#{phoneNumber} and is_deleted=0
-    </select>
 
-    <!--根据手机号查询userId-->
+
+    <!--根据设备号查询userId-->
     <select id="selectUserIdByDeviceId" parameterType="java.lang.String" resultType="java.lang.Long">
         select user_id from user_base where device_id=#{deviceId} and is_deleted=0
-    </select>
-
-    <!--根据手机号查询设备号deviceId-->
-    <select id="selectDeviceIdByPhoneNumber" parameterType="java.lang.String" resultType="java.lang.String">
-        select device_id from user_base where phone_number=#{phoneNumber} and is_deleted=0
-    </select>
-
-    <!--根据微信unionId查询userId-->
-    <select id="selectUserIdByUnionId" parameterType="java.lang.String" resultType="java.lang.Long">
-        select user_id from user_base where union_id=#{unionId} and is_deleted=0
-    </select>
-
-    <!--根据微信unionId查询微站openId-->
-    <select id="selectOpenIdByUnionId" parameterType="java.lang.String" resultType="java.lang.String">
-        select open_id from user_base where union_id=#{unionId} and is_deleted=0
-    </select>
-
-    <!--根据微信unionId查询设备号deviceId-->
-    <select id="selectDeviceIdByUnionId" parameterType="java.lang.String" resultType="java.lang.String">
-        select device_id from user_base where union_id=#{unionId} and is_deleted=0
     </select>
 
     <!---成为捕手（userID，手机号）-->
@@ -102,6 +83,19 @@
     <!---为用户添加父级捕手id-->
     <update id="updateFetcherForUser" parameterType="java.util.Map">
         update user_base set fetcher_id=#{fetcherId} where user_id=#{userId} and is_deleted=0
+    </update>
+
+    <!--查询昵称使用次数-->
+    <select id="selectUserNameCount" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.pojo.UserBasePOJO">
+        select user_id as userId,user_name as userName,user_name_count as userNameCount from user_base where is_deleted = 0
+        <if test="nickName!=null">
+            and user_name=#{nickName,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <!--更新昵称使用次数-->
+    <update id="updateUserNameCount" parameterType="java.util.Map">
+        update user_base set user_name_count = #{count,jdbcType=INTEGER} where user_id = #{userId,jdbcType=BIGINT}
     </update>
 
 </mapper>

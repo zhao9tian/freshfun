@@ -131,19 +131,6 @@ public class UserLoginControllerTest extends TestBase{
     }
 
     @Test
-    public void selectUserInfoByUserId(){//获取用户头像等信息
-        Map<String,Object> map = userBaseService.queryUserInfoByUserId(372897l,1);
-        if(map==null){
-            System.out.println("用户不存在或已注销");
-        }else{
-            System.out.println("用户userId："+map.get("userId"));
-            System.out.println("用户昵称："+map.get("userName"));
-            System.out.println("用户头像："+map.get("userHeadImg"));
-            System.out.println("用户手机号："+map.get("phoneNumber"));
-        }
-    }
-
-    @Test
     public void selectPhoneNumberByUserId(){//获取用户手机号
         String phoneNumber = userBaseService.queryPhoneNumberByUserId(372898l);
         if(phoneNumber==null){
@@ -157,6 +144,18 @@ public class UserLoginControllerTest extends TestBase{
 
     @Test
     public void updateFetcherForUser(){//为用户添加父级捕手
+        Integer result = userBaseService.modifyFetcherForUser(372913l,372912l);
+        if(result==null){
+            System.out.println("入参有误");
+        }else if(result==1){
+            System.out.println("添加成功");
+        }else{
+            System.out.println("添加失败");
+        }
+    }
+
+    @Test
+    public void checkCode(){//检查验证码
         Integer result = userBaseService.modifyFetcherForUser(372913l,372912l);
         if(result==null){
             System.out.println("入参有误");
