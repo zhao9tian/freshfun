@@ -3,6 +3,7 @@ package com.quxin.freshfun.service.impl.user;
 import com.quxin.freshfun.dao.IdentifiedCodeMapper;
 import com.quxin.freshfun.model.Message;
 import com.quxin.freshfun.service.user.IdentifiedCodeService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.IdGenerate;
@@ -24,6 +25,8 @@ public class IdentifiedCodeServiceImpl implements IdentifiedCodeService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     @Autowired
     private IdentifiedCodeMapper identifiedCodeMapper;
+    @Autowired
+    private UserBaseService userBaseService;
 
     /**
      * 插入手机验证码
@@ -139,6 +142,53 @@ public class IdentifiedCodeServiceImpl implements IdentifiedCodeService {
             throw new BusinessException("登录添加验证码失败");
         }
         return token;
+    }
+
+    /**
+     * 发送验证码
+     * @param userId  用户id
+     * @param phoneNum 手机号
+     * @return 状态
+     */
+    @Override
+    public Integer sentVerifyCode(String userId, String phoneNum) {
+        Integer status = 0;
+        if(userId!=null && phoneNum!=null && !"".equals(userId) && !"".equals(phoneNum)){
+            userId = userId.replace("\"", "");
+            Integer count = 0;
+            //1.通过用户id来判断是否已经绑定了
+            String phoneNumber = userBaseService.queryPhoneNumberByUserId(Long.parseLong(userId));
+            if(phoneNumber!=null&&!"".equals(phoneNumber)){
+                //2.判断绑定的手机号是该手机号还是其他
+                if(phoneNum.equals(phoneNumber)){
+                    status = 0;
+                }else{
+                    status = 1;
+                }
+            }else{
+                //3.判断手机号是否已经绑定其他用户
+                Long uId = userBaseService.queryUserIdByPhoneNumber(phoneNum);
+                if(uId!=null&&!"".equals(uId)){
+                    status = 3 ;
+                }else{
+                    //4.防止短信重复发送
+                    Message msg = new Message();
+                    msg.setPhoneNum(phoneNum);
+                    Map<String,Object> map = new HashMap<String,Object>();
+                    map.put("phoneNumber",phoneNum);
+                    Integer codeCount = identifiedCodeMapper.validateCodeOvertime(map);
+                    if(codeCount == null){
+                        String code = MessageUtils.createMessage(phoneNum);
+                        msg.setCode(code);
+                        msg.setDate(System.currentTimeMillis()/1000);
+                        identifiedCodeMapper.insertMessageInfo(msg);//设置绑定手机号
+                    }
+                    status = 2;
+                }
+
+            }
+        }
+        return status;
     }
 
 }

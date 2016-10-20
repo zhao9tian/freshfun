@@ -54,4 +54,12 @@ public interface IdentifiedCodeService {
      * @return token凭证
      */
     public String genertCode(String phone) throws BusinessException;
+
+    /**
+     *
+     * @param userId
+     * @param phoneNum
+     * @return
+     */
+    Integer sentVerifyCode(String userId, String phoneNum);
 }

@@ -41,8 +41,6 @@ public class OrderServiceImpl implements OrderService {
 	private UserOutcomeMapper userOutcomeMapper;
 	@Autowired
 	private OrderDetailsMapper orderDetailsMapper;
-	@Autowired
-	private UsersMapper usersMapper;
     @Autowired
     private UserBaseService userBaseService;
 	@Autowired

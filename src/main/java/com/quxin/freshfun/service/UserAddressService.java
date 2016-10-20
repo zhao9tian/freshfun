@@ -38,12 +38,6 @@ public interface UserAddressService {
 	 */
 	public Integer updateByPrimaryKey(UserAddress record);
 	/**
-	 * 修改用户表中地址
-	 * @param record
-	 * @return
-	 */
-	public Integer updateUserAddress(UsersPOJO record);
-	/**
 	 * 修改默认地址
 	 * @param userId
 	 * @return
@@ -61,19 +55,5 @@ public interface UserAddressService {
 	 * @return
 	 */
 	public UserAddress selectByPrimaryKey(Integer id);
-	/**
-	 * 查询手机号
-	 * @param userId
-	 * @return
-	 */
-	public UsersPOJO findIsMobile(Long userId);
-	
-	/**
-	 * 成为捕手
-	 * @param userId
-	 * @return
-	 */
-	
-	public Integer updateUserIdentify(Long userId);
 
 }

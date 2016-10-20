@@ -3,7 +3,7 @@
 <mapper namespace="com.quxin.freshfun.dao.IdentifiedCodeMapper">
 
   <insert id="insertMessageInfo" parameterType="com.quxin.freshfun.model.Message">
-    insert into identified_code(code , phoneNum , date<if test="token != null">,token</if> ) values(#{code} , #{phoneNumber} , #{date}<if test="token != null">,#{token}</if> );
+    insert into identified_code(code , phoneNum , date<if test="token != null">,token</if> ) values(#{code} , #{phoneNum} , #{date}<if test="token != null">,#{token}</if> );
   </insert>
 
   <!-- 验证验证码是否存在 -->
@@ -20,7 +20,7 @@
   <select id="validateCodeOvertime" parameterType="java.util.Map" resultType="java.lang.Integer">
     select id from identified_code
     <where>
-      phoneNum = #{phoneNum}
+      phoneNum = #{phoneNumber}
       <if test="code != null">
         and code = #{code}
       </if>

@@ -413,11 +413,17 @@ public class UserLoginController {
 
 	@ResponseBody
 	@RequestMapping("/getVerifyCode")
-	public ReturnStatus getVerifyCode(@RequestBody Message message, HttpServletRequest request){
-		Integer status = userService.getVerifyCode(CookieUtil.getUserIdFromCookie(request).toString(), message.getPhoneNum());
-		ReturnStatus rs = new ReturnStatus();
-		rs.setStatus(status);
-		return rs;
+	public Map<String, Object> getVerifyCode(@RequestBody Message message, HttpServletRequest request){
+		String userId = "";
+		if(message.getUserId()!=null&&!"".equals(message.getUserId())){
+			userId = message.getUserId();
+		}else{
+			userId = CookieUtil.getUserIdFromCookie(request).toString();
+		}
+		Integer status = identifiedCodeService.sentVerifyCode(userId, message.getPhoneNum());
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("status",status);
+		return map;
 	}
 
 	@ResponseBody
@@ -434,7 +440,7 @@ public class UserLoginController {
 	
 	@ResponseBody
 	@RequestMapping("/validateVerifyCode")
-	public ReturnStatus bindPhone(@RequestBody Message message , HttpServletRequest request){
+	public Map<String, Object> bindPhone(@RequestBody Message message , HttpServletRequest request){
 		Long userId = null;
 		if(message.getUserId()!=null&&!"".equals(message.getUserId()))
 			userId = Long.parseLong(message.getUserId());
@@ -454,9 +460,9 @@ public class UserLoginController {
 				status = 1;
 			}
 		}
-		ReturnStatus rs = new ReturnStatus();
-		rs.setStatus(status);
-		return rs;
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("status",status);
+		return map;
 	}
 	
 	
