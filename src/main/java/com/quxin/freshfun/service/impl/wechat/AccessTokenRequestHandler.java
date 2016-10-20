@@ -1,9 +1,9 @@
-package com.quxin.freshfun.controller.wxpay;
+package com.quxin.freshfun.service.impl.wechat;
 
-import com.quxin.freshfun.controller.wxpay.client.TenpayHttpClient;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.JsonUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
+import com.quxin.freshfun.service.impl.wechat.client.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

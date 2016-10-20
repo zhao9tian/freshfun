@@ -2,6 +2,7 @@ package com.quxin.freshfun.dao;
 
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.pojo.NickNamePOJO;
+import com.quxin.freshfun.model.pojo.UserBasePOJO;
 
 import java.util.Map;
 
@@ -14,18 +15,4 @@ public interface NickNameMapper {
      * @return  随机昵称
      */
     NickNamePOJO selectRandNickName();
-
-    /**
-     * 查询随机昵称的使用次数
-     * @param map  参数map
-     * @return  目标用户信息
-     */
-    UsersPOJO selectNickNameCount(Map<String,Object> map);
-
-    /**
-     * 更新随机昵称的使用次数
-     * @param map  参数map
-     * @return  受影响行数
-     */
-    Integer updateNickNameCount(Map<String,Object> map);
 }

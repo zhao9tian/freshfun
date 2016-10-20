@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.quxin.freshfun.dao.UserBaseMapper" >
+
+    <!--插入用户数据-->
+    <insert id="insertUserBaseInfo" parameterType="com.quxin.freshfun.model.pojo.UserBasePOJO">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into user_base (user_id,user_name,user_head_img,user_name_count,phone_number,device_id,open_id,union_id,login_type,source,
+        identity,fetcher_id,is_fetcher,city,province,country,created,updated,is_deleted) values (id,#{userName},#{userHeadImg},#{userNameCount},
+        #{phoneNumber},#{deviceId},#{openId},#{unionId},#{loginType},#{source},#{identity},#{fetcherId},#{isFetcher},#{city},#{province},
+        #{country},#{created},#{updated},#{isDeleted})
+    </insert>
+
+    <update id="updateUserIdById" parameterType="java.lang.Long">
+        update user_base set user_id=#{id} where id=#{id}
+    </update>
+
+    <!--根据userId查询用户信息-->
+    <select id="selectUserInfoByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
+        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
+        device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        user_id = #{userId} and is_deleted=0
+    </select>
+
+    <!--根据手机号查询用户信息-->
+    <select id="selectUserInfoByPhoneNumber" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
+        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
+        device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        phone_number = #{phoneNumber} and is_deleted=0
+    </select>
+
+    <!--根据unionId查询用户信息-->
+    <select id="selectUserInfoByUnionId" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
+        select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
+        device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        union_id = #{unionId} and is_deleted=0
+    </select>
+
+    <!--校验用户userId是否有效-->
+    <select id="validateUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(id) from user_base where user_id=#{userId} and is_deleted=0
+    </select>
+
+    <!--根据userId查询用户是否为捕手-->
+    <select id="validateIsFetcherByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(id) from user_base where user_id=#{userId} and is_fetcher=1 and  is_deleted=0
+    </select>
+
+
+
+    <!--根据设备号查询userId-->
+    <select id="selectUserIdByDeviceId" parameterType="java.lang.String" resultType="java.lang.Long">
+        select user_id from user_base where device_id=#{deviceId} and is_deleted=0
+    </select>
+
+    <!---成为捕手（userID，手机号）-->
+    <update id="updateToBeFetcher" parameterType="java.util.Map">
+        update user_base set is_fetcher=1,phone_number=#{phoneNumber} where user_id=#{userId} and is_deleted=0
+    </update>
+
+    <!---更新用户信息（设备号，微站号，手机号），合并用户使用-->
+    <update id="updateUserToMesh" parameterType="java.util.Map">
+        update user_base
+        <set >
+            <if test="deviceId != null" >
+                device_id = #{deviceId},
+            </if>
+            <if test="openId != null" >
+                open_id = #{openId},
+            </if>
+            <if test="phoneNumber != null" >
+                phone_number = #{phoneNumber}
+            </if>
+        </set>
+        where user_id=#{userId} and is_deleted=0
+    </update>
+
+    <!---为用户添加父级捕手id-->
+    <update id="updateFetcherForUser" parameterType="java.util.Map">
+        update user_base set fetcher_id=#{fetcherId} where user_id=#{userId} and is_deleted=0
+    </update>
+
+    <!--查询昵称使用次数-->
+    <select id="selectUserNameCount" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.pojo.UserBasePOJO">
+        select user_id as userId,user_name as userName,user_name_count as userNameCount from user_base where is_deleted = 0 and user_name=#{userName}
+    </select>
+
+    <!--更新昵称使用次数-->
+    <update id="updateUserNameCount" parameterType="java.util.Map">
+        update user_base set user_name_count = #{count,jdbcType=INTEGER} where user_id = #{userId,jdbcType=BIGINT}
+    </update>
+
+</mapper>

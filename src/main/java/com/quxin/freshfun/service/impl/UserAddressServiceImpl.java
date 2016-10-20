@@ -20,9 +20,6 @@ public class UserAddressServiceImpl implements UserAddressService {
 	private UserAddressMapper userAddressMapper;
 	
 	@Autowired
-	private UsersMapper usersMapper;
-	
-	@Autowired
 	private UserMessageMapper usersMessageMapper;
 
 	@Override
@@ -65,10 +62,6 @@ public class UserAddressServiceImpl implements UserAddressService {
 		return userAddressMapper.updateByPrimaryKeySelective(record);
 	}
 
-	@Override
-	public Integer updateUserAddress(UsersPOJO record) {
-		return usersMapper.updateByPrimaryKeySelective(record);
-	}
 
 	@Override
 	public Integer updateDefaultAddress(Long userId) {
@@ -83,16 +76,6 @@ public class UserAddressServiceImpl implements UserAddressService {
 	@Override
 	public UserAddress selectByPrimaryKey(Integer id) {
 		return userAddressMapper.selectByPrimaryKey(id);
-	}
-
-	@Override
-	public UsersPOJO findIsMobile(Long userId) {
-		return usersMapper.findIsMobile(userId);
-	}
-
-	@Override
-	public Integer updateUserIdentify(Long userId) {
-		return usersMapper.updateUserIdentify(userId);
 	}
 
 }

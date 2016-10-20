@@ -7,6 +7,7 @@ import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.CookieUtil;
@@ -35,8 +36,9 @@ public class OrderController {
 	private OrderService orderService;
 	@Autowired
 	private OrderManager orderManager;
+
 	@Autowired
-	private UserService userService;
+	private UserBaseService userBaseService;
 	private static Integer orderOutTime;
 	/**
 	 * 日志
@@ -281,8 +283,8 @@ public class OrderController {
 				orderInfo.setUserId(userId);
 				payResult = orderService.addOrder(orderInfo);
 				//判断用户是否绑定了手机
-				boolean isMobile = userService.findIsMobile(userId);
-				if(isMobile){
+				String phoneNumber = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
+				if(phoneNumber!=null&&!"".equals(phoneNumber)){
 					payResult.setIsPhone(1);
 				}else{
 					payResult.setIsPhone(0);
