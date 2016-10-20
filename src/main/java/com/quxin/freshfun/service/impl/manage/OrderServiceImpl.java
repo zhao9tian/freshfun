@@ -117,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 		//获取用户openId
-        String openId = userBaseService.queryOpenIdByUserId(uId);
+        String openId = userBaseService.queryUserInfoByUserId(uId).getOpenId();
 		//生成订单后 调用支付
 		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
 		StringBuilder payId = new StringBuilder();
@@ -141,7 +141,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	@Override
 	public String getOpenId(Long userId){
-        return userBaseService.queryOpenIdByUserId(userId);
+        return userBaseService.queryUserInfoByUserId(userId).getOpenId();
 	}
 
 	/**
@@ -222,7 +222,7 @@ public class OrderServiceImpl implements OrderService {
 		//根据地址编号查询地址信息
 		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
 		//查询捕手信息
-        Long fetcherId = userBaseService.queryFetcherIdByUserId(uid);
+        Long fetcherId = userBaseService.queryUserInfoByUserId(uid).getFetcherId();
 
         OrderDetailsPOJO od = new OrderDetailsPOJO();
 		//订单编号
@@ -420,7 +420,7 @@ public class OrderServiceImpl implements OrderService {
 		OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(order.getOrderId());
 		String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
 		//获取用户openId
-        String openId = userBaseService.queryOpenIdByUserId(userId);
+        String openId = userBaseService.queryUserInfoByUserId(userId).getOpenId();
 		StringBuilder sb = new StringBuilder();
 		sb.append("W");
 		sb.append(order.getOrderId());
@@ -464,7 +464,7 @@ public class OrderServiceImpl implements OrderService {
 			throw new BusinessException("添加商户代理信息失败");
 		}else{
 			//获取用户openId
-            String openId = userBaseService.queryOpenIdByUserId(userId);
+            String openId = userBaseService.queryUserInfoByUserId(userId).getOpenId();
 			//支付
 			StringBuilder sb = new StringBuilder();
 			sb.append("B");

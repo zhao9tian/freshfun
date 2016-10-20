@@ -2,6 +2,7 @@ package com.quxin.freshfun.service.impl.user;
 
 import com.quxin.freshfun.dao.IdentifiedCodeMapper;
 import com.quxin.freshfun.model.Message;
+import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.service.user.IdentifiedCodeService;
 import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.BusinessException;
@@ -157,18 +158,18 @@ public class IdentifiedCodeServiceImpl implements IdentifiedCodeService {
             userId = userId.replace("\"", "");
             Integer count = 0;
             //1.通过用户id来判断是否已经绑定了
-            String phoneNumber = userBaseService.queryPhoneNumberByUserId(Long.parseLong(userId));
-            if (phoneNumber != null && !"".equals(phoneNumber)) {
+            UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(Long.parseLong(userId));
+            if (userInfo != null) {
                 //2.判断绑定的手机号是该手机号还是其他
-                if (phoneNum.equals(phoneNumber)) {
+                if (phoneNum.equals(userInfo.getPhoneNumber())) {
                     status = 0;
                 } else {
                     status = 1;
                 }
             } else {
                 //3.判断手机号是否已经绑定其他用户
-                Long uId = userBaseService.queryUserIdByPhoneNumber(phoneNum);
-                if (uId != null && !"".equals(uId)) {
+                UserInfoOutParam userpInfo= userBaseService.queryUserInfoByPhoneNumber(phoneNum);
+                if (userpInfo != null) {
                     status = 3;
                 } else {
                     //4.防止短信重复发送

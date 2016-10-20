@@ -283,7 +283,7 @@ public class OrderController {
 				orderInfo.setUserId(userId);
 				payResult = orderService.addOrder(orderInfo);
 				//判断用户是否绑定了手机
-				String phoneNumber = userBaseService.queryPhoneNumberByUserId(userId);
+				String phoneNumber = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
 				if(phoneNumber!=null&&!"".equals(phoneNumber)){
 					payResult.setIsPhone(1);
 				}else{

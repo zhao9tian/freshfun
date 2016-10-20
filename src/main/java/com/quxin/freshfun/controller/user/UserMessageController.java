@@ -78,7 +78,7 @@ public class UserMessageController {
 			stateMap.put("state", 2);
 			return stateMap;
 		}else{
-			String mobile = userBaseService.queryPhoneNumberByUserId(userId);
+			String mobile = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
 			if(mobile!=null&&!"".equals(mobile)){
 				userBaseService.modifyToBeFetcher(mobile,userId);
 				stateMap.put("state", 1);

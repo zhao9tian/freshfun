@@ -74,17 +74,6 @@ public class UserLoginControllerTest extends TestBase{
             System.out.println("用户新增成功！"+userBase.getId());
         }
     }
-    @Test
-    public void selectFetcherIdByUserId(){//获取上级捕手userId
-        Long fetcherId = userBaseService.queryFetcherIdByUserId(372899l);
-        if(fetcherId==null){
-            System.out.println("用户不存在或已注销");
-        }else if(fetcherId==0){
-            System.out.println("用户不存在上级捕手");
-        }else{
-            System.out.println("用户存在上级捕手，fetcherId="+fetcherId);
-        }
-    }
 
     @Test
     public void updateToBeFetcher(){//成为捕手
@@ -98,25 +87,6 @@ public class UserLoginControllerTest extends TestBase{
         }
     }
 
-    @Test
-    public void selectUserIdByPhoneNumber(){//根据手机号查询用户id
-        String phoneNumber = "15038092019";
-        Long userId = userBaseService.queryUserIdByPhoneNumber(phoneNumber);
-        String deviceId = userBaseService.queryDeviceIdByPhoneNumber(phoneNumber);
-        if(userId==null){
-            System.out.print("未找到手机号为"+phoneNumber+"的用户");
-        }else if(0==userId){
-            System.out.print("入参错误");
-        }else{
-            System.out.print("手机号为"+phoneNumber+"的用户userId为："+userId);
-        }
-        if(deviceId==null){
-            System.out.print("入参错误");
-        }else{
-            System.out.print("手机号为"+phoneNumber+"的用户设备号为："+deviceId);
-        }
-
-    }
 
     @Test
     public void updateUserToMesh(){//更新合并用户信息
@@ -127,18 +97,6 @@ public class UserLoginControllerTest extends TestBase{
             System.out.println("信息更新成功");
         }else{
             System.out.println("信息更新失败失败");
-        }
-    }
-
-    @Test
-    public void selectPhoneNumberByUserId(){//获取用户手机号
-        String phoneNumber = userBaseService.queryPhoneNumberByUserId(372898l);
-        if(phoneNumber==null){
-            System.out.println("用户不存在或已注销");
-        }else if("".equals(phoneNumber)){
-            System.out.println("用户未绑定手机号");
-        }else{
-            System.out.println("用户的手机号为："+phoneNumber);
         }
     }
 
