@@ -48,7 +48,7 @@
 
     <!--根据userId查询用户是否为捕手-->
     <select id="validateIsFetcherByUserId" parameterType="java.lang.Long" resultType="java.lang.Integer">
-        select count(id) from user_base where user_id=#{userId} and is_fetcher=1 and is_deleted=0
+        select count(id) from user_base where user_id=#{userId} and is_fetcher=1 and  is_deleted=0
     </select>
 
 
@@ -87,10 +87,7 @@
 
     <!--查询昵称使用次数-->
     <select id="selectUserNameCount" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.pojo.UserBasePOJO">
-        select user_id as userId,user_name as userName,user_name_count as userNameCount from user_base where is_deleted = 0
-        <if test="nickName!=null">
-            and user_name=#{nickName,jdbcType=VARCHAR}
-        </if>
+        select user_id as userId,user_name as userName,user_name_count as userNameCount from user_base where is_deleted = 0 and user_name=#{userName}
     </select>
 
     <!--更新昵称使用次数-->

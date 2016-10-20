@@ -99,7 +99,6 @@ public class UserLoginController {
 				//校验cookie  不存在cookie，有接收到code
 				Long userId = null;  //获取userId
 				try {
-					//userId = userService.WzPlatformLogin(code);
 					//获取微信中的用户信息
 					WxInfo weChatInfo = getWxUserInfo(code, WxConstantUtil.APP_ID, WxConstantUtil.APP_SECRET);
 					String unionId = weChatInfo.getUnionid();

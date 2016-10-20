@@ -87,7 +87,7 @@ public class UserBaseServiceImpl implements UserBaseService {
         } else {
             UserInfoOutParam user = userBaseMapper.selectUserInfoByUserId(userId);
             if (user == null) {
-                logger.warn("根据userId获取用户的信息手机号时，user不存在或已注销");
+                logger.warn("根据userId获取用户的信息时，user不存在或已注销");
                 return null;
             } else {
                 return user;

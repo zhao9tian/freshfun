@@ -88,10 +88,10 @@ public interface UserBaseMapper {
 
     /**
      * 查询昵称的使用次数
-     * @param nickName  昵称
+     * @param userName  昵称
      * @return  目标用户信息
      */
-    UserBasePOJO selectUserNameCount(String nickName);
+    UserBasePOJO selectUserNameCount(String userName);
 
     /**
      * 更新随机昵称的使用次数

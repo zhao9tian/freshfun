@@ -159,7 +159,7 @@ public class IdentifiedCodeServiceImpl implements IdentifiedCodeService {
             Integer count = 0;
             //1.通过用户id来判断是否已经绑定了
             UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(Long.parseLong(userId));
-            if (userInfo != null) {
+            if (userInfo != null&&!"".equals(userInfo.getPhoneNumber())) {
                 //2.判断绑定的手机号是该手机号还是其他
                 if (phoneNum.equals(userInfo.getPhoneNumber())) {
                     status = 0;
