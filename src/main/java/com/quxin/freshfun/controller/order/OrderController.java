@@ -63,7 +63,8 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> findAllOrders(HttpServletRequest request,Integer currentPage,Integer pageSize){
 		Long ui = CookieUtil.getUserIdFromCookie(request);
-		List<OrderDetailsPOJO> orders =setGoodsList(orderManager.findAll(ui, currentPage, pageSize) , 1);
+		List<OrderDetailsPOJO> orderList = orderManager.findAll(ui, currentPage, pageSize);
+		List<OrderDetailsPOJO> orders =setGoodsList(orderList , 1);
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
@@ -413,7 +414,7 @@ public class OrderController {
 	public List<OrderDetailsPOJO> setGoodsList(List<OrderDetailsPOJO> orders  , Integer rukou){
 		if(rukou != null && rukou == 1){
 			for(OrderDetailsPOJO order : orders){
-				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getOrderId());
+				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getId());
 				//限时页面倒计时
 				Long createTime = od.getCreateDate();
 				Long now = System.currentTimeMillis();
