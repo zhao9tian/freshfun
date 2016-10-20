@@ -40,7 +40,6 @@ public class UserBaseServiceImpl implements UserBaseService {
          } else {
              if (userBase.getOpenId() == null || "".equals(userBase.getOpenId())) {
                  logger.warn("插入用户信息时，入参openId为空");
-                 checkPram = false;
              } else if (userBase.getUnionId() == null || "".equals(userBase.getUnionId())) {
                  logger.warn("插入用户信息时，入参unionId为空");
                  checkPram = false;
