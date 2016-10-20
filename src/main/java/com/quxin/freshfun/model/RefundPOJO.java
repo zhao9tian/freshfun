@@ -3,7 +3,7 @@ package com.quxin.freshfun.model;
 public class RefundPOJO {
     private Integer id;
 
-    private String orderDetailsId;
+    private Long orderId;
 
     private String serviceType;
 
@@ -25,12 +25,12 @@ public class RefundPOJO {
         this.id = id;
     }
 
-    public String getOrderDetailsId() {
-        return orderDetailsId;
+    public Long getOrderId() {
+        return orderId;
     }
 
-    public void setOrderDetailsId(String orderDetailsId) {
-        this.orderDetailsId = orderDetailsId == null ? null : orderDetailsId.trim();
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 
     public String getServiceType() {

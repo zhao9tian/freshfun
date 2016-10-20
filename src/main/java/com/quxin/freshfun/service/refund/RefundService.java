@@ -9,7 +9,7 @@ public interface RefundService {
 	 * 返回自增id
 	 * @param refund
 	 */
-	Integer save(RefundPOJO refund);
+ 	Boolean save(RefundPOJO refund);
 	
 	
 	

@@ -33,16 +33,7 @@ public class UserLoginControllerTest extends TestBase{
     }
     @Test
     public void getWzlogin() throws Exception {
-        WxInfo wxInfo = new WxInfo();
-        wxInfo.setCity("长春");
-//        wxInfo.setCode("");
-//        wxInfo.setOpenid();
-//        wxInfo.setUnionid();
-//        wxInfo.setProvince();
-//        wxInfo.setLanguage();
-//        wxInfo.setCountry();
-//        wxInfo.setNickname();
-//        System.out.println(userLoginController.wzLogin());
+        userService.queryFetcherByUserId(557233L);
     }
     @Test
     public void getVerifyCode() throws Exception {

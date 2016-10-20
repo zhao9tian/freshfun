@@ -62,7 +62,7 @@ public interface OrderDetailsMapper {
      * @param orderDetailsId
      * @return
      */
-    List<OrderDetailsPOJO> selectSigleOrder(String orderDetailsId);
+    List<OrderDetailsPOJO> selectSigleOrder(Long orderDetailsId);
     /**
      * 修改订单支付状态
      * @param orderId

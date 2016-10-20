@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.service.flow.FlowService;
 import com.quxin.freshfun.utils.BusinessException;
 import org.slf4j.Logger;
@@ -223,7 +222,7 @@ public class OrderManagerImpl implements OrderManager {
 	}
 
 	@Override
-	public OrderDetailsPOJO selectSigleOrder(String orderDetailsId) {
+	public OrderDetailsPOJO selectSigleOrder(Long orderDetailsId) {
 		List<OrderDetailsPOJO> sigleOrder = orderDetailsMapper.selectSigleOrder(orderDetailsId);
 		if(sigleOrder != null && sigleOrder.size() > 0){
 			OrderDetailsPOJO detailsPOJO = sigleOrder.get(0);

@@ -171,7 +171,7 @@ public class OrderServiceImpl implements OrderService {
 				throw new RuntimeException();
 			}
 			//生成收入账单
-			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderDetailsId());
+			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderId());
 			//生成支出账单
 			generateExpensesBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail);
 		}

@@ -28,7 +28,7 @@ public class GoodsServiceImplTest extends TestBase{
     public void setUp() throws Exception {
         goodsService = getContext().getBean("goodsService", GoodsService.class);
         homePage = getContext().getBean("homePage", HomePage.class);
-        goodsController = getContext().getBean("goodsDetails", GoodsController.class);
+        goodsController = getContext().getBean("goodsController", GoodsController.class);
     }
 
     
@@ -49,7 +49,7 @@ public class GoodsServiceImplTest extends TestBase{
 
     @Test
     public void querySortGoods(){
-        System.out.println(goodsService.querySortGoods().size());
+        System.out.println(goodsService.querySortGoods());
     }
 
 

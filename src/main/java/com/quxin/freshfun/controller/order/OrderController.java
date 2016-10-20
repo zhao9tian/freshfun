@@ -72,7 +72,7 @@ public class OrderController {
 	 */
 	@RequestMapping("/selectSigleOrder")
 	@ResponseBody
-	public OrderDetailsPOJO selectSigleOrder(String orderDetailsId){
+	public OrderDetailsPOJO selectSigleOrder(Long orderDetailsId){
 		OrderDetailsPOJO orderDetail = orderManager.selectSigleOrder(orderDetailsId);
 		//限时页面倒计时
 		Long createTime = orderDetail.getCreateDate();
@@ -411,7 +411,7 @@ public class OrderController {
 	public List<OrderDetailsPOJO> setGoodsList(List<OrderDetailsPOJO> orders  , Integer rukou){
 		if(rukou != null && rukou == 1){
 			for(OrderDetailsPOJO order : orders){
-				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getId().toString());
+				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getOrderId());
 				//限时页面倒计时
 				Long createTime = od.getCreateDate();
 				Long now = System.currentTimeMillis();

@@ -21,7 +21,7 @@ public interface OrderManager {
 	 * @param orderDetailsId
 	 * @return
 	 */
-	OrderDetailsPOJO selectSigleOrder(String orderDetailsId);
+	OrderDetailsPOJO selectSigleOrder(Long orderDetailsId);
 	/**
 	 * 根据用户编号查询所有订单信息
 	 * @param userId
