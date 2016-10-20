@@ -579,7 +579,7 @@
   </update>
 
   <select id="applyRefund" parameterType="java.lang.String" resultType="java.lang.Long">
-    select id from order_details where order_details_id =#{orderDetailId} and order_status = 70 and (recive_time + 7 * 24 * 3600 - UNIX_TIMESTAMP(NOW())  <![CDATA[>]]> 0 )
+    select id from order_details where id =#{orderDetailId} and order_status = 70 and (recive_time + 7 * 24 * 3600 - UNIX_TIMESTAMP(NOW())  <![CDATA[>]]> 0 )
   </select>
 
   <select id="selectAllIncome" parameterType="java.lang.Long" resultType="java.lang.Integer">
