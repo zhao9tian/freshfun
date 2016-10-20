@@ -359,12 +359,12 @@ public class UserLoginController {
 						String wxHeadUrl = OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
 						userBase.setUserHeadImg(wxHeadUrl);
 						userBase.setPhoneNumber("");
-						userBase.setUnionId("");
+						userBase.setUnionId(weChatInfo.getUnionid());
 						userBase.setOpenId("");
-						userBase.setDeviceId("");
-						userBase.setCity("");
-						userBase.setProvince("");
-						userBase.setCountry("");
+						userBase.setDeviceId(deviceId);
+						userBase.setCity(weChatInfo.getCity());
+						userBase.setProvince(weChatInfo.getProvince());
+						userBase.setCountry(weChatInfo.getCountry());
 						userBase.setSource((byte) 0);
 						userBase.setFetcherId(0l);
 						userBase.setIdentity((byte) 0);
