@@ -3,7 +3,7 @@
 <mapper namespace="com.quxin.freshfun.dao.RefundMapper" >
   <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.RefundPOJO" >
     <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="order_details_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="order_details_id" property="orderId" jdbcType="BIGINT" />
     <result column="service_type" property="serviceType" jdbcType="VARCHAR" />
     <result column="return_reason" property="returnReason" jdbcType="VARCHAR" />
     <result column="return_money" property="returnMoney" jdbcType="INTEGER" />
