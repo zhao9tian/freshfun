@@ -65,14 +65,8 @@ public class HomePage {
 
         List<SpecialTheme> homeSpecialTheme = homePageService.homeGoodsTheme();
         homePagePOJO.setSpecialTheme(homeSpecialTheme);
-        /**
-         * 查询商品
-         * @return List<Goods>
-         */
-        Map<String, Integer> goodsMap = new HashMap<String, Integer>(2);
-        Integer page = 0;
-        goodsMap.put("page", page);
-        goodsMap.put("pagesize", 20);
+
+        //查询20个排序商品
         List<GoodsPOJO> goods = goodsService.querySortGoods();
         for (GoodsPOJO goodsPOJO : goods) {
             goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));

@@ -2,6 +2,7 @@ package com.quxin.freshfun.service.impl.goods;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.quxin.freshfun.common.GoodsConstant;
 import com.quxin.freshfun.dao.GoodsDetailsMapper;
 import com.quxin.freshfun.dao.GoodsMapper;
 import com.quxin.freshfun.dao.SmidVsGidMapper;
@@ -97,17 +98,22 @@ public class GoodsServiceImpl implements GoodsService {
 
 	@Override
 	public List<GoodsPOJO> querySortGoods() {
-		String sortValue = goodsMapper.selectPictureWall("pictureWall");
+		String sortValue = goodsMapper.selectPictureWall(GoodsConstant.PICTURE_WALL);
 		if(sortValue == null || "".equals(sortValue)){
 			return null;
 		}
 		JSONArray sortArr = JSON.parseArray(sortValue);
-		List<Integer> sortList = new ArrayList<>();
+		List<GoodsPOJO> sortList = new ArrayList<>();
 		if(sortArr != null && sortArr.size() > 0){
 			for(Object goodsId : sortArr){
-				sortList.add((Integer) goodsId);
+				GoodsPOJO goods = goodsMapper.findByGoodsId((Integer) goodsId);
+				if(goods == null){
+					logger.error("商品Id为:"+goodsId+"的商品不存在或者已经下架");
+				}else{
+					sortList.add(goods);
+				}
 			}
-			return goodsMapper.selectSortGoods(sortList);
+			return sortList;
 		}else{
 			return null;
 		}

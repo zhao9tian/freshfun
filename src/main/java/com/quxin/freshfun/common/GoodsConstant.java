@@ -6,4 +6,10 @@ package com.quxin.freshfun.common;
 public class GoodsConstant {
     /** 上架 */
     public static final Integer GOODS_IS_ONSALE = 1;
+    /**
+     *
+     */
+    public static final String PICTURE_WALL = "pictureWall";
+
+
 }
