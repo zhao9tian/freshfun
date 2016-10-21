@@ -3,7 +3,7 @@ package com.quxin.freshfun.controller.task;
 import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.service.order.OrderManager;
-import com.quxin.freshfun.service.user.VerifiedCodeService;
+import com.quxin.freshfun.service.user.IdentifiedCodeService;
 import com.quxin.freshfun.utils.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,9 +17,8 @@ public class AutoConfirmTask {
     private OrderManager orderManager;
     @Autowired
     private BillService billService;
-
     @Autowired
-    private VerifiedCodeService verifiedCodeService;
+    private IdentifiedCodeService identifiedCodeService;
 
     /**
      * 14天自动确认收货时添加账单信息
@@ -56,7 +55,7 @@ public class AutoConfirmTask {
      */
     @Scheduled(cron="0 0 1 * * ? ")
     public void deleteVerifyCode(){
-        verifiedCodeService.removeVerifyCode();
+        identifiedCodeService.removeIdentifiedCode();
     }
 
 }

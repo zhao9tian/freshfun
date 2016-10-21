@@ -33,6 +33,11 @@
     frozen_money, user_identify, income_identify, user_enter, user_info_id, is_deleted, 
     user_address
   </sql>
+
+  <select id="selectAllUser" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/> from users
+  </select>
+
   <!-- 查询用户的编号 -->
   <select id="selectId" parameterType="java.lang.Long" resultType="java.lang.Integer">
       select id from users where id = #{userId}

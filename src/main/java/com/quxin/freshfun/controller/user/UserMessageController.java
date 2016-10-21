@@ -8,6 +8,7 @@ import com.quxin.freshfun.model.pojo.CommentPOJO;
 import com.quxin.freshfun.service.UserAddressService;
 import com.quxin.freshfun.service.comment.CommentService;
 import com.quxin.freshfun.service.order.OrderManager;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +28,12 @@ import java.util.Map;
 public class UserMessageController {
 	@Autowired
 	private UserAddressService userAddressService;
-	
 	@Autowired
 	private CommentService commentService;
-	
 	@Autowired
 	private OrderManager orderManager;
+	@Autowired
+	private UserBaseService userBaseService;
 	
 	/**userismobile
 	 * 添加用户反馈
@@ -62,30 +63,31 @@ public class UserMessageController {
 		}
 		return stateMap;
 	}
-	
+
 	/**
 	 * 通过userID获取用户手机号
 	 * @return map
 	 */
 	@RequestMapping("/userismobile")
 	@ResponseBody
-	public Map<String, Object> FindUserIsMobile(HttpServletRequest request){
-		Long ui = CookieUtil.getUserIdFromCookie(request);
+	public Map<String, Object> toBeFetcher(HttpServletRequest request){
+		Long userId = CookieUtil.getUserIdFromCookie(request);
 		Map<String, Object> stateMap = new HashMap<String, Object>();
-		UsersPOJO userInfo = userAddressService.findIsMobile(ui);
-		String mobile;
-        mobile = userInfo.getMobilePhone();
-        Byte identify = userInfo.getUserIdentify();
-		if(mobile == null || "".equals(mobile)){
-			stateMap.put("state", 0);
-		}else if(identify == 0){
-			userAddressService.updateUserIdentify(ui);
-			stateMap.put("state", 1);
-			
-		}else{
+		boolean isFetcher = userBaseService.checkIsFetcherByUserId(userId);
+		if(isFetcher){
 			stateMap.put("state", 2);
+			return stateMap;
+		}else{
+			String mobile = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
+			if(mobile!=null&&!"".equals(mobile)){
+				userBaseService.modifyToBeFetcher(mobile,userId);
+				stateMap.put("state", 1);
+				return stateMap;
+			}else{
+				stateMap.put("state", 0);
+				return stateMap;
+			}
 		}
-		return stateMap;
 	}
 	
 	/**

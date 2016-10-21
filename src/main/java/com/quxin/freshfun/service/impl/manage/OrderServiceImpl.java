@@ -5,12 +5,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.common.FreshFunEncoder;
-import com.quxin.freshfun.controller.wxpay.ClientRequestHandler;
-import com.quxin.freshfun.controller.wxpay.PrepayIdRequestHandler;
+import com.quxin.freshfun.service.impl.wechat.ClientRequestHandler;
+import com.quxin.freshfun.service.impl.wechat.PrepayIdRequestHandler;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
@@ -40,18 +41,14 @@ public class OrderServiceImpl implements OrderService {
 	private UserOutcomeMapper userOutcomeMapper;
 	@Autowired
 	private OrderDetailsMapper orderDetailsMapper;
-	@Autowired
-	private GoodsDeliveryTypeMapper goodsDeliveryTypeMapper;
-	@Autowired
-	private UsersMapper usersMapper;
+    @Autowired
+    private UserBaseService userBaseService;
 	@Autowired
 	private GoodsMapper goodsMapper;
 	@Autowired
 	private GoodsLimitMapper goodsLimitMapper;
 	@Autowired
 	private ShoppingCartMapper shoppingCartMapper;
-	@Autowired
-	private UserRevenueMapper userRevenueMapper;
 	@Autowired
 	private MerchantAgentMapper merchantAgentMapper;
 	@Autowired
@@ -120,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 		//获取用户openId
-		String openId = usersMapper.selectOpenId(uId);
+        String openId = userBaseService.queryUserInfoByUserId(uId).getOpenId();
 		//生成订单后 调用支付
 		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
 		StringBuilder payId = new StringBuilder();
@@ -129,20 +126,22 @@ public class OrderServiceImpl implements OrderService {
 		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
 		payResult.setOrderId(orderDetailsId);
 		//修改支付状态
-		if(orderInfo.getGoodsInfo().get(0).getScId() != null) {
-			for (int i = 0; i < orderInfo.getGoodsInfo().size(); i++) {
+		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
+			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
 				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
-				if (status <= 0) {
-					resultLogger.error(orderInfo.getUserId() + "修改购物车状态失败");
+				if(status <= 0){
+					resultLogger.error(orderInfo.getUserId()+"修改购物车状态失败");
 					throw new BusinessException("修改购物车状态");
 				}
 			}
+		}else{
+			logger.error("购物车传递参数错误");
 		}
 		return payResult;
 	}
 	@Override
 	public String getOpenId(Long userId){
-		return usersMapper.selectOpenId(userId);
+        return userBaseService.queryUserInfoByUserId(userId).getOpenId();
 	}
 
 	/**
@@ -171,7 +170,7 @@ public class OrderServiceImpl implements OrderService {
 				throw new RuntimeException();
 			}
 			//生成收入账单
-			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderId());
+			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderDetailsId());
 			//生成支出账单
 			generateExpensesBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail);
 		}
@@ -223,9 +222,9 @@ public class OrderServiceImpl implements OrderService {
 		//根据地址编号查询地址信息
 		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
 		//查询捕手信息
-		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(uid);
+        Long fetcherId = userBaseService.queryUserInfoByUserId(uid).getFetcherId();
 
-		OrderDetailsPOJO od = new OrderDetailsPOJO();
+        OrderDetailsPOJO od = new OrderDetailsPOJO();
 		//订单编号
 		od.setOrderId(orderId);
 		od.setUserId(orderInfo.getUserId());
@@ -236,22 +235,21 @@ public class OrderServiceImpl implements OrderService {
 		od.setPayTime(currentTime);
 		od.setOrderStatus(10);
 		//判断是否有上级
-		if(userPOJO.getParentId() !=null && userPOJO.getParentId()!=0) {
-			od.setFetcherId(userPOJO.getParentId());
+		if(fetcherId !=null && fetcherId != 0) {
+			od.setFetcherId(fetcherId);
 			//计算捕手需要获取的提成
 			Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
 			od.setFetcherPrice(fetcherMoney.intValue());
 			od.setPayPlateform(1);
 		}else{
 			String sign = orderInfo.getFetcherId();
-			od.setPayPlateform(0);
 			if (sign != null && !"".equals(sign)){
 				Long id = FreshFunEncoder.urlToId(sign);
 				if(id != null) {
                     //判断是否是捕手
-                    int count = usersMapper.selectFetcherByUserId(id);
-                    if(count > 0){
-                        int status = usersMapper.updateUserParentId(id, uid);
+                    boolean bool = userBaseService.checkIsFetcherByUserId(id);
+                    if(bool){
+                        int status = userBaseService.modifyFetcherForUser(uid,id);
                         if (status <= 0) {
 							logger.error("添加分享标记失败");
                         }else{
@@ -261,6 +259,7 @@ public class OrderServiceImpl implements OrderService {
                             Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
                             od.setFetcherPrice(fetcherMoney.intValue());
                         }
+						od.setPayPlateform(1);
                     }
 				}
 			}
@@ -341,128 +340,7 @@ public class OrderServiceImpl implements OrderService {
 		ResponseResult json = g.fromJson(str,ResponseResult.class);
 		return json;
 	}
-	/**
-	 *查询所有订单信息
-	 */
-	@Override
-	public List<OrdersPOJO> findAllOrders() {
-		List<OrdersPOJO> orders = ordersMapper.findAllOrders();
-		OrdersPOJO order = orders.get(0);
 
-		createOrderDetails(order);
-		return null;
-	}
-	private void createOrderDetails(OrdersPOJO order) {
-		if(11 == COMMON_ORDER_TYPE){
-			createCommonOrderDetail(order);
-		}else{
-			createSplitOrder(order);
-		}
-	}
-	/**
-	 * 普通订单
-	 * @param order
-	 */
-	private void createCommonOrderDetail(OrdersPOJO order) {
-		OrderInPieces orderInPiecesBean = getOrderInPiecesBean(order);
-		orderInPiecesBean.setDeliveryDate(order.getGmtCreate());
-		//orderInpieces.addOrderDetail(orderInPiecesBean);
-		//区分是否是分享用户
-		if(order.getCode().trim() == "" || order.getCode() == null){
-			//不是分享用户
-			//createBill(order,orderInPiecesBean.getOrderPieceId(),order.getActualPrice());
-		}else{
-			//分享用户
-			createBill(order,orderInPiecesBean.getOrderPieceId());
-		}
-	}
-	/**
-	 * 生成账单
-	 * @param payInfo
-	 */
-	private void generateBill(OrderPayInfo payInfo,OrderDetailsPOJO orderDetail,Long userId,Integer goodsId) {
-		//查询用户信息
-		UsersPOJO userPOJO = usersMapper.selectParentIdByUserId(userId);
-		//解析
-		if(null != userPOJO.getParentId() && userPOJO.getParentId() != 0){
-			//修改用户标记
-
-			//查询是否有代理商户
-			GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsId);
-			if(null != gp.getMerchantProxyId() && gp.getMerchantProxyId() != 0){
-				int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
-				int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
-				int merchantMoney = (int) (orderDetail.getActualPrice() * 0.7);
-				generateBillDetail(payInfo,orderDetail,userPOJO.getParentId(),shareMoney,1);
-				generateBillDetail(payInfo,orderDetail,gp.getMerchantProxyId(),proxyMerchantMoney,2);
-				generateBillDetail(payInfo,orderDetail,gp.getStoreId(),merchantMoney,3);
-			}else{
-				int shareMoney = (int) (orderDetail.getActualPrice() * 0.1);
-				int merchantMoney = (int) (orderDetail.getActualPrice() * 0.9);
-				generateBillDetail(payInfo,orderDetail,userPOJO.getParentId(),shareMoney,1);
-				generateBillDetail(payInfo,orderDetail,gp.getStoreId(),merchantMoney,3);
-			}
-		}else{
-			//查询是否有代理商户
-			GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsId);
-			if(null != gp.getMerchantProxyId() && gp.getMerchantProxyId() != 0){
-				int proxyMerchantMoney = (int) (orderDetail.getActualPrice() * 0.2);
-				int merchantMoney = (int) (orderDetail.getActualPrice() * 0.8);
-				generateBillDetail(payInfo,orderDetail,gp.getMerchantProxyId(),proxyMerchantMoney,2);
-				generateBillDetail(payInfo,orderDetail,gp.getStoreId(),merchantMoney,3);
-			}else{
-				generateBillDetail(payInfo,orderDetail,gp.getStoreId(),orderDetail.getActualPrice(),3);
-			}
-		}
-		//}
-	}
-	/**
-	 * 生成订单详情
-	 * @param payInfo
-	 * @param orderDetail
-	 * @param userId
-	 */
-	private void generateBillDetail(OrderPayInfo payInfo,OrderDetailsPOJO orderDetail,Long userId,int money,int deliveryType) {
-		long currentDate = DateUtils.getCurrentDate();
-		UserRevenue revenue = new UserRevenue();
-		revenue.setUserId(userId);
-		revenue.setOrderId(orderDetail.getId().toString());
-		revenue.setPrice(money);
-		revenue.setInState(0);
-		revenue.setCreateDate(currentDate);
-		revenue.setUpdateDate(currentDate);
-		revenue.setDeliveryType(deliveryType);
-		revenue.setRevenueName(payInfo.getGoodsName());
-		int status = addUserRevenue(revenue);
-		resultLogger.info("生成订单状态：revenue："+status);
-		if(status <= 0){
-			resultLogger.error(userId+"生成订单详情失败");
-			throw new RuntimeException();
-		}
-	}
-
-	/**
-	 * 生成分享用户账单
-	 * @param order
-	 * @param orderPieceId
-	 */
-	private void createBill(OrdersPOJO order, String orderPieceId) {
-		//解析code
-		String codeVal = getCodeVal(order.getCode());
-		String[] splitVal = getSplitCode(codeVal);
-		if(splitVal.length <= 0)
-			throw new IllegalArgumentException();
-		Integer userId = Integer.parseInt(splitVal[0]);
-		Integer goodsId = Integer.parseInt(splitVal[1]);
-		if(goodsId != 1){
-			// TODO 记录日志
-		}else{
-			//生成用户标记
-			//updateUserParentId(userId,goodsId);
-			//生成分享账单
-			//createShareBill(order,userId,orderPieceId);
-		}
-	}
 	/**
 	 * 添加用户支出信息
 	 * @param out
@@ -471,107 +349,6 @@ public class OrderServiceImpl implements OrderService {
 		return userOutcomeMapper.insertSelective(out);
 	}
 
-	/**
-	 * 添加用户收入信息
-	 * @param UserRevenue
-	 */
-	private int addUserRevenue(UserRevenue UserRevenue) {
-		return userRevenueMapper.insertSelective(UserRevenue);
-	}
-
-	/**
-	 * 分割code
-	 * @param codeVal
-	 */
-	private String [] getSplitCode(String codeVal) {
-		return codeVal.split("\\|");
-	}
-	/**
-	 * 解析经过Base64编码的coed
-	 * @param code
-	 */
-	private String getCodeVal(String code) {
-		return AESUtil.decodeStr(code);
-	}
-	/**
-	 * 拆分订单
-	 * @param order
-	 */
-	private void createSplitOrder(OrdersPOJO order) {
-		//查询订单的套餐类型
-		GoodsDeliveryTypePOJO deliveryTypePOJO = goodsDeliveryTypeMapper.selectByDeliveryId(4);
-		//发货次数
-		int deliveryCount = deliveryTypePOJO.getDeliveryCount();
-		//单次价格
-		int singlePrice = order.getActualPrice() / deliveryCount;
-		Long[] deliveryDates = makeDeliveryDate(order.getGmtCreate(),deliveryTypePOJO);
-		for(int i = 0;i < deliveryCount;i++){
-			//生成商品详情
-			OrderInPieces orderInPiecesBean = getOrderInPiecesBean(order);
-			orderInPiecesBean.setDeliveryDate(deliveryDates[i]);
-		}
-	}
-
-	/**
-	 * 根据订单地址 查询订单详情实体
-	 * @param order
-	 */
-	private OrderInPieces getOrderInPiecesBean(OrdersPOJO order) {
-		//根据订单地址编号查询地址信息
-		OrderInPieces op = new OrderInPieces();
-		//订单编号
-		op.setOrderPieceId(UUID.randomUUID().toString());
-		op.setPayTime(order.getGmtCreate());
-		op.setOrderStatus(0);
-		op.setCommentStatus(0);
-		op.setActualPrice(order.getActualPrice());
-		return op;
-	}
-
-	/**
-	 * 生成订单发货时间
-	 * @param deliveryTypePOJO
-	 */
-	private Long[] makeDeliveryDate(Long createDate,GoodsDeliveryTypePOJO deliveryTypePOJO) {
-		Long [] dates = new Long [deliveryTypePOJO.getDeliveryCount()];
-		int frequencyCycleWeek = FREQUENCY_WEEK_VALUE;
-		int frequencyCycleMonth = FREQUENCY_MONTH_VALUE;
-		switch(deliveryTypePOJO.getFrequency()){
-			case FREQUENCY_WEEK:
-				for(int i = 0;i < deliveryTypePOJO.getDeliveryCount();i++){
-					Long time = getDeliveryDate(createDate, frequencyCycleWeek);
-					dates[i] = time;
-					frequencyCycleWeek += FREQUENCY_WEEK_VALUE;
-				}
-				break;
-			case FREQUENCY_MONTH:
-				for(int i = 0;i < deliveryTypePOJO.getDeliveryCount();i++){
-					Long time = getDeliveryDate(createDate, frequencyCycleMonth);
-					dates[i] = time;
-					frequencyCycleMonth += FREQUENCY_MONTH_VALUE;
-				}
-				break;
-		}
-		return dates;
-	}
-
-	/**
-	 * 根据创建订单时间生成发货时间
-	 * @param time
-	 * @param d
-	 * @return
-	 */
-	private Long getDeliveryDate(Long time,int d){
-		Calendar cal = Calendar.getInstance();
-		Date date = new Date(time*1000);
-		cal.setTime(date);
-		cal.set(Calendar.DATE, cal.get(Calendar.DATE) + d);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		return cal.getTimeInMillis();
-	}
 	@Override
 	public OrderDetailsPOJO getOrderLogistic(String orderDetailId) {
 		OrderDetailsPOJO orderDetail = orderDetailsMapper.getLogistic(orderDetailId);
@@ -592,9 +369,7 @@ public class OrderServiceImpl implements OrderService {
 			for (Element e : elements) {
 				map.put(e.getName(), e.getText());
 			}
-			billLogger.info("用户编号："+map.get("attach")+"支付回调结果："+map.toString());
-			billLogger.info(map.get("result_code"));
-			billLogger.info("SUCCESS".equals(map.get("result_code"))+"");
+			logger.info("用户编号："+map.get("attach")+"支付回调结果："+map.toString());
 			if("SUCCESS".equals(map.get("result_code"))){
 				int payStatus = 0;
 				Long currentDate = DateUtils.getCurrentDate();
@@ -602,13 +377,6 @@ public class OrderServiceImpl implements OrderService {
 				if("W".equals(orderId.subSequence(0, 1))){
 					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate,Long.parseLong(orderId.substring(1,orderId.length())));
 					billLogger.info("订单详情支付"+map.get("attach"));
-					//根据订单查询账单详情
-//					List<Integer> ids = userRevenueMapper.selectIdByOrderId(orderId.substring(1, orderId.length()));
-//					for(Integer id : ids){
-//						//修改账单状态
-//						int status = userRevenueMapper.updateBillPayStatus(id);
-//						billLogger.info("修改订单状态："+status);
-//					}
 				}else if("B".equals(orderId.subSequence(0, 1))){
 					//商户代理费支付回调
 					Integer id = Integer.parseInt(orderId.substring(1,orderId.length()));
@@ -628,13 +396,6 @@ public class OrderServiceImpl implements OrderService {
 					for (Long id : payIdList) {
 						payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, id);
 						billLogger.info("用户编号："+map.get("attach")+"修改订单状态结果："+payStatus);
-						//根据订单查询账单详情
-//						List<Integer> ids = userRevenueMapper.selectIdByOrderId(id.toString());
-//						for(Integer i : ids){
-//							//修改账单状态
-//							int status = userRevenueMapper.updateBillPayStatus(i);
-//							billLogger.info("修改账单状态："+status);
-//						}
 					}
 				}
 				return payStatus;
@@ -659,7 +420,7 @@ public class OrderServiceImpl implements OrderService {
 		OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(order.getOrderId());
 		String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
 		//获取用户openId
-		String openId = usersMapper.selectOpenId(userId);
+        String openId = userBaseService.queryUserInfoByUserId(userId).getOpenId();
 		StringBuilder sb = new StringBuilder();
 		sb.append("W");
 		sb.append(order.getOrderId());
@@ -686,16 +447,8 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public ResponseResult addQuanMingPay(QuanMingPayInfo info,Long userId) throws BusinessException {
-		if(userId == null)
-			return null;
-		long [] users = {556686,556682,556681};
 		//商户支付金额
 		Double agentPrice = 30000.00;
-		for (long l: users) {
-			if(l == userId){
-				agentPrice = 0.01;
-			}
-		}
 		Long date = DateUtils.getCurrentDate();
 		MerchantAgent agent = new MerchantAgent();
 		agent.setMerchantId(userId);
@@ -711,7 +464,7 @@ public class OrderServiceImpl implements OrderService {
 			throw new BusinessException("添加商户代理信息失败");
 		}else{
 			//获取用户openId
-			String openId = usersMapper.selectOpenId(userId);
+            String openId = userBaseService.queryUserInfoByUserId(userId).getOpenId();
 			//支付
 			StringBuilder sb = new StringBuilder();
 			sb.append("B");
@@ -846,18 +599,7 @@ public class OrderServiceImpl implements OrderService {
 		return orderSumPrice;
 	}
 
-	private String generateOrder(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response, Integer orderSumPrice, Long orderId) throws JSONException, UnsupportedEncodingException {
-		String payStr;
-		StringBuilder payId = new StringBuilder();
-		payId.append("Z");
-		payId.append(orderId);
-		//生成支付订单
-		//payStr = appPay(request, response,payId.toString(),orderSumPrice.toString(),orderInfo.getCode(),orderInfo.getOpenid());
-		return "";
-	}
-
 	public WxPayInfo appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney) throws JSONException, UnsupportedEncodingException {
-		//Map<Object,Object> resInfo = new HashMap<Object, Object>();
 		WxPayInfo info = new WxPayInfo();
 		//接收财付通通知的URL
 		String notify_url = "https://www.freshfun365.com/FreshFun/payCallback.do";
@@ -904,8 +646,6 @@ public class OrderServiceImpl implements OrderService {
 		String sign = prepayReqHandler.createMD5Sign();
 		//增加非参与签名的额外参数
 		prepayReqHandler.setParameter("sign", sign);
-		/*prepayReqHandler.setParameter("sign_method",
-				ConstantUtil.SIGN_METHOD);*/
 		String gateUrl = ConstantUtil.GATEURL;
 		prepayReqHandler.setGateUrl(gateUrl);
 
@@ -925,10 +665,6 @@ public class OrderServiceImpl implements OrderService {
 			clientHandler.setParameter("timestamp", timestamp);
 			//生成签名
 			sign = clientHandler.createMD5Sign();
-			//clientHandler.setParameter("sign", sign);
-
-			//xml_body = clientHandler.getXmlBody();
-			//resInfo.put("entity", xml_body);
 
 			info.setAppid(ConstantUtil.APP_ID);
 			info.setPartnerid(ConstantUtil.PARTNER);
@@ -943,14 +679,6 @@ public class OrderServiceImpl implements OrderService {
 			retcode = -2;
 			retmsg = "错误：获取prepayId失败";
 		}
-		/*} else {
-			retcode = -1;
-			retmsg = "错误：获取不到Token";
-		}*/
-
-//		resInfo.put("retcode", retcode);
-//		resInfo.put("retmsg", retmsg);
-//		String strJson = JSON.toJSONString(resInfo);
 		return info;
 	}
 }

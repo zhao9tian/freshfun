@@ -1,27 +1,27 @@
-package com.quxin.freshfun.controller.wxpay;
+package com.quxin.freshfun.service.impl.wechat;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.quxin.freshfun.controller.wxpay.client.TenpayHttpClient;
+import com.quxin.freshfun.service.impl.wechat.client.*;
 import com.quxin.freshfun.model.param.WxPayInfo;
 import com.quxin.freshfun.utils.FieldUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
-import com.quxin.freshfun.utils.weixinPayUtils.JsonUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.MD5Util;
 import com.quxin.freshfun.utils.weixinPayUtils.Sha1Util;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class PrepayIdRequestHandler extends RequestHandler {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	public PrepayIdRequestHandler(HttpServletRequest request,
 								  HttpServletResponse response) {
@@ -98,7 +98,7 @@ public class PrepayIdRequestHandler extends RequestHandler {
 			if("SUCCESS".equals(info.getResult_code())){
 				prepayid = info.getPrepay_id();
 			}else{
-
+				logger.error("微信支付获取prepayid失败");
 			}
 		}
 		return prepayid;

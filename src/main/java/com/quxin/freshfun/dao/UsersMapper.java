@@ -1,5 +1,6 @@
 package com.quxin.freshfun.dao;
 
+import java.util.List;
 import java.util.Map;
 
 import com.quxin.freshfun.model.UserDetailPOJO;
@@ -11,6 +12,9 @@ import com.quxin.freshfun.model.Message;
 import com.quxin.freshfun.model.UsersPOJO;
 
 public interface UsersMapper {
+
+	List<UsersPOJO> selectAllUser();
+
     int deleteByPrimaryKey(Integer id);
     int insertUsers(UsersPOJO record);
     int insertSelective(UsersPOJO record);
@@ -41,7 +45,7 @@ public interface UsersMapper {
 	Integer selectFetcherByUserId(Long userId);
 
     /**
-     * Query entity according to id not user_id 
+     * Query entity according to id not user_id
      * @param id
      * @return
      */

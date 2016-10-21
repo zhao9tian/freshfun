@@ -7,6 +7,7 @@ import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.CookieUtil;
@@ -35,8 +36,9 @@ public class OrderController {
 	private OrderService orderService;
 	@Autowired
 	private OrderManager orderManager;
+
 	@Autowired
-	private UserService userService;
+	private UserBaseService userBaseService;
 	private static Integer orderOutTime;
 	/**
 	 * 日志
@@ -61,7 +63,8 @@ public class OrderController {
 	@ResponseBody
 	public List<OrderDetailsPOJO> findAllOrders(HttpServletRequest request,Integer currentPage,Integer pageSize){
 		Long ui = CookieUtil.getUserIdFromCookie(request);
-		List<OrderDetailsPOJO> orders =setGoodsList(orderManager.findAll(ui, currentPage, pageSize) , 1);
+		List<OrderDetailsPOJO> orderList = orderManager.findAll(ui, currentPage, pageSize);
+		List<OrderDetailsPOJO> orders =setGoodsList(orderList , 1);
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
@@ -281,8 +284,8 @@ public class OrderController {
 				orderInfo.setUserId(userId);
 				payResult = orderService.addOrder(orderInfo);
 				//判断用户是否绑定了手机
-				boolean isMobile = userService.findIsMobile(userId);
-				if(isMobile){
+				String phoneNumber = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
+				if(phoneNumber!=null&&!"".equals(phoneNumber)){
 					payResult.setIsPhone(1);
 				}else{
 					payResult.setIsPhone(0);
@@ -411,7 +414,7 @@ public class OrderController {
 	public List<OrderDetailsPOJO> setGoodsList(List<OrderDetailsPOJO> orders  , Integer rukou){
 		if(rukou != null && rukou == 1){
 			for(OrderDetailsPOJO order : orders){
-				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getOrderId());
+				OrderDetailsPOJO od = orderManager.selectSigleOrder(order.getId());
 				//限时页面倒计时
 				Long createTime = od.getCreateDate();
 				Long now = System.currentTimeMillis();

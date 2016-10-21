@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 /**
  * @author TuZl
@@ -500,5 +501,9 @@ public class UserServiceImpl implements UserService{
 			return 0;
 		}
 		return userDao.selectFetcherByUserId(userId);
+	}
+
+	public List<UsersPOJO> selectAllUser(){
+		return userDao.selectAllUser();
 	}
 }

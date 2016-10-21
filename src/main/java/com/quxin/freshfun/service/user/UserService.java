@@ -10,6 +10,7 @@ import com.quxin.freshfun.utils.BusinessException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * @author TuZl
@@ -112,4 +113,7 @@ public interface UserService {
 	 * @return 数量
 	 */
 	Integer queryFetcherByUserId(Long userId);
+
+
+	List<UsersPOJO> selectAllUser();
 }

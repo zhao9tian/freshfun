@@ -1,15 +1,13 @@
-package com.quxin.freshfun.controller.wxpay.client;
+package com.quxin.freshfun.service.impl.wechat.client;
 
 import com.quxin.freshfun.utils.weixinPayUtils.HttpClientUtil;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;

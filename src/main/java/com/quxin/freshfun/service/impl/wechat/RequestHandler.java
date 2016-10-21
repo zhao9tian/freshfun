@@ -1,4 +1,4 @@
-package com.quxin.freshfun.controller.wxpay;
+package com.quxin.freshfun.service.impl.wechat;
 
 
 import com.quxin.freshfun.utils.weixinPayUtils.MD5Util;
