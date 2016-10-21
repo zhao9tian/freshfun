@@ -32,7 +32,7 @@ public class RefundController {
 	/**
 	 * 保存退款信息,返回是否退款成功
 	 * @param refundParam 退款申请入参
-	 * @return 返回status 0 是申请失败 1是申请成功
+	 * @return 返回请求结果
 	 */
 	@RequestMapping(value="/saveRefund" , method = RequestMethod.POST)
 	@ResponseBody
