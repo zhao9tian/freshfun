@@ -1,29 +1,42 @@
 package com.quxin.freshfun.test;
 
+import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.controller.user.UserLoginController;
 import com.quxin.freshfun.controller.withdraw.WithdrawController;
+import com.quxin.freshfun.model.OrderDetailsPOJO;
+import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.model.param.WithdrawParam;
+import com.quxin.freshfun.model.pojo.UserBasePOJO;
 import com.quxin.freshfun.service.flow.FlowService;
 import com.quxin.freshfun.service.impl.user.UserServiceImpl;
+import com.quxin.freshfun.service.order.OrderManager;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.user.UserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * 用户登录测试用例
  * Created by qucheng on 2016/9/28.
  */
 public class UserLoginControllerTest extends TestBase{
-
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private UserService userService;
+    private OrderManager orderManager;
+    private UserBaseService userBaseService;
 
     @Before
     public void setUp() throws Exception {
         userService = getContext().getBean("userService", UserService.class);
-
+        orderManager = getContext().getBean("orderManager", OrderManager.class);
+        userBaseService = getContext().getBean("userBaseService", UserBaseService.class);
     }
 
 
@@ -42,7 +55,31 @@ public class UserLoginControllerTest extends TestBase{
 
     @Test
     public void bindPhone() {
-//        System.out.println(withdrawController.withdrawRecords("556677"));
+        List<UsersPOJO> list = userService.selectAllUser();
+        for(UsersPOJO user : list){
+            UserBasePOJO userBase = new UserBasePOJO();
+            userBase.setId(user.getId());
+            userBase.setUserId(user.getId());
+            userBase.setUserName(user.getUserName());
+            userBase.setUserHeadImg(user.getUserHeadUrl());
+            userBase.setPhoneNumber(user.getMobilePhone()!=null&&!"".equals(user.getMobilePhone())?user.getMobilePhone():"");
+            userBase.setUnionId(user.getWxId()!=null&&!"".equals(user.getWxId())?user.getWxId():"");
+            userBase.setOpenId(user.getWzId()!=null&&!"".equals(user.getWzId())?user.getWzId():"");
+            userBase.setDeviceId(user.getDeviceId()!=null&&!"".equals(user.getDeviceId())?user.getDeviceId():"");
+            userBase.setCity("");
+            userBase.setProvince("");
+            userBase.setCountry("");
+            userBase.setSource((byte) 0);
+            userBase.setFetcherId(0l);
+            userBase.setIdentity((byte) 0);
+            userBase.setLoginType((byte) 3);
+            userBase.setIsFetcher((byte) 0);
+            userBase.setUserNameCount(0);
+            userBase.setCreated(user.getGmtCreate());
+            userBase.setUpdated(user.getGmtModified());
+            userBase.setIsDeleted(0);
+            Integer result = userBaseService.addUserBaseInfo(userBase);
+        }
     }
 
 

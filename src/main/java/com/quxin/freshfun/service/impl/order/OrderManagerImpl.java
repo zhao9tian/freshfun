@@ -51,7 +51,7 @@ public class OrderManagerImpl implements OrderManager {
 	@Override
 	public List<OrderDetailsPOJO> findAll(Long orderId, int currentPage,
 										  int pageSize) {
-		if(currentPage <= 0)
+		if (currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
 		List<OrderDetailsPOJO> orderList = orderDetailsMapper.selectAll(start, pageSize, orderId);

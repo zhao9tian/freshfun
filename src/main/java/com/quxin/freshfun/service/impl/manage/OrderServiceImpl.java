@@ -243,7 +243,6 @@ public class OrderServiceImpl implements OrderService {
 			od.setPayPlateform(1);
 		}else{
 			String sign = orderInfo.getFetcherId();
-			od.setPayPlateform(0);
 			if (sign != null && !"".equals(sign)){
 				Long id = FreshFunEncoder.urlToId(sign);
 				if(id != null) {
@@ -260,6 +259,7 @@ public class OrderServiceImpl implements OrderService {
                             Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
                             od.setFetcherPrice(fetcherMoney.intValue());
                         }
+						od.setPayPlateform(1);
                     }
 				}
 			}
