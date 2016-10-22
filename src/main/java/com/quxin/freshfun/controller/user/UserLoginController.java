@@ -338,20 +338,11 @@ public class UserLoginController {
 				Long userId = null;
 				if (weChatInfo != null) {
 					String unionId = weChatInfo.getUnionid();
-					//1.判断wxid是否存在数据库中
+					//1.判断unionId是否存在数据库中
 					userInfo = userBaseService.queryUserInfoByUnionId(unionId);
 					if (userInfo != null) {
 						userId = userInfo.getUserId();
-						//3.判断deviceId是否在用户表里面,deviceId唯一
-						if (deviceId != null && !"".equals(deviceId)) {
-							userId = userBaseService.queryUserIdByDeviceId(deviceId);//*****可改进*****
-							if (userId != null) {
-								//修改用户信息
-								userBaseService.modifyUserToMesh(userId, deviceId, null, null);
-							}
-						}
-						//查询用户头像信息
-						userInfo = userBaseService.queryUserInfoByUserId(userId);
+						userBaseService.modifyUserToMesh(userId, deviceId, null, null);
 					} else {
 						UserBasePOJO userBase = new UserBasePOJO();
 						String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
