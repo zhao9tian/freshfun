@@ -92,7 +92,7 @@ public class OrderServiceImpl implements OrderService {
 				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice(),shoppingCart.getGoodsTotals());
 			}
 			orderPayInfos[i] = orderPayInfo;
-			orderSumPrice += orderPayInfo.getGoodsPrice();
+			orderSumPrice += orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
 		}
 
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,orderSumPrice);
@@ -221,11 +221,10 @@ public class OrderServiceImpl implements OrderService {
 			Double agentMoney = orderActualPrice*Constant.AGENT_COMPONENT;
 			od.setAgentPrice(agentMoney.intValue());
 		}
-		if(null != orderInfo.getPaySign() || !"".equals(orderInfo.getPaySign())){
+		if(null != orderInfo.getPaySign() && orderInfo.getPaySign() != 0){
 			od.setPayPlateform(2);
 		}
 		od.setCount(goodsInfo.getCount());
-		od.setPayPlateform(orderInfo.getPaySign());
 		od.setCreateDate(currentTime);
 		od.setUpdateDate(currentTime);
 		od.setName(address.getName());
@@ -539,7 +538,7 @@ public class OrderServiceImpl implements OrderService {
 				}
 				if(orderPayInfo != null) {
 					orderPayInfos[i] = orderPayInfo;
-					orderSumPrice += orderPayInfo.getGoodsPrice();
+					orderSumPrice += orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
 				}else{
 					logger.error("生成订单时获取商品的信息为空");
 				}
