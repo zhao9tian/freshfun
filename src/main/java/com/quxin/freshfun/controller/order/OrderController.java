@@ -36,7 +36,6 @@ public class OrderController {
 	private OrderService orderService;
 	@Autowired
 	private OrderManager orderManager;
-
 	@Autowired
 	private UserBaseService userBaseService;
 	private static Integer orderOutTime;
@@ -452,9 +451,19 @@ public class OrderController {
 	 */
 	public List<OrderDetailsPOJO> setGoodsMoney(List<OrderDetailsPOJO> order){
 		for (OrderDetailsPOJO o: order) {
+			if(o.getPayPrice() != null){
+				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
+				o.setPayMoney(null);
+			}
 			GoodsPOJO goods = o.getGoods();
-			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
-			goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+			if(goods.getMarketPrice() != null) {
+				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
+				goods.setMarketPrice(null);
+			}
+			if(goods.getShopPrice() != null) {
+				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+				goods.setShopPrice(null);
+			}
 		}
 		return order;
 	}
@@ -466,8 +475,15 @@ public class OrderController {
 	 */
 	public List<OrderDetailsPOJO> setBackstageMoney(List<OrderDetailsPOJO> order){
 		for (OrderDetailsPOJO o: order) {
+			if(o.getPayPrice() != null) {
+				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
+				o.setPayPrice(null);
+			}
 			GoodsPOJO goods = o.getGoods();
-			goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+			if(goods.getShopPrice() != null) {
+				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+				goods.setShopPrice(null);
+			}
 		}
 		return order;
 	}

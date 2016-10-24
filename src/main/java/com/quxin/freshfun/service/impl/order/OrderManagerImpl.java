@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.model.outparam.UserInfoOutParam;
+import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.service.flow.FlowService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +36,8 @@ public class OrderManagerImpl implements OrderManager {
 	@Autowired
 	private GoodsMapper goodsMapper;
 	@Autowired
+	private UserBaseService userBaseService;
+	@Autowired
 	private FlowService flowService;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -49,12 +54,12 @@ public class OrderManagerImpl implements OrderManager {
 	 * 根据用户编号查询所有订单信息
 	 */
 	@Override
-	public List<OrderDetailsPOJO> findAll(Long orderId, int currentPage,
+	public List<OrderDetailsPOJO> findAll(Long userId, int currentPage,
 										  int pageSize) {
 		if (currentPage <= 0)
 			currentPage = 1;
 		int start = (currentPage - 1) * pageSize;
-		List<OrderDetailsPOJO> orderList = orderDetailsMapper.selectAll(start, pageSize, orderId);
+		List<OrderDetailsPOJO> orderList = orderDetailsMapper.selectAll(start, pageSize, userId);
 		for (OrderDetailsPOJO orderDetailsPOJO : orderList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);

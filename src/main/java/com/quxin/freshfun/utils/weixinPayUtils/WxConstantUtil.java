@@ -13,8 +13,8 @@ public class WxConstantUtil {
     public static String APP_SECRET = "7ec923f117ebcd7c58737426a23eafee";//应用对应的凭证
     //应用对应的密钥
     public static String APP_KEY = "L8LrMqqeGRxST5reouB0K66CaYAWpqhAVsq7ggKkxHCOastWksvuX1uvmvQclxaHoYd3ElNBrNO2DHnnzgfVG9Qs473M3DTOZug5er46FhuGofumV8H2FVR9qkjSlC5K";
-    public static String PARTNER = "1335619501";//财付通商户号
-    public static String PARTNER_KEY = "560e2d12b29efa5e5605575b1ec5daa0";//商户号对应的密钥
+    public static String PARTNER = "1390031102";//财付通商户号
+    public static String PARTNER_KEY = "lvfjkbdwyulnbcd441RYUIU563lkhfss";//商户号对应的密钥
     public static String TOKENURL = "https://api.weixin.qq.com/cgi-bin/token";//获取access_token对应的url
     public static String GRANT_TYPE = "client_credential";//常量固定值
     public static String EXPIRE_ERRCODE = "42001";//access_token失效后请求返回的errcode

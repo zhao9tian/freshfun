@@ -343,4 +343,7 @@ public interface OrderDetailsMapper {
      */
     OrderDetailsPOJO selectConfirmOrderInfo(String orderId);
 
+    List<OrderDetailsPOJO> selectOrders();
+
+    Integer updatePayPrice(@Param("payPrice") Integer payPrice,@Param("id") Long id);
 }

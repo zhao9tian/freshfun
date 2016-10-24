@@ -82,4 +82,6 @@ public interface OrderService {
 	 * @return
 	 */
 	WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException;
+
+	Integer updatePayPrice();
 }
