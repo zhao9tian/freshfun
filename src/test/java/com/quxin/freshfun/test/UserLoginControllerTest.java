@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -34,12 +35,14 @@ public class UserLoginControllerTest extends TestBase{
     private UserService userService;
     private OrderManager orderManager;
     private UserBaseService userBaseService;
+    private UserLoginController userLoginController;
 
     @Before
     public void setUp() throws Exception {
         userService = getContext().getBean("userService", UserService.class);
         orderManager = getContext().getBean("orderManager", OrderManager.class);
         userBaseService = getContext().getBean("userBaseService", UserBaseService.class);
+        userLoginController = getContext().getBean("userLoginController", UserLoginController.class);
     }
 
 
@@ -58,7 +61,7 @@ public class UserLoginControllerTest extends TestBase{
 
     @Test
     public void bindPhone() {
-        List<UsersPOJO> list = userService.selectAllUser();
+        /*List<UsersPOJO> list = userService.selectAllUser();
         for(UsersPOJO user : list){
             UserBasePOJO userBase = new UserBasePOJO();
             userBase.setId(user.getId());
@@ -82,6 +85,11 @@ public class UserLoginControllerTest extends TestBase{
             userBase.setUpdated(user.getGmtModified());
             userBase.setIsDeleted(0);
             Integer result = userBaseService.addUserBaseInfo(userBase);
+        }*/
+        try {
+            userLoginController.wxLogin("011zRJzx1luwMd0W76wx10kMzx1zRJzD","DE5EA356-B2A5-46E3-AD45-0F50623E56C6");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
     }
 

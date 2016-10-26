@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.common.FreshFunEncoder;
+import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.service.impl.wechat.ClientRequestHandler;
 import com.quxin.freshfun.service.impl.wechat.PrepayIdRequestHandler;
 import com.quxin.freshfun.dao.*;
@@ -85,13 +86,13 @@ public class OrderServiceImpl implements OrderService {
 			//查询购物车
 			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
 				GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
-				orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice()*goodsInfo.getCount());
+				orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice(),goodsInfo.getCount());
 			}else{
 				ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
-				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice()*shoppingCart.getGoodsTotals());
+				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice(),shoppingCart.getGoodsTotals());
 			}
 			orderPayInfos[i] = orderPayInfo;
-			orderSumPrice += orderPayInfo.getGoodsPrice();
+			orderSumPrice += orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
 		}
 
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,orderSumPrice);
@@ -134,8 +135,6 @@ public class OrderServiceImpl implements OrderService {
 					throw new BusinessException("修改购物车状态");
 				}
 			}
-		}else{
-			logger.error("购物车传递参数错误");
 		}
 		return payResult;
 	}
@@ -149,66 +148,8 @@ public class OrderServiceImpl implements OrderService {
 	 * @param orderInfo
 	 */
 	public ResponseResult addLimitOrder(OrderInfo orderInfo) {
-		Integer [] goodsPrice = new Integer[orderInfo.getGoodsInfo().size()];
-		//订单编号
-		IdGenerate idGenerate = new IdGenerate();
-		Long orderId = idGenerate.nextId();
-		for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
-			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
-			OrderPayInfo payInfo = null;
 
-			GoodsLimit goodsPOJO = goodsLimitMapper.selectShoppingInfo(goodsInfo.getGoodsId());
-			payInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice());
-
-			goodsPrice[i] = payInfo.getGoodsPrice();
-			OrderDetailsPOJO orderDetail = makeOrderDetail(payInfo,goodsInfo,orderInfo,orderId);
-			orderDetail.setIsLimit(1);
-			//生成订单详情
-			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
-			if(orderDetailStatus <= 0){
-				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
-				throw new RuntimeException();
-			}
-			//生成收入账单
-			//generateBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail.getOrderDetailsId());
-			//生成支出账单
-			generateExpensesBill(payInfo,goodsInfo,orderInfo.getUserId(),orderDetail);
-		}
-		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,0);
-		orderPOJO.setIsLimit(1);
-		int insertStatus = ordersMapper.insertSelective(orderPOJO);
-		if(insertStatus <= 0){
-			resultLogger.error(orderInfo.getUserRedId()+"添加订单失败");
-			throw new RuntimeException();
-		}
-		String money = "0.01";
-		//生成订单后 调用支付
-		ResponseResult payResult = orderPay(orderPOJO.getOrderId().toString(),money,orderInfo.getCode(),orderInfo.getOpenid());
-
-		return payResult;
-	}
-	/**
-	 * 添加用户支出账单
-	 * @param payInfo
-	 * @param goodsInfo
-	 * @param userId
-	 * @param orderDetail
-	 */
-	private void generateExpensesBill(OrderPayInfo payInfo, GoodsInfo goodsInfo,
-									  Long userId, OrderDetailsPOJO orderDetail) {
-		Long currentDate = DateUtils.getCurrentDate();
-		UserOutcome outCome = new UserOutcome();
-		outCome.setUserId(userId);
-		outCome.setOrderId(orderDetail.getId().toString());
-		outCome.setOutPrice(orderDetail.getActualPrice());
-		outCome.setCreateDate(currentDate);
-		outCome.setUpdateDate(currentDate);
-		outCome.setOutcomeName(payInfo.getGoodsName());
-		int status = addUserOutcome(outCome);
-		if(status <= 0){
-			resultLogger.error(userId+"生成用户支出账单失败");
-			throw new RuntimeException();
-		}
+		return null;
 	}
 
 	/**
@@ -222,23 +163,31 @@ public class OrderServiceImpl implements OrderService {
 		//根据地址编号查询地址信息
 		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
 		//查询捕手信息
-        Long fetcherId = userBaseService.queryUserInfoByUserId(uid).getFetcherId();
-
-        OrderDetailsPOJO od = new OrderDetailsPOJO();
+		Long fetcherId = null;
+		UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(uid);
+		if(userInfo != null){
+			fetcherId = userInfo.getFetcherId();
+		}
+		OrderDetailsPOJO od = new OrderDetailsPOJO();
 		//订单编号
 		od.setOrderId(orderId);
 		od.setUserId(orderInfo.getUserId());
 		od.setGoodsId(goodsInfo.getGoodsId());
 		od.setAddressId(orderInfo.getAddressId());
 		od.setPaymentMethod(orderInfo.getPaymentMethod());
-		od.setActualPrice(payInfo.getGoodsPrice());
+		/**
+		 * 订单支付金额
+		 */
+		Integer orderActualPrice = payInfo.getGoodsPrice()*payInfo.getTotal();
+		od.setActualPrice(orderActualPrice);
+		od.setPayPrice(payInfo.getGoodsPrice());
 		od.setPayTime(currentTime);
 		od.setOrderStatus(10);
 		//判断是否有上级
 		if(fetcherId !=null && fetcherId != 0) {
 			od.setFetcherId(fetcherId);
 			//计算捕手需要获取的提成
-			Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
+			Double fetcherMoney = orderActualPrice * Constant.FECTHER_COMPONENT;
 			od.setFetcherPrice(fetcherMoney.intValue());
 			od.setPayPlateform(1);
 		}else{
@@ -256,10 +205,10 @@ public class OrderServiceImpl implements OrderService {
                             //添加分享提成
                             od.setFetcherId(id);
                             //计算捕手需要获取的提成
-                            Double fetcherMoney = payInfo.getGoodsPrice() * Constant.FECTHER_COMPONENT;
+                            Double fetcherMoney = orderActualPrice * Constant.FECTHER_COMPONENT;
                             od.setFetcherPrice(fetcherMoney.intValue());
+							od.setPayPlateform(1);
                         }
-						od.setPayPlateform(1);
                     }
 				}
 			}
@@ -269,14 +218,13 @@ public class OrderServiceImpl implements OrderService {
 		if(gp.getMerchantProxyId()!=null && gp.getMerchantProxyId()!=0){
 			od.setAgentId(gp.getMerchantProxyId());
 			//计算商户获取的提成
-			Double agentMoney = payInfo.getGoodsPrice()*Constant.AGENT_COMPONENT;
+			Double agentMoney = orderActualPrice*Constant.AGENT_COMPONENT;
 			od.setAgentPrice(agentMoney.intValue());
 		}
-		if(null != orderInfo.getPaySign() || !"".equals(orderInfo.getPaySign())){
+		if(null != orderInfo.getPaySign() && orderInfo.getPaySign() != 0){
 			od.setPayPlateform(2);
 		}
 		od.setCount(goodsInfo.getCount());
-		od.setPayPlateform(orderInfo.getPaySign());
 		od.setCreateDate(currentTime);
 		od.setUpdateDate(currentTime);
 		od.setName(address.getName());
@@ -340,6 +288,7 @@ public class OrderServiceImpl implements OrderService {
 		ResponseResult json = g.fromJson(str,ResponseResult.class);
 		return json;
 	}
+
 
 	/**
 	 * 添加用户支出信息
@@ -525,7 +474,8 @@ public class OrderServiceImpl implements OrderService {
 		return info;
 	}
 
-	/**
+
+    /**
 	 * 生成订单后修改购物车状态
 	 * @param orderInfo
 	 * @throws BusinessException
@@ -581,14 +531,14 @@ public class OrderServiceImpl implements OrderService {
 				//查询购物车
 				if (null == goodsInfo.getScId() || 0 == goodsInfo.getScId()) {
 					GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
-					orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice() * goodsInfo.getCount());
+					orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice(),goodsInfo.getCount());
 				} else {
 					ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
-					orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice() * shoppingCart.getGoodsTotals());
+					orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice(),shoppingCart.getGoodsTotals());
 				}
 				if(orderPayInfo != null) {
 					orderPayInfos[i] = orderPayInfo;
-					orderSumPrice += orderPayInfo.getGoodsPrice();
+					orderSumPrice += orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
 				}else{
 					logger.error("生成订单时获取商品的信息为空");
 				}
@@ -681,4 +631,10 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return info;
 	}
+
+
+    @Override
+    public Integer updatePayPrice() {
+        return null;
+    }
 }

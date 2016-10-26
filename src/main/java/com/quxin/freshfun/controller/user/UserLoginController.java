@@ -339,6 +339,7 @@ public class UserLoginController {
 				if (weChatInfo != null) {
 					String unionId = weChatInfo.getUnionid();
 					//1.判断unionId是否存在数据库中
+					logger.warn("unionId:"+unionId);
 					userInfo = userBaseService.queryUserInfoByUnionId(unionId);
 					if (userInfo != null) {
 						userId = userInfo.getUserId();

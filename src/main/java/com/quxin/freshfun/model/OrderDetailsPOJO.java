@@ -50,6 +50,10 @@ public class OrderDetailsPOJO {
      */
     private Long deliveryTime;
     /**
+     * 商品快照价格
+     */
+    private Integer payPrice;
+    /**
      * 商品成本价
      */
     private Integer goodsCost;
@@ -77,10 +81,40 @@ public class OrderDetailsPOJO {
      * 用于前端价格显示
      */
     private String actualMoney;
+    private String payMoney;
     /**
      * 是否是限时商品
      */
     private Integer isLimit;
+    /**
+     * 订单用户昵称
+     */
+    private String nickName;
+
+    public String getPayMoney() {
+        return payMoney;
+    }
+
+    public void setPayMoney(String payMoney) {
+        this.payMoney = payMoney;
+    }
+
+    public Integer getPayPrice() {
+        return payPrice;
+    }
+
+    public void setPayPrice(Integer payPrice) {
+        this.payPrice = payPrice;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
     public Integer getIsLimit() {
         return isLimit;
     }

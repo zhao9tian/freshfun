@@ -1,13 +1,12 @@
 package com.quxin.freshfun.service.impl.wechat;
 
+import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.model.outparam.WxShareInfo;
 import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.model.param.WxTicketInfo;
 import com.quxin.freshfun.service.wechat.WeChatService;
-import com.quxin.freshfun.utils.weixinPayUtils.Sha1Util;
-import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
-import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
-import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
+import com.quxin.freshfun.utils.weixinPayUtils.*;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -60,15 +59,71 @@ public class WeChatServiceImpl implements WeChatService {
      * @param openId
      */
     @Override
-    public void wzPay(HttpServletRequest request, HttpServletResponse response, String payId, String payMoney, String openId) {
-        //当前时间 yyyyMMddHHmmss
-        String currTime = TenpayUtil.getCurrTime();
-        //8位日期
-        String strTime = currTime.substring(8, currTime.length());
-        //四位随机数
-        String strRandom = TenpayUtil.buildRandom(4) + "";
-        //10位序列号,可以自行调整。
-        String strReq = strTime + strRandom;
+    public WxPayInfo wzPay(HttpServletRequest request, HttpServletResponse response, String payId, String payMoney, String openId) throws JSONException {
+        WxPayInfo info = null;
+        //预支付编号请求类
+        PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler(request, response);
+        //签名随机串
+        String noncestr = WXUtil.getNonceStr();
+        //签名时间戳
+        String timestamp = WXUtil.getTimeStamp();
+        ////设置获取prepayid支付参数
+        prepayReqHandler.setParameter("appid", WxConstantUtil.APP_ID);
+        prepayReqHandler.setParameter("body", "悦选美食"); //商品描述
+        prepayReqHandler.setParameter("attach", payId);
+        prepayReqHandler.setParameter("mch_id", WxConstantUtil.PARTNER); //商户号
+        prepayReqHandler.setParameter("nonce_str", noncestr);
+        prepayReqHandler.setParameter("notify_url", WxConstantUtil.NOTIFY_URL);
+        prepayReqHandler.setParameter("out_trade_no", payId);
+        prepayReqHandler.setParameter("total_fee",payMoney); //商品金额,以分为单位
+        prepayReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
+        prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
+        prepayReqHandler.setParameter("trade_type","JSAPI");
+        prepayReqHandler.setParameter("openid",openId);
+        //生成获取预支付签名
+        String sign = prepayReqHandler.createMD5Sign();
+        //增加非参与签名的额外参数
+        prepayReqHandler.setParameter("sign", sign);
+        String gateUrl = WxConstantUtil.GATEURL;
+        prepayReqHandler.setGateUrl(gateUrl);
+        //获取prepayId
+        String prepayid = prepayReqHandler.sendPrepay();
+        if(!StringUtils.isEmpty(prepayid)){
+            //生成客户端支付签名
+           info = paySign(prepayid,noncestr,timestamp);
+        }
+        return info;
+    }
+
+    /**
+     * 生成客户端支付签名
+     *
+     * @param prepayid
+     * @param noncestr
+     *@param prepayid  @return
+     */
+    private WxPayInfo paySign(String prepayid, String noncestr, String timestamp) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("appId=");
+        sb.append(WxConstantUtil.APP_ID);
+        sb.append("&nonceStr=");
+        sb.append(noncestr);
+        sb.append("&package=prepay_id=");
+        sb.append(prepayid);
+        sb.append("&signType=MD5&timeStamp=");
+        sb.append(timestamp);
+        sb.append("&key=");
+        sb.append(WxConstantUtil.PARTNER_KEY);
+        String payStr = MD5Util.MD5Encode(sb.toString(),"UTF-8").toUpperCase();
+
+        WxPayInfo info = new WxPayInfo();
+        info.setAppid(WxConstantUtil.APP_ID);
+        info.setSign(payStr);
+        info.setTimestamp(timestamp);
+        info.setNoncestr(noncestr);
+        info.setPrepayid(prepayid);
+        info.setPackageInfo("MD5");
+        return info;
     }
 
     /**
