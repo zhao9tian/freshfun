@@ -157,8 +157,10 @@ public class CookieUtil {
         }
         return result;
     }
-   /* public static void main(String args[]){
-        System.out.println("CookieUtil.getCookieMaxAge():"+CookieUtil.getCookieMaxAge());
-        System.out.println("CookieUtil.getCookieValueByUserId():"+CookieUtil.getCookieValueByUserId(556677l));
-    }*/
+
+   public static Long test(String str){
+       String string = getFromBase64("MzcyODkzLTE0NzY5NjE1NzktMjU5MjAwMA");
+       String[] strArr = string.split("-");
+       return Long.parseLong(strArr[0]);
+    }
 }

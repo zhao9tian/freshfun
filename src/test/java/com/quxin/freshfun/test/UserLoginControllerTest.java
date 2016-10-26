@@ -1,11 +1,13 @@
 package com.quxin.freshfun.test;
 
 import com.alibaba.fastjson.JSON;
+import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.controller.user.UserLoginController;
 import com.quxin.freshfun.controller.withdraw.WithdrawController;
 import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.model.UsersPOJO;
 import com.quxin.freshfun.model.WxInfo;
+import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.model.param.WithdrawParam;
 import com.quxin.freshfun.model.pojo.UserBasePOJO;
 import com.quxin.freshfun.service.flow.FlowService;
@@ -13,6 +15,7 @@ import com.quxin.freshfun.service.impl.user.UserServiceImpl;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.user.UserService;
+import com.quxin.freshfun.utils.CookieUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,5 +85,27 @@ public class UserLoginControllerTest extends TestBase{
         }
     }
 
+    @Test
+    public void getUserIdFromFetcherId(){
+        Long userId = FreshFunEncoder.urlToId("12afdr");
+        UserInfoOutParam user = userBaseService.queryUserInfoByUserId(userId);
+        System.out.print(user.getUserName());
+    }
+
+    @Test
+    public void getFetcherIdFromUserId(){
+        Long userId = 1544l;
+        UserInfoOutParam user = userBaseService.queryUserInfoByUserId(userId);
+        String fetcherId = FreshFunEncoder.idToUrl(userId);
+        System.out.print(user.getUserName());
+        System.out.print(fetcherId);
+    }
+
+    @Test
+    public void getUserIdFrom64(){
+        Long userId = CookieUtil.test("MzcyODkzLTE0NzY5NjE1NzktMjU5MjAwMA");
+        UserInfoOutParam user = userBaseService.queryUserInfoByUserId(userId);
+        System.out.print(user.getUserName());
+    }
 
 }
