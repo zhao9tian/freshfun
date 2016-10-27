@@ -15,7 +15,7 @@ public class MessageUtils {
 	 * 发送短信
 	 */
 	private static void sendMessage(String code , String phoneNum) throws IOException {
-		String content = "【FreshFun】"+"您的短信验证码"+code+"，请勿将验证码给他人使用。";
+		String content = "【悦选美食】"+"您的短信验证码为:"+code+"，请勿将验证码给他人使用。";
 		String sign="";
 		
 		// 创建StringBuffer对象用来操作字符串
@@ -23,10 +23,10 @@ public class MessageUtils {
 		sb = new StringBuffer("http://sms.1xinxi.cn/asmx/smsservice.aspx?");
 
 		// 向StringBuffer追加用户名
-		sb.append("name=quxin2016");
+		sb.append("name=yuexuan2016");//之前的是quxin2016
 
 		// 向StringBuffer追加密码（登陆网页版，在管理中心--基本资料--接口密码，是28位的）
-		sb.append("&pwd=C877EC8499ACDA41BC44548C64AB");
+		sb.append("&pwd=140DC7BD9C90A23757B40A854800");//C877EC8499ACDA41BC44548C64AB
 
 		// 向StringBuffer追加手机号码
 		sb.append("&mobile=").append(phoneNum);
@@ -52,7 +52,6 @@ public class MessageUtils {
 		// 发送
 		url.openStream();
 
-
 	}
 	
 	/**
@@ -72,5 +71,8 @@ public class MessageUtils {
 		}
 		return code;
 	}
-	
+
+	public static void main(String[] args) {
+		createMessage("13166078059");
+	}
 }
