@@ -1,6 +1,7 @@
 package com.quxin.freshfun.service.aop;
 
 import com.alibaba.fastjson.JSON;
+import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.ResultUtil;
 import org.apache.http.HttpResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -35,6 +36,9 @@ public class RequestLogAspect {
             preLog(joinPoint.toString(),args);
             Object ret = joinPoint.proceed();
             return ret;
+        } catch (BusinessException busE) {
+            logger.error("业务异常" ,busE.getMessage());
+            return ResultUtil.fail(4004,busE.getMessage());
         } catch (Throwable t){
             logger.error("系统异常" ,t);
             return ResultUtil.fail(4004,"系统异常");

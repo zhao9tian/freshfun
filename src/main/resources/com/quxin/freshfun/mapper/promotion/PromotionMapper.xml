@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.PromotionMapper">
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.quxin.freshfun.model.param.PromotionParam">
+    insert into
+      promotion
+        (object_id,
+        object_type,
+        content,
+        start_time,
+        end_time,
+        created,
+        updated,
+        is_deleted)
+    values
+        (#{objectId},
+        #{objectType},
+        #{content},
+        #{startTime},
+        #{endTime},
+        #{created},
+        #{updated},
+        #{isDeleted})
+  </insert>
+
+  <select id="selectPromotionInfo" parameterType="java.util.Map" resultType="com.quxin.freshfun.model.pojo.PromotionPOJO">
+    SELECT
+      id ,
+      object_id as objectId,
+      object_type as objectType,
+      content as content,
+      start_time as startTime,
+      end_time as endTime,
+      created,
+      updated,
+      is_deleted as isDeleted
+    FROM
+      promotion
+    WHERE
+      object_id = #{goodsId}
+      and object_type = 1
+      and #{now} <![CDATA[>=]]> start_time
+      and #{now} <![CDATA[<=]]> end_time
+      and is_deleted = 0
+
+  </select>
+
+</mapper>
