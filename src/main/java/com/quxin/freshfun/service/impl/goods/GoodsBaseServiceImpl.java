@@ -90,9 +90,8 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
         GoodsPropertyPOJO selection = goodsPropertyMapper.selectValueByKey(Constant.SELECTION_KEY);
         if(selection != null){
             //分割商品编号
-            List<SelectionPOJO> selectionList = new ArrayList<>();
             List<GoodsOut> goodsOuts = new ArrayList<>();
-            selectionList = strToList(selection.getValue());
+            List<SelectionPOJO> selectionList = strToList(selection.getValue());
             if(selectionList != null) {
                 for (SelectionPOJO sp : selectionList) {
                     GoodsBasePOJO goods = goodsBaseMapper.findGoodsById(sp.getGoodsId());
