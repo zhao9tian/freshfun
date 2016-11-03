@@ -193,7 +193,7 @@ public interface OrderDetailsMapper {
      * @param orderId
      * @return
      */
-    Integer updateOrderDetailPayStatus(@Param("date") Long date,@Param("orderId") Long orderId);
+    Integer updateOrderDetailPayStatus(@Param("date") Long date,@Param("orderId") Long orderId,@Param("transactionId") String transactionId);
 
     /**
      * 修改成功将状态改为70

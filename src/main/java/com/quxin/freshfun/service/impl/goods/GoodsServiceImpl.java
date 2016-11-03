@@ -12,7 +12,7 @@ import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.SmidVsGid;
 import com.quxin.freshfun.model.StidVsGid;
 import com.quxin.freshfun.model.goods.BannerPOJO;
-import com.quxin.freshfun.model.goods.ThemePOJO;
+import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.slf4j.Logger;

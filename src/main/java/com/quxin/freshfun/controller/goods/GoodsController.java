@@ -3,7 +3,7 @@ package com.quxin.freshfun.controller.goods;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.goods.BannerPOJO;
 import com.quxin.freshfun.model.goods.GoodsInfoPOJO;
-import com.quxin.freshfun.model.goods.ThemePOJO;
+import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 import com.quxin.freshfun.model.outparam.BannerOutParam;
 import com.quxin.freshfun.model.outparam.ThemeOutParam;
 import com.quxin.freshfun.service.goods.GoodsService;

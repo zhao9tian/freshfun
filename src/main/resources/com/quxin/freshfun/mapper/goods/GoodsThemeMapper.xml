@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.GoodsThemeMapper">
+  <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.pojo.goods.ThemePOJO">
+    <id column="id" jdbcType="BIGINT" property="themeId" />
+    <result column="theme_des" jdbcType="BIGINT" property="themeDes" />
+    <result column="img" jdbcType="VARCHAR" property="themeImg" />
+    <result column="goods_id_list" jdbcType="INTEGER" property="themeInfoContent" />
+    <result column="created" jdbcType="BIGINT" property="created" />
+    <result column="updated" jdbcType="BIGINT" property="updated" />
+  </resultMap>
+  <!--查询所有专题信息-->
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id,theme_des,img,goods_id_list from goods_theme where is_deleted = 0 order by created DESC limit #{page},#{pageSize}
+  </select>
+
+  <!--根据专题编号查询专题信息-->
+  <select id="selectThemeById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.ThemePOJO">
+    select id as `themeId`,theme_des as `themeDes`,img as `themeImg`,goods_id_list as `themeInfoContent` from goods_theme where id = #{themeId} and is_deleted = 0
+  </select>
+</mapper>

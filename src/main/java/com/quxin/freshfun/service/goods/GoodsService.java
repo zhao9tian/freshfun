@@ -5,8 +5,7 @@ import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.SmidVsGid;
 import com.quxin.freshfun.model.StidVsGid;
 import com.quxin.freshfun.model.goods.BannerPOJO;
-import com.quxin.freshfun.model.goods.ThemePOJO;
-import org.springframework.stereotype.Service;
+import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 
 import java.util.List;
 import java.util.Map;

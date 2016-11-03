@@ -173,7 +173,7 @@
   </select>
   <!-- 根据订单编号修改订单详情支付状态 -->
   <update id="updateOrderDetailPayStatus">
-    update order_details set order_status = 30,pay_time=#{date} where id =#{orderId}
+    update order_details set order_status = 30,pay_time=#{date},transaction_id = #{transactionId} where id =#{orderId}
   </update>
   <!-- 批量修改订单状态 -->
   <update id="bachUpdateOrder" parameterType="java.util.List">

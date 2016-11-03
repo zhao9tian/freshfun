@@ -2,7 +2,7 @@ package com.quxin.freshfun.dao;
 
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.goods.BannerPOJO;
-import com.quxin.freshfun.model.goods.ThemePOJO;
+import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

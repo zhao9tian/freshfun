@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.GoodsBaseMapper">
+  <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="sub_title" jdbcType="VARCHAR" property="subTitle" />
+    <result column="des" jdbcType="VARCHAR" property="goodsDes" />
+    <result column="shop_price" jdbcType="INTEGER" property="shopPrice" />
+    <result column="origin_price" jdbcType="INTEGER" property="originPrice" />
+    <result column="img" jdbcType="VARCHAR" property="goodsImg" />
+    <result column="sale_num" jdbcType="INTEGER" property="saleNum" />
+    <result column="stock_num" jdbcType="INTEGER" property="stockNum" />
+    <result column="catagory1" jdbcType="INTEGER" property="catagory1" />
+    <result column="catagory2" jdbcType="INTEGER" property="catagory2" />
+    <result column="catagory3" jdbcType="INTEGER" property="catagory3" />
+    <result column="catagory4" jdbcType="INTEGER" property="catagory4" />
+    <result column="shop_id" jdbcType="BIGINT" property="shopId" />
+    <result column="appId" jdbcType="BIGINT" property="appId" />
+    <result column="created" jdbcType="BIGINT" property="created" />
+    <result column="updated" jdbcType="BIGINT" property="updated" />
+  </resultMap>
+  <!--根据商品编号查询商品信息-->
+  <select id="findGoodsById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
+      select `id`,`title`,`des` as `goodsDes`,`sub_title` as `subTitle`,`img` as `goodsImg`,`shop_price` as `shopPrice`,origin_price as `originPrice` from goods_base where id = #{goodsId} and is_on_sale = 1 and is_deleted = 0
+  </select>
+
+  <!--查询二级类目下商品-->
+  <select id="selectCatagory2Goods" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where catagory2 = #{catagory} and is_on_sale = 1 and is_deleted = 0
+  </select>
+
+  <!--查询推荐商品-->
+  <select id="findRecommendGoods" resultMap="BaseResultMap" >
+    select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where created >= ((select max(created) from goods)-(select min(created) from goods_base)) * rand() + (select min(created) from goods_base) and is_on_sale = 1 and is_deleted = 0 limit 10
+  </select>
+
+  <!--查询更多商品-->
+  <select id="selectGoodsList" resultMap="BaseResultMap">
+      select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base order by created DESC limit #{page},#{pageSize}
+  </select>
+
+  <!--根据商品编号查询商品图-->
+  <select id="selectGoodsImgByGoodsId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsImage">
+    select `detail_img` as `detailImg`,carousel_img as `carouselImg` from goods_img where goods_id = #{goodsId}
+  </select>
+
+
+  <!--查询所欲商品属性-->
+  <select id="selectGoodsStandard" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsStandard">
+    select  `name`,`brand`,
+            `product_place` as `productPlace`,
+            `goods_standard` as `goodsStandard`,
+            `net_contents` as `netContents`,
+            `shelf_life` as `shelfLife`,
+            `storage_method` as `storageMethod`,
+            `ingredient_list` as `ingredient_list`,
+            `is_sugary` as `isSugary`,
+            `is_organic` as `isOrganic`,
+            `is_imported` as `isImported`,
+            `is_box_packed` as `isBoxPacked`,
+            `package_component` as `packageComponent`,
+            `taste`,
+            `facility`,
+            `unsuitable`,
+            `suitable`,
+            `product_form` as `productForm`,
+            `food_additives` as `foodAdditives`,
+            `set_cycle` as `setCycle`,
+            `factory_name` as `factoryName`,
+            `factory_site` as `factorySite`,
+            `product_standard_num` as `productStandardNum`,
+            `fresh_store_temp` as `freshStoreTemp`,
+            `proof`,
+            `degree`,
+            `adaptive_scene` as `adaptiveScene`,
+            `packing_method` as `packingMethod`,
+            `packing_type` as `packingType`,
+            `wine_style` as `wineStyle`,
+            `suit_specification` as `suitSpecification`,
+            `decante_duration` as `decanteDuration`,
+            `particular_year` as `particularYear`,
+            `smell`,
+            `colour_sort` as `colourSort`,
+            `style_type` as `styleType`,
+            `size`,
+            `specialty`,
+            `other` from goods_standard where goods_id = #{goodsId}
+  </select>
+</mapper>

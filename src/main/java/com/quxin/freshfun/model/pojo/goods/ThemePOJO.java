@@ -1,4 +1,8 @@
-package com.quxin.freshfun.model.goods;
+package com.quxin.freshfun.model.pojo.goods;
+
+import com.quxin.freshfun.model.outparam.goods.GoodsOut;
+
+import java.util.List;
 
 /**
  * 专题实体
@@ -31,6 +35,18 @@ public class ThemePOJO {
      */
     private Long updated;
 
+    /**
+     * 商品集合
+     */
+    private List<GoodsOut> goodsList;
+
+    public List<GoodsOut> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<GoodsOut> goodsList) {
+        this.goodsList = goodsList;
+    }
 
     public Integer getThemeId() {
         return themeId;
@@ -80,16 +96,4 @@ public class ThemePOJO {
         this.updated = updated;
     }
 
-
-    @Override
-    public String toString() {
-        return "ThemePOJO{" +
-                "themeId=" + themeId +
-                ", themeDes='" + themeDes + '\'' +
-                ", themeImg='" + themeImg + '\'' +
-                ", themeInfoContent='" + themeInfoContent + '\'' +
-                ", created=" + created +
-                ", updated=" + updated +
-                '}';
-    }
 }

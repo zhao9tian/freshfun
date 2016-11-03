@@ -323,8 +323,10 @@ public class OrderServiceImpl implements OrderService {
 				int payStatus = 0;
 				Long currentDate = DateUtils.getCurrentDate();
 				String orderId = map.get("attach");
+				//微信回传的订单编号
+				String transactionId = map.get("transaction_id");
 				if("W".equals(orderId.subSequence(0, 1))){
-					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate,Long.parseLong(orderId.substring(1,orderId.length())));
+					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate,Long.parseLong(orderId.substring(1,orderId.length())),transactionId);
 					billLogger.info("订单详情支付"+map.get("attach"));
 				}else if("B".equals(orderId.subSequence(0, 1))){
 					//商户代理费支付回调
@@ -343,7 +345,7 @@ public class OrderServiceImpl implements OrderService {
 					billLogger.info("订单编号："+oId);
 					List<Long> payIdList = orderDetailsMapper.selectPayId(Long.parseLong(oId));
 					for (Long id : payIdList) {
-						payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, id);
+						payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, id,transactionId);
 						billLogger.info("用户编号："+map.get("attach")+"修改订单状态结果："+payStatus);
 					}
 				}

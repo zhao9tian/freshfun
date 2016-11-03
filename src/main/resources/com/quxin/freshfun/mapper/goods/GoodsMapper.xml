@@ -382,7 +382,7 @@
     where id = #{bannerId} and is_deleted = 0
   </select>
 
-  <select id="selectThemeById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.goods.ThemePOJO">
+  <select id="selectThemeById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.pojo.goods.ThemePOJO">
     select id as themeId , theme_des as themeDes , theme_info_img as themeImg , theme_info_content as themeInfoContent ,  gmt_create as created ,
     gmt_modified as updated from special_theme
     where id = #{themeId} and is_deleted = 0

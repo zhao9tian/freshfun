@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.quxin.freshfun.dao.GoodsPropertyMapper">
+
+  <!--根据key查询value-->
+  <select id="selectValueByKey" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.pojo.goods.GoodsPropertyPOJO">
+    select `id`,`value` from goods_property where `key` = #{key}
+  </select>
+</mapper>

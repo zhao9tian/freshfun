@@ -5,11 +5,37 @@ package com.quxin.freshfun.common;
  */
 public class Constant {
     /**
-     * 商户订单成分
+     * 商户订单分成
      */
     public static final Double AGENT_COMPONENT = 0.2;
 
     public static final Double FECTHER_COMPONENT = 0.1;
+
+
+    /**
+     * banner对应商品属性中的key
+     */
+    public static final String BANNER_KEY = "bannerSort";
+    /**
+     * 精选对应商品属性中key
+     */
+    public static final String SELECTION_KEY = "selectionSort";
+    /**
+     * 首页20个商品的排序
+     */
+    public static final String GOODS_KEY = "goodsSort";
+    /**
+     * 专题对应商品属性表中的key
+     */
+    public static final String THEME_KEY = "themeSort";
+    /**
+     * 分类顶图对应goodsProperty中的key
+     */
+    public static final String TYPE_IMG = "img";
+    /**
+     * 商品属性对应goodsProperty中的key
+     */
+    public static final String GOODS_STANDARD = "goodsStandard";
 
 
     /** 限时购 */
