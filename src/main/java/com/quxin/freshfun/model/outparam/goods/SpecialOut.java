@@ -14,6 +14,10 @@ public class SpecialOut {
      */
     private Integer specialId;
     /**
+     * 主题名
+     */
+    private String specialName;
+    /**
      * 专题描述
      */
     private String specialDesc;
@@ -25,6 +29,14 @@ public class SpecialOut {
      * 商品集合
      */
     private List<GoodsOut> goodsList;
+
+    public String getSpecialName() {
+        return specialName;
+    }
+
+    public void setSpecialName(String specialName) {
+        this.specialName = specialName;
+    }
 
     public String getSpecialDesc() {
         return specialDesc;

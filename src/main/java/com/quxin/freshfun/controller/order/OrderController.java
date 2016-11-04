@@ -82,11 +82,13 @@ public class OrderController {
 		Long now = System.currentTimeMillis();
 		Long outTimeStamp = createTime*1000 + orderOutTime*60000 - now;
 		orderDetail.setOutTimeStamp(outTimeStamp);
+		orderDetail.setPayMoney(MoneyFormat.priceFormatString(orderDetail.getPayPrice()));
+		orderDetail.setPayPrice(null);
 		GoodsParam goods = orderDetail.getGoods();
 		goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
-		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getGoodsPrice()));
+		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
 		goods.setMarketPrice(null);
-		goods.setGoodsPrice(null);
+		goods.setShopPrice(null);
 		orderDetail.setGoods(goods);
 		//控制付款成功页面申请退款按钮是否有效 isRefund 1是有效  0是无效
 		return orderDetail;
@@ -178,7 +180,7 @@ public class OrderController {
 
 	/**
 	 * 根据用户编号查询购物车信息
-	 * @param request
+	 * @param
 	 * @return
 	 */
 	@RequestMapping("/selectShoppingCartByUserId")
@@ -444,16 +446,16 @@ public class OrderController {
 		for (OrderDetailsPOJO o: order) {
 			if(o.getPayPrice() != null){
 				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
-				o.setPayMoney(null);
+				o.setPayPrice(null);
 			}
 			GoodsParam goods = o.getGoods();
 			if(goods.getMarketPrice() != null) {
 				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 				goods.setMarketPrice(null);
 			}
-			if(goods.getGoodsPrice() != null) {
-				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getGoodsPrice()));
-				goods.setGoodsPrice(null);
+			if(goods.getShopPrice() != null) {
+				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+				goods.setShopPrice(null);
 			}
 		}
 		return order;
@@ -471,9 +473,9 @@ public class OrderController {
 				o.setPayPrice(null);
 			}
 			GoodsParam goods = o.getGoods();
-			if(goods.getGoodsPrice() != null) {
-				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getGoodsPrice()));
-				goods.setGoodsPrice(null);
+			if(goods.getShopPrice() != null) {
+				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+				goods.setShopPrice(null);
 			}
 		}
 		return order;

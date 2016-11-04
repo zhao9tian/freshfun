@@ -37,7 +37,7 @@
 
   <!--查询更多商品-->
   <select id="selectGoodsList" resultMap="BaseResultMap">
-      select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base order by created DESC limit #{page},#{pageSize}
+      select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where is_deleted = 0 order by created DESC limit #{page},#{pageSize}
   </select>
 
   <!--根据商品编号查询商品图-->
@@ -59,7 +59,7 @@
   </update>
   <!--根据商品编号查询商品信息-->
   <select id="selectGoodsByGoodsId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.param.GoodsParam">
-      select `id`,`title` as `goodsName`,`sub_title` as `goodsDes`,`img` as `goodsImg`,shop_price as `goodsPrice`,origin_price as `marketPrice` from goods_base where id = #{goodsId}
+      select `id`,`title` as `goodsName`,`sub_title` as `goodsDes`,`img` as `goodsImg`,shop_price as `shopPrice`,origin_price as `marketPrice` from goods_base where id = #{goodsId}
   </select>
 
 

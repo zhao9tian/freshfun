@@ -90,5 +90,5 @@ public interface GoodsMapper {
     ThemePOJO selectThemeById(Integer themeId);
 
 
-    GoodsParam selectGoodsById(Integer goodsId);
+    GoodsPOJO selectGoodsById(Integer goodsId);
 }

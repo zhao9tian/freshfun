@@ -149,7 +149,7 @@ public class OrderManagerImpl implements OrderManager {
 		List<ShoppingCartPOJO> carts = shoppingCartMapper.selectShoppingCartByUserId(userId);
 		for (ShoppingCartPOJO sc : carts) {
 			GoodsParam goods = sc.getGoods();
-			String shopingMoney = MoneyFormat.priceFormatString(goods.getGoodsPrice());
+			String shopingMoney = MoneyFormat.priceFormatString(goods.getShopPrice());
 			String marketMoney = MoneyFormat.priceFormatString(goods.getMarketPrice());
 			goods.setGoodsMoney(shopingMoney);
 			goods.setMarketMoney(marketMoney);
@@ -170,7 +170,11 @@ public class OrderManagerImpl implements OrderManager {
 		for (GoodsBasePOJO goodsBase: goodsBaseList) {
 			GoodsParam goodsParam = new GoodsParam();
 			goodsParam.setId(goodsBase.getId());
+            goodsParam.setGoodsImg(goodsBase.getGoodsImg());
+            goodsParam.setGoodsDes(goodsBase.getSubTitle());
 			goodsParam.setGoodsName(goodsBase.getTitle());
+            goodsParam.setShopPrice(goodsBase.getShopPrice());
+            goodsParam.setMarketPrice(goodsBase.getOriginPrice());
 			goodsParam.setGoodsMoney(MoneyFormat.priceFormatString(goodsBase.getShopPrice()));
 			goodsParam.setMarketMoney(MoneyFormat.priceFormatString(goodsBase.getOriginPrice()));
 			recommendGoods.add(goodsParam);

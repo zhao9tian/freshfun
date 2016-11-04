@@ -15,6 +15,10 @@ public class ThemePOJO {
      */
     private Integer themeId ;
     /**
+     * 专题名
+     */
+    private String themeName;
+    /**
      * 专题描述
      */
     private String themeDes ;
@@ -39,6 +43,14 @@ public class ThemePOJO {
      * 商品集合
      */
     private List<GoodsOut> goodsList;
+
+    public String getThemeName() {
+        return themeName;
+    }
+
+    public void setThemeName(String themeName) {
+        this.themeName = themeName;
+    }
 
     public List<GoodsOut> getGoodsList() {
         return goodsList;

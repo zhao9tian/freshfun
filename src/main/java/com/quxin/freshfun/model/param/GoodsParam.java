@@ -12,7 +12,7 @@ public class GoodsParam {
 
     private String goodsImg;
 
-    private Integer goodsPrice;
+    private Integer shopPrice;
 
     private Integer marketPrice;
     /**
@@ -56,12 +56,12 @@ public class GoodsParam {
         this.goodsImg = goodsImg;
     }
 
-    public Integer getGoodsPrice() {
-        return goodsPrice;
+    public Integer getShopPrice() {
+        return shopPrice;
     }
 
-    public void setGoodsPrice(Integer goodsPrice) {
-        this.goodsPrice = goodsPrice;
+    public void setShopPrice(Integer shopPrice) {
+        this.shopPrice = shopPrice;
     }
 
     public Integer getMarketPrice() {

@@ -5,6 +5,7 @@ import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.SmidVsGid;
 import com.quxin.freshfun.model.StidVsGid;
 import com.quxin.freshfun.model.goods.BannerPOJO;
+import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 
 import java.util.List;
@@ -66,4 +67,6 @@ public interface GoodsService {
 	 * @return 专题信息
 	 */
 	ThemePOJO queryThemeById(Integer themeId);
+
+	GoodsPOJO selectGoodsById(Integer goodsId);
 }

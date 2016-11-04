@@ -316,7 +316,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
      */
     private List<PropertyValue> getGoodsStandardList(GoodsStandard goodsStandard) {
         if(goodsStandard == null)
-            return null;
+            return new ArrayList<>();
         Field[] fields = goodsStandard.getClass().getDeclaredFields();
         List<PropertyValue> propertyList = new ArrayList<>();
         //查询商品属性列表
@@ -417,6 +417,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
     private SpecialOut getSpecial(ThemePOJO theme) {
         SpecialOut special = new SpecialOut();
         special.setSpecialId(theme.getThemeId());
+        special.setSpecialName(theme.getThemeName());
         special.setSpecialDesc(theme.getThemeDes());
         special.setSpecialInfoImg(theme.getThemeImg());
         special.setGoodsList(theme.getGoodsList());

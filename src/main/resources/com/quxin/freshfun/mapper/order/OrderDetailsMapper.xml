@@ -190,6 +190,13 @@
     </foreach>
   </update>
 
+  <select id="selectOrders" resultMap="BaseResultMap">
+    select * from order_details where is_deleted = 0
+  </select>
+  <update id="updatePayPrice">
+    update order_details set pay_price = #{payPrice} where id = #{id}
+  </update>
+
   <!--查询账单需要的订单信息-->
   <select id="selectConfirmOrderInfo" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
     select `id`,`user_id` as `userId`,`agent_id` as `agentId`,`agent_price` as `agentPrice`,`fetcher_id` as `fetcherId`,`fetcher_price` as `fetcherPrice`
@@ -325,6 +332,9 @@
       <if test="extra != null">
         extra,
       </if>
+      <if test="appId != null">
+        app_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       #{id,jdbcType=BIGINT},
@@ -388,13 +398,13 @@
         #{updateDate,jdbcType=INTEGER},
       </if>
       <if test="deliveryName != null">
-        #{delivery_name},
+        #{deliveryName},
       </if>
       <if test="isLimit != null">
-        #{is_limit},
+        #{isLimit},
       </if>
       <if test="reciveTime != null">
-        #{recive_time},
+        #{reciveTime},
       </if>
         #{payPrice},
       <if test="name != null">
@@ -411,6 +421,9 @@
       </if>
       <if test="extra != null">
         #{extra},
+      </if>
+      <if test="appId != null">
+        #{appId},
       </if>
     </trim>
   </insert>

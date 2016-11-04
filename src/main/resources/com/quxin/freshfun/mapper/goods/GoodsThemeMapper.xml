@@ -16,6 +16,6 @@
 
   <!--根据专题编号查询专题信息-->
   <select id="selectThemeById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.ThemePOJO">
-    select id as `themeId`,theme_des as `themeDes`,img as `themeImg`,goods_id_list as `themeInfoContent` from goods_theme where id = #{themeId} and is_deleted = 0
+    select id as `themeId`,`theme_name` as `themeName`,theme_des as `themeDes`,img as `themeImg`,goods_id_list as `themeInfoContent` from goods_theme where id = #{themeId} and is_deleted = 0
   </select>
 </mapper>

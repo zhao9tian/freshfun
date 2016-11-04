@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -184,6 +185,10 @@ public class OrderServiceImpl implements OrderService {
 		od.setGoodsId(goodsInfo.getGoodsId());
 		od.setAddressId(orderInfo.getAddressId());
 		od.setPaymentMethod(orderInfo.getPaymentMethod());
+		//生成平台标识
+		if(!StringUtils.isEmpty(orderInfo.getAppId())){
+			od.setAppId(orderInfo.getAppId());
+		}
 		/**
 		 * 订单支付金额
 		 */
@@ -661,7 +666,12 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public Integer updatePayPrice() {
-        return null;
+    public Integer updatePayPrice(Integer payPrice,Long id) {
+		return orderDetailsMapper.updatePayPrice(payPrice,id);
     }
+
+	@Override
+	public List<OrderDetailsPOJO> selectOrders() {
+		return  orderDetailsMapper.selectOrders();
+	}
 }

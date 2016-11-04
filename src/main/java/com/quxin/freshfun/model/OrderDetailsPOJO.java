@@ -74,6 +74,10 @@ public class OrderDetailsPOJO {
      * 扩展信息
      */
     private String extra;
+    /**
+     * 平台标识
+     */
+    private String appId;
 
     //    private GoodsPOJO goods;
     private GoodsParam goods;
@@ -91,6 +95,13 @@ public class OrderDetailsPOJO {
      * 订单用户昵称
      */
     private String nickName;
+
+    public String getAppId() {
+        return appId;
+    }
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
 
     public String getPayMoney() {
         return payMoney;

@@ -13,9 +13,21 @@ public class OrderInfo {
 	private List<GoodsInfo> goodsInfo;
 	private GoodsInfo goods;
 	/**
+	 * 平台标识
+	 */
+	private String appId;
+	/**
 	 * 通过分享过来的标记
 	 */
 	private String fetcherId;
+
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
 
 	public String getFetcherId() {
 		return fetcherId;

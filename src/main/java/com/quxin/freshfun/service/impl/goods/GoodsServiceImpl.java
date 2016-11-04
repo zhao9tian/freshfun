@@ -12,6 +12,7 @@ import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.SmidVsGid;
 import com.quxin.freshfun.model.StidVsGid;
 import com.quxin.freshfun.model.goods.BannerPOJO;
+import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.utils.MoneyFormat;
@@ -147,5 +148,10 @@ public class GoodsServiceImpl implements GoodsService {
 			return null;
 		}
 		return null;
+	}
+
+	@Override
+	public GoodsPOJO selectGoodsById(Integer goodsId) {
+		return goodsMapper.selectGoodsById(goodsId);
 	}
 }
