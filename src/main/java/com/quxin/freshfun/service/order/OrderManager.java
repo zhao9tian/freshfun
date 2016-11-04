@@ -150,103 +150,12 @@ public interface OrderManager {
 	Long applyRefund(String orderDetailId);
 
 	//订单后台
-
-	/**
-	 * 查询关闭订单
-	 * @param currentPage
-	 * @param pageSize
-	 * @return
-	 */
-	List<OrderDetailsPOJO> selectBackstageOrderClose(int currentPage,int pageSize);
-
-	/**
-	 * 所有订单
-	 * @param currentPage
-	 * @param pageSize
-	 * @return
-	 */
-	List<OrderDetailsPOJO>  selectBackstageOrders(int currentPage,int pageSize);
 	/**
 	 * 查询待评价数量
 	 * @param userId
 	 * @return
 	 */
 	Integer selectCommentCount(Long userId);
-	/**
-	 * 待支付订单
-	 * @param currentPage
-	 * @param pageSize
-	 * @return
-	 */
-	List<OrderDetailsPOJO> selectBackstagePendingPaymentOrder(int currentPage,int pageSize);
-
-	/**
-	 * 待发货
-	 * @param currentPage
-	 * @param pageSize
-	 * @return
-	 */
-	List<OrderDetailsPOJO> selectBackstageAwaitDeliverOrder(int currentPage,int pageSize);
-
-	/**
-	 * 待收货订单
-	 * @param currentPage
-	 * @param pageSize
-	 * @return
-	 */
-	List<OrderDetailsPOJO> selectBackstageAwaitGoodsReceipt(int currentPage,int pageSize);
-
-	/**
-	 * 已完成订单
-	 * @param currentPage
-	 * @param pageSize
-	 * @return
-	 */
-	List<OrderDetailsPOJO> selectFinishOrder(int currentPage,int pageSize);
-
-	/**
-	 * 查询关闭订单数量
-	 * @return
-	 */
-	Integer selectBackstageOrderCloseCount();
-
-	/**
-	 * 查询所有订单总数量
-	 * @return
-	 */
-	Integer selectBackstageOrdersCount();
-	/**
-	 * 查询待付款数量
-	 * @return
-	 */
-	Integer selectBackstagePendingPaymentOrderCount();
-	/**
-	 * 查询代发货数量
-	 * @return
-	 */
-	Integer selectBackstageAwaitDeliverOrderCount();
-	/**
-	 * 查询待收货数量
-	 * @return
-	 */
-	Integer selectBackstageAwaitGoodsReceiptCount();
-	/**
-	 * 查询已完成订单数量
-	 * @return
-	 */
-	Integer selectFinishOrderCount();
-
-	/**
-	 * 发货
-	 * @param order
-	 * @return
-	 */
-	Integer deliverOrder(OrderDetailsPOJO order);
-	/**
-	 * 订单备注
-	 * @return
-	 */
-	Integer orderRemark(Long orderId,String remark);
 
 	/**
 	 * 7天未确认收货订单

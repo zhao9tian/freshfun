@@ -5,13 +5,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.common.FreshFunEncoder;
+import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.outparam.UserInfoOutParam;
+import com.quxin.freshfun.model.outparam.goods.GoodsOut;
+import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.service.impl.wechat.ClientRequestHandler;
 import com.quxin.freshfun.service.impl.wechat.PrepayIdRequestHandler;
 import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.service.promotion.PromotionService;
 import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
@@ -47,22 +51,16 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private GoodsMapper goodsMapper;
 	@Autowired
-	private GoodsLimitMapper goodsLimitMapper;
+	private GoodsBaseMapper goodsBaseMapper;
 	@Autowired
 	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
 	private MerchantAgentMapper merchantAgentMapper;
 	@Autowired
+	private PromotionService promotionService;
+	@Autowired
 	private UserAddressMapper userAddress;
 
-	//周
-	public static final int FREQUENCY_WEEK = 0;
-	public static final int FREQUENCY_WEEK_VALUE = 7;
-	//月
-	public static final int FREQUENCY_MONTH = 1;
-	public static final int FREQUENCY_MONTH_VALUE = 30;
-
-	public static final int COMMON_ORDER_TYPE = 11;
 
 	private Logger resultLogger = LoggerFactory.getLogger("info_log");
 	private Logger billLogger = LoggerFactory.getLogger("BILL");
@@ -85,11 +83,15 @@ public class OrderServiceImpl implements OrderService {
 			OrderPayInfo orderPayInfo = null;
 			//查询购物车
 			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
-				GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
-				orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice(),goodsInfo.getCount());
+				//GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
+				GoodsBasePOJO goodsBase = goodsBaseMapper.selectOrderPayInfo(goodsInfo.getGoodsId().longValue());
+				getShopPrice(goodsBase);
+				orderPayInfo = new OrderPayInfo(goodsBase.getTitle(), goodsBase.getShopPrice(),goodsInfo.getCount());
 			}else{
 				ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
-				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice(),shoppingCart.getGoodsTotals());
+				GoodsBasePOJO goodsBase = goodsBaseMapper.selectOrderPayInfo(shoppingCart.getGoodsId().longValue());
+				getShopPrice(goodsBase);
+				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), goodsBase.getShopPrice(),shoppingCart.getGoodsTotals());
 			}
 			orderPayInfos[i] = orderPayInfo;
 			orderSumPrice += orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
@@ -138,18 +140,25 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return payResult;
 	}
+
+	/**
+	 * 设置商品价格
+	 * @param goodsBase  商品实体
+	 */
+	private void getShopPrice(GoodsBasePOJO goodsBase) throws BusinessException {
+		PromotionGoodsPOJO promotionGoods = promotionService.queryDiscountPriceByGoodsId(goodsBase.getId());
+		//是否打折商品
+		if(promotionGoods != null) {
+			if (promotionGoods.getDiscount()) {
+				goodsBase.setShopPrice(promotionGoods.getDiscountPrice().intValue());
+			}
+		}
+	}
+
+
 	@Override
 	public String getOpenId(Long userId){
         return userBaseService.queryUserInfoByUserId(userId).getOpenId();
-	}
-
-	/**
-	 * 添加限时购订单
-	 * @param orderInfo
-	 */
-	public ResponseResult addLimitOrder(OrderInfo orderInfo) {
-
-		return null;
 	}
 
 	/**
@@ -212,17 +221,6 @@ public class OrderServiceImpl implements OrderService {
                     }
 				}
 			}
-		}
-		//查询是否有代理商户
-		GoodsPOJO gp = goodsMapper.selectProxyMerchantByGoodsId(goodsInfo.getGoodsId());
-		if(gp.getMerchantProxyId()!=null && gp.getMerchantProxyId()!=0){
-			od.setAgentId(gp.getMerchantProxyId());
-			//计算商户获取的提成
-			Double agentMoney = orderActualPrice*Constant.AGENT_COMPONENT;
-			od.setAgentPrice(agentMoney.intValue());
-		}
-		if(null != orderInfo.getPaySign() && orderInfo.getPaySign() != 0){
-			od.setPayPlateform(2);
 		}
 		od.setCount(goodsInfo.getCount());
 		od.setCreateDate(currentTime);
@@ -318,7 +316,6 @@ public class OrderServiceImpl implements OrderService {
 			for (Element e : elements) {
 				map.put(e.getName(), e.getText());
 			}
-			logger.info("用户编号："+map.get("attach")+"支付回调结果："+map.toString());
 			if("SUCCESS".equals(map.get("result_code"))){
 				int payStatus = 0;
 				Long currentDate = DateUtils.getCurrentDate();
@@ -326,8 +323,21 @@ public class OrderServiceImpl implements OrderService {
 				//微信回传的订单编号
 				String transactionId = map.get("transaction_id");
 				if("W".equals(orderId.subSequence(0, 1))){
-					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate,Long.parseLong(orderId.substring(1,orderId.length())),transactionId);
-					billLogger.info("订单详情支付"+map.get("attach"));
+					Long id = Long.parseLong(orderId.substring(1,orderId.length()));
+					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate,id,transactionId);
+					OrderDetailsPOJO orderDetails = orderDetailsMapper.selectPayOrderInfoById(id);
+					if(orderDetails != null) {
+						//修改库存
+						Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
+						if (stockStatus <= 0)
+							logger.error("订单修改库存失败");
+						//修改销量
+						Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
+						if (saleStatus <= 0)
+							logger.error("订单修改销量失败");
+					}else{
+						logger.error("订单回调查询商品失败");
+					}
 				}else if("B".equals(orderId.subSequence(0, 1))){
 					//商户代理费支付回调
 					Integer id = Integer.parseInt(orderId.substring(1,orderId.length()));
@@ -342,11 +352,23 @@ public class OrderServiceImpl implements OrderService {
 					billLogger.info("商户编号："+map.get("attach")+"支付状态："+payStatus);
 				}else if("Z".equals(orderId.subSequence(0,1))){
 					String oId = orderId.substring(1,orderId.length());
-					billLogger.info("订单编号："+oId);
-					List<Long> payIdList = orderDetailsMapper.selectPayId(Long.parseLong(oId));
-					for (Long id : payIdList) {
-						payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, id,transactionId);
-						billLogger.info("用户编号："+map.get("attach")+"修改订单状态结果："+payStatus);
+					List<OrderDetailsPOJO> orderDetailsList = orderDetailsMapper.selectPayId(Long.parseLong(oId));
+					if(orderDetailsList != null) {
+						for (OrderDetailsPOJO orderDetails : orderDetailsList) {
+							payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, orderDetails.getId(), transactionId);
+							//修改库存
+							Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
+							if (stockStatus <= 0) {
+								logger.error("修改商品库存失败");
+							}
+							//修改销量
+							Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
+							if (saleStatus <= 0) {
+								logger.error("修改商品销量失败");
+							}
+						}
+					}else{
+						logger.error("订单回调根据父级订单号查询订单编号失败");
 					}
 				}
 				return payStatus;
@@ -525,18 +547,21 @@ public class OrderServiceImpl implements OrderService {
 	 * @param orderSumPrice
 	 * @return
 	 */
-	private int getOrderInfo(OrderInfo orderInfo, OrderPayInfo[] orderPayInfos, int orderSumPrice) {
+	private int getOrderInfo(OrderInfo orderInfo, OrderPayInfo[] orderPayInfos, int orderSumPrice) throws BusinessException {
 		if(orderInfo.getGoodsInfo() != null && orderInfo.getGoodsInfo().size() > 0) {
 			for (int i = 0; i < orderInfo.getGoodsInfo().size(); i++) {
 				GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
 				OrderPayInfo orderPayInfo = null;
 				//查询购物车
 				if (null == goodsInfo.getScId() || 0 == goodsInfo.getScId()) {
-					GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
-					orderPayInfo = new OrderPayInfo(goodsPOJO.getGoodsName(), goodsPOJO.getShopPrice(),goodsInfo.getCount());
+					GoodsBasePOJO goodsBase = goodsBaseMapper.selectOrderPayInfo(goodsInfo.getGoodsId().longValue());
+					getShopPrice(goodsBase);
+					orderPayInfo = new OrderPayInfo(goodsBase.getTitle(), goodsBase.getShopPrice(),goodsInfo.getCount());
 				} else {
 					ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
-					orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), shoppingCart.getGoodsTotalsPrice(),shoppingCart.getGoodsTotals());
+					GoodsBasePOJO goodsBase = goodsBaseMapper.selectOrderPayInfo(shoppingCart.getGoodsId().longValue());
+					getShopPrice(goodsBase);
+					orderPayInfo = new OrderPayInfo(goodsBase.getTitle(), goodsBase.getShopPrice(),shoppingCart.getGoodsTotals());
 				}
 				if(orderPayInfo != null) {
 					orderPayInfos[i] = orderPayInfo;

@@ -45,6 +45,42 @@ public class GoodsOut {
      * 商品详情图
      */
     private List<String> detailImgList;
+    /**
+     * 距离开始时间
+     */
+    private Long startTime;
+    /**
+     * 距离结束时间
+     */
+    private Long endTime;
+    /**
+     * 是否打折中
+     */
+    private Integer isDiscount;
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Long endTime) {
+        this.endTime = endTime;
+    }
+
+    public Integer getIsDiscount() {
+        return isDiscount;
+    }
+
+    public void setIsDiscount(Integer isDiscount) {
+        this.isDiscount = isDiscount;
+    }
 
     public String getDescriptionStr() {
         return descriptionStr;

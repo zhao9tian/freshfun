@@ -2,6 +2,7 @@ package com.quxin.freshfun.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.quxin.freshfun.model.param.GoodsParam;
 
 @JsonInclude(Include.NON_NULL)
 public class OrderDetailsPOJO {
@@ -75,7 +76,7 @@ public class OrderDetailsPOJO {
     private String extra;
 
     //    private GoodsPOJO goods;
-    private GoodsPOJO goods;
+    private GoodsParam goods;
     private String deliveryName;
     /**
      * 用于前端价格显示
@@ -252,11 +253,11 @@ public class OrderDetailsPOJO {
         this.address = address;
     }
 
-    public GoodsPOJO getGoods() {
+    public GoodsParam getGoods() {
         return goods;
     }
 
-    public void setGoods(GoodsPOJO goods) {
+    public void setGoods(GoodsParam goods) {
         this.goods = goods;
     }
 

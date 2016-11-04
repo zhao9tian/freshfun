@@ -2,6 +2,7 @@ package com.quxin.freshfun.dao;
 
 import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.goods.BannerPOJO;
+import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.ThemePOJO;
 import org.apache.ibatis.annotations.Param;
 
@@ -87,4 +88,7 @@ public interface GoodsMapper {
      * @return 返回专题信息
      */
     ThemePOJO selectThemeById(Integer themeId);
+
+
+    GoodsParam selectGoodsById(Integer goodsId);
 }

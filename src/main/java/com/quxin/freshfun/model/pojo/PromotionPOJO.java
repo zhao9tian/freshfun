@@ -8,9 +8,9 @@ import com.quxin.freshfun.model.entity.BaseEntity;
 public class PromotionPOJO extends BaseEntity {
     private Integer id;
     /** 'type=1 为商品id' */
-    private Integer objectId;
+    private Long objectId;
     /** '1:限时促销 2:优惠券' */
-    private Long objectType;
+    private Integer objectType;
     /** '优惠计算方式 限时促销为{"discountPrice":100}' */
     private String content;
     /** 开始时间 */
@@ -26,19 +26,19 @@ public class PromotionPOJO extends BaseEntity {
         this.id = id;
     }
 
-    public Integer getObjectId() {
+    public Long getObjectId() {
         return objectId;
     }
 
-    public void setObjectId(Integer objectId) {
+    public void setObjectId(Long objectId) {
         this.objectId = objectId;
     }
 
-    public Long getObjectType() {
+    public Integer getObjectType() {
         return objectType;
     }
 
-    public void setObjectType(Long objectType) {
+    public void setObjectType(Integer objectType) {
         this.objectType = objectType;
     }
 

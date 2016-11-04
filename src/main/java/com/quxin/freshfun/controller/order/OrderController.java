@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.quxin.freshfun.dao.GoodsLimitMapper;
 import com.quxin.freshfun.dao.ResponseResult;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
@@ -81,11 +82,11 @@ public class OrderController {
 		Long now = System.currentTimeMillis();
 		Long outTimeStamp = createTime*1000 + orderOutTime*60000 - now;
 		orderDetail.setOutTimeStamp(outTimeStamp);
-		GoodsPOJO goods = orderDetail.getGoods();
+		GoodsParam goods = orderDetail.getGoods();
 		goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
-		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getGoodsPrice()));
 		goods.setMarketPrice(null);
-		goods.setShopPrice(null);
+		goods.setGoodsPrice(null);
 		orderDetail.setGoods(goods);
 		//控制付款成功页面申请退款按钮是否有效 isRefund 1是有效  0是无效
 		return orderDetail;
@@ -326,17 +327,7 @@ public class OrderController {
 		map.put("payResult", result);
 		return map;
 	}
-	/**
-	 * 添加限时购订单
-	 */
-	@RequestMapping(value="/createLimitOrder",method={RequestMethod.POST})
-	@ResponseBody
-	public Map<String, ResponseResult> createLimitOrder(@RequestBody OrderInfo orderInfo){
-		Map<String, ResponseResult> map = Maps.newHashMap();
-		ResponseResult payResult = orderService.addLimitOrder(orderInfo);
-		map.put("payResult", payResult);
-		return map;
-	}
+
 
 	@RequestMapping(value="/payCallback",produces = "application/xml")
 	@ResponseBody
@@ -455,14 +446,14 @@ public class OrderController {
 				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
 				o.setPayMoney(null);
 			}
-			GoodsPOJO goods = o.getGoods();
+			GoodsParam goods = o.getGoods();
 			if(goods.getMarketPrice() != null) {
 				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
 				goods.setMarketPrice(null);
 			}
-			if(goods.getShopPrice() != null) {
-				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
-				goods.setShopPrice(null);
+			if(goods.getGoodsPrice() != null) {
+				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getGoodsPrice()));
+				goods.setGoodsPrice(null);
 			}
 		}
 		return order;
@@ -479,357 +470,13 @@ public class OrderController {
 				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
 				o.setPayPrice(null);
 			}
-			GoodsPOJO goods = o.getGoods();
-			if(goods.getShopPrice() != null) {
-				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
-				goods.setShopPrice(null);
+			GoodsParam goods = o.getGoods();
+			if(goods.getGoodsPrice() != null) {
+				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getGoodsPrice()));
+				goods.setGoodsPrice(null);
 			}
 		}
 		return order;
 	}
 
-
-	//后台订单系统管理
-
-	/**
-	 * 查询关闭订单
-	 * @param currentPage
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageOrderClose")
-	@ResponseBody
-	public Map<String, Object> selectBackstageOrderClose(Integer currentPage) {
-		Map<String, Object>  map = new HashMap<String, Object>();
-		if(currentPage == null || currentPage <= 0){
-			map.put("code",1004);
-			map.put("msg","传入当前页码不正确");
-			Map<String, Object>  resultMap = new HashMap<String, Object>();
-			resultMap.put("status",map);
-			resultMap.put("data","");
-			return resultMap;
-		}
-		int page = (currentPage - 1) * PAGE_SIZE;
-		List<OrderDetailsPOJO> order = orderManager.selectBackstageOrderClose(page,PAGE_SIZE);
-		order = setBackstageMoney(order);
-
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		resultMap.put("status",map);
-		resultMap.put("data",order);
-		return resultMap;
-	}
-	/**
-	 * 所有订单
-	 * @param currentPage
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageOrders")
-	@ResponseBody
-	public Map<String, Object> selectBackstageOrders(Integer currentPage){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(currentPage == null || currentPage <= 0){
-			map.put("code",1004);
-			map.put("msg","传入当前页码不正确");
-			resultMap.put("status",map);
-			resultMap.put("data","");
-			return resultMap;
-		}
-		int page = (currentPage - 1) * PAGE_SIZE;
-		List<OrderDetailsPOJO> order = orderManager.selectBackstageOrders(page,PAGE_SIZE);
-		order = setBackstageMoney(order);
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",order);
-		return resultMap;
-	}
-
-	/**
-	 * 待支付订单
-	 * @param currentPage
-	 * @return
-	 */
-	@RequestMapping("/selectBackstagePendingPaymentOrder")
-	@ResponseBody
-	public Map<String, Object>  selectBackstagePendingPaymentOrder(Integer currentPage){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(currentPage == null || currentPage <= 0){
-			map.put("code",1004);
-			map.put("msg","传入当前页码不正确");
-			resultMap.put("status",map);
-			resultMap.put("data","");
-			return resultMap;
-		}else{
-			int page = (currentPage - 1) * PAGE_SIZE;
-			List<OrderDetailsPOJO> order = orderManager.selectBackstagePendingPaymentOrder(page,PAGE_SIZE);
-			order = setBackstageMoney(order);
-			map.put("code",1001);
-			map.put("msg","请求成功");
-			resultMap.put("status",map);
-			resultMap.put("data",order);
-		}
-
-
-
-		return resultMap;
-	}
-	/**
-	 * 待发货
-	 * @param currentPage
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageAwaitDeliverOrder")
-	@ResponseBody
-	public Map<String, Object> selectBackstageAwaitDeliverOrder(Integer currentPage){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(currentPage == null || currentPage <= 0){
-			map.put("code",1004);
-			map.put("msg","传入当前页码不正确");
-			resultMap.put("status",map);
-			resultMap.put("data","");
-			return resultMap;
-		}else{
-			int page = (currentPage - 1) * PAGE_SIZE;
-			List<OrderDetailsPOJO> order = orderManager.selectBackstageAwaitDeliverOrder(page,PAGE_SIZE);
-			order = setBackstageMoney(order);
-			map.put("code",1001);
-			map.put("msg","请求成功");
-			resultMap.put("status",map);
-			resultMap.put("data",order);
-		}
-		return resultMap;
-	}
-
-	/**
-	 * 待收货订单
-	 * @param currentPage
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageAwaitGoodsReceipt")
-	@ResponseBody
-	public Map<String, Object> selectAwaitGoodsReceipt(Integer currentPage){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(currentPage == null || currentPage <= 0){
-			map.put("code",1004);
-			map.put("msg","传入当前页码不正确");
-			resultMap.put("status",map);
-			return resultMap;
-		}else{
-			int page = (currentPage - 1) * PAGE_SIZE;
-			List<OrderDetailsPOJO> order = orderManager.selectBackstageAwaitGoodsReceipt(page,PAGE_SIZE);
-			order = setBackstageMoney(order);
-			map.put("code",1001);
-			map.put("msg","请求成功");
-			resultMap.put("status",map);
-			resultMap.put("data",order);
-		}
-		return resultMap;
-	}
-
-	/**
-	 * 已完成订单
-	 * @param currentPage
-	 * @return
-	 */
-	@RequestMapping("/selectFinishOrder")
-	@ResponseBody
-	public Map<String, Object>  selectFinishOrder(Integer currentPage){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(currentPage == null || currentPage <= 0){
-			map.put("code",1004);
-			map.put("msg","传入当前页码不正确");
-			resultMap.put("status",map);
-			resultMap.put("data","");
-			return resultMap;
-		}else{
-			int page = (currentPage - 1) * PAGE_SIZE;
-			List<OrderDetailsPOJO> order = orderManager.selectFinishOrder(page,PAGE_SIZE);
-			order = setBackstageMoney(order);
-			map.put("code",1001);
-			map.put("msg","请求成功");
-			resultMap.put("status",map);
-			resultMap.put("data",order);
-		}
-		return resultMap;
-	}
-
-	/**
-	 * 查询关闭订单数量
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageOrderCloseCount")
-	@ResponseBody
-	public Map<String, Object> selectBackstageOrderCloseCount(){
-		Integer count = orderManager.selectBackstageOrderCloseCount()%PAGE_SIZE==0?orderManager.selectBackstageOrderCloseCount()/PAGE_SIZE:orderManager.selectBackstageOrderCloseCount()/PAGE_SIZE+1;
-		if(count <= 0)
-			count = 1;
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",count);
-		return resultMap;
-	}
-
-	/**
-	 * 查询所有订单总数量
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageOrdersCount")
-	@ResponseBody
-	public Map<String, Object> selectBackstageOrdersCount(){
-		Integer count = orderManager.selectBackstageOrdersCount()%PAGE_SIZE==0?orderManager.selectBackstageOrdersCount()/PAGE_SIZE:orderManager.selectBackstageOrdersCount()/PAGE_SIZE+1;
-		if(count <= 0)
-			count = 1;
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",count);
-		return resultMap;
-	}
-	/**
-	 * 查询待付款数量
-	 * @return
-	 */
-	@RequestMapping("/selectBackstagePendingPaymentOrderCount")
-	@ResponseBody
-	public Map<String, Object> selectBackstagePendingPaymentOrderCount(){
-		Integer count = orderManager.selectBackstagePendingPaymentOrderCount()%PAGE_SIZE==0?orderManager.selectBackstagePendingPaymentOrderCount()/PAGE_SIZE:orderManager.selectBackstagePendingPaymentOrderCount()/PAGE_SIZE+1;
-		if(count <= 0)
-			count = 1;
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",count);
-		return resultMap;
-	}
-	/**
-	 * 查询代发货数量
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageAwaitDeliverOrderCount")
-	@ResponseBody
-	public Map<String, Object> selectBackstageAwaitDeliverOrderCount(){
-		Integer count = orderManager.selectBackstageAwaitDeliverOrderCount()%PAGE_SIZE==0?orderManager.selectBackstageAwaitDeliverOrderCount()/PAGE_SIZE:orderManager.selectBackstageAwaitDeliverOrderCount()/PAGE_SIZE+1;
-		if(count == 0){
-			count = 1;
-		}
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",count);
-		return resultMap;
-	}
-	/**
-	 * 查询待收货数量
-	 * @return
-	 */
-	@RequestMapping("/selectBackstageAwaitGoodsReceiptCount")
-	@ResponseBody
-	public Map<String, Object> selectBackstageAwaitGoodsReceiptCount(){
-		Integer count = orderManager.selectBackstageAwaitGoodsReceiptCount()%PAGE_SIZE==0?orderManager.selectBackstageAwaitGoodsReceiptCount()/PAGE_SIZE:orderManager.selectBackstageAwaitGoodsReceiptCount()/PAGE_SIZE+1;
-		if(count <= 0){
-			count = 1;
-		}
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",count);
-		return resultMap;
-	}
-	/**
-	 * 查询已完成订单数量
-	 * @return
-	 */
-	@RequestMapping("/selectFinishOrderCount")
-	@ResponseBody
-	public Map<String, Object> selectFinishOrderCount(){
-		Integer count = orderManager.selectFinishOrderCount()%PAGE_SIZE==0?orderManager.selectFinishOrderCount()/PAGE_SIZE:orderManager.selectFinishOrderCount()/PAGE_SIZE+1;
-		if(count <= 0)
-			count = 1;
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		map.put("code",1001);
-		map.put("msg","请求成功");
-		resultMap.put("status",map);
-		resultMap.put("data",count);
-		return resultMap;
-	}
-
-	/**
-	 * 发货
-	 * @param order
-	 * @return
-	 */
-	@RequestMapping(value="/selectFinishOrderCount",method={RequestMethod.POST})
-	@ResponseBody
-	public Map<String, Object> deliverOrder(@RequestBody OrderDetailsPOJO order){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(StringUtils.isEmpty(order.getOrderId())||StringUtils.isEmpty(order.getActualMoney())){
-			map.put("code",1004);
-			map.put("msg","参数有误");
-			resultMap.put("status",map);
-			return resultMap;
-		}else{
-			int orderStatus = orderManager.deliverOrder(order);
-			if(orderStatus <= 0){
-				map.put("code",1004);
-				map.put("msg","发货失败");
-				resultMap.put("status",map);
-			}else{
-				map.put("code",1001);
-				map.put("msg","请求成功");
-				resultMap.put("status",map);
-			}
-			resultMap.put("data",orderStatus);
-		}
-		return resultMap;
-	}
-
-	/**
-	 * 订单备注
-	 * @return
-	 */
-	@RequestMapping("/orderRemark")
-	@ResponseBody
-	public Map<String, Object> orderRemark(Long orderId,String remark){
-		Map<String, Object>  map = new HashMap<String, Object>();
-		Map<String, Object>  resultMap = new HashMap<String, Object>();
-		if(orderId == null || remark == null){
-			map.put("code",1004);
-			map.put("msg","参数错误");
-			resultMap.put("status",map);
-			return resultMap;
-		}else{
-			int status = orderManager.orderRemark(orderId,remark);
-			if(status <= 0){
-				map.put("code",1004);
-				map.put("msg","备注失败");
-				resultMap.put("status",map);
-			}else{
-				map.put("code",1001);
-				map.put("msg","请求成功");
-				resultMap.put("status",map);
-			}
-
-			resultMap.put("data",status);
-		}
-		return resultMap;
-	}
 }

@@ -31,7 +31,7 @@ public class Constant {
     /**
      * 分类顶图对应goodsProperty中的key
      */
-    public static final String TYPE_IMG = "img";
+    public static final String TYPE_IMG = "typeImg";
     /**
      * 商品属性对应goodsProperty中的key
      */

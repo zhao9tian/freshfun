@@ -40,13 +40,13 @@ public class GoodsBasePOJO {
     /**
      * 类目1
      */
-    private Integer catagory1;
+    private Integer category1;
 
-    private Integer catagory2;
+    private Integer category2;
 
-    private Integer catagory3;
+    private Integer category3;
 
-    private Integer catagory4;
+    private Integer category4;
     /**
      * 商户编号
      */
@@ -132,36 +132,36 @@ public class GoodsBasePOJO {
         this.stockNum = stockNum;
     }
 
-    public Integer getCatagory1() {
-        return catagory1;
+    public Integer getCategory1() {
+        return category1;
     }
 
-    public void setCatagory1(Integer catagory1) {
-        this.catagory1 = catagory1;
+    public void setCategory1(Integer category1) {
+        this.category1 = category1;
     }
 
-    public Integer getCatagory2() {
-        return catagory2;
+    public Integer getCategory2() {
+        return category2;
     }
 
-    public void setCatagory2(Integer catagory2) {
-        this.catagory2 = catagory2;
+    public void setCategory2(Integer category2) {
+        this.category2 = category2;
     }
 
-    public Integer getCatagory3() {
-        return catagory3;
+    public Integer getCategory3() {
+        return category3;
     }
 
-    public void setCatagory3(Integer catagory3) {
-        this.catagory3 = catagory3;
+    public void setCategory3(Integer category3) {
+        this.category3 = category3;
     }
 
-    public Integer getCatagory4() {
-        return catagory4;
+    public Integer getCategory4() {
+        return category4;
     }
 
-    public void setCatagory4(Integer catagory4) {
-        this.catagory4 = catagory4;
+    public void setCategory4(Integer category4) {
+        this.category4 = category4;
     }
 
     public Long getShopId() {

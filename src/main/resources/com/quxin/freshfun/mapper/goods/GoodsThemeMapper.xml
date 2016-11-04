@@ -11,7 +11,7 @@
   </resultMap>
   <!--查询所有专题信息-->
   <select id="selectAll" resultMap="BaseResultMap" >
-    select id,theme_des,img,goods_id_list from goods_theme where is_deleted = 0 order by created DESC limit #{page},#{pageSize}
+    select id,theme_des,img,goods_id_list from goods_theme where is_forbidden = 1 AND is_deleted = 0 order by created DESC limit #{page},#{pageSize}
   </select>
 
   <!--根据专题编号查询专题信息-->

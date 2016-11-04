@@ -117,12 +117,6 @@ public interface OrderDetailsMapper {
      * @return
      */
     int delOrder(@Param("date") Long date,@Param("orderId") String orderId);
-    /**
-     * 确认收货
-     * @param orderId
-     * @return
-     */
-    int confirmGoodsReceipt(@Param("reciveTime") Long reciveTime,@Param("orderId") Long orderId);
 
     /**
      * 确认评价
@@ -202,16 +196,17 @@ public interface OrderDetailsMapper {
     Integer updateOrderStatus(Map<String , Object> condition);
 
     /**
-     * 查询支付订单编号
+     * 根据父级订单编号查询支付信息
      * @return
      */
-    List<Long> selectPayId(Long orderId);
+    List<OrderDetailsPOJO> selectPayId(Long parentOrderId);
+
     /**
-     * 批量修改订单状态
-     * @param list
+     * 根据订单编号查询支付信息
+     * @param orderId
      * @return
      */
-    public int bachUpdateOrder(List<PayModify> list);
+    OrderDetailsPOJO selectPayOrderInfoById(Long orderId);
 
     /**
      * 申请退款是否成功
@@ -234,107 +229,12 @@ public interface OrderDetailsMapper {
      */
     Integer selectEarnedIncome(Long id);
 
-
-    //后台订单管理
-
-    /**
-     * 查询关闭订单
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
-    List<OrderDetailsPOJO> selectBackstageOrderClose(@Param("currentPage") int currentPage,@Param("pageSize") int pageSize);
-
-    /**
-     * 查询关闭订单数量
-     * @return
-     */
-    Integer selectBackstageOrderCloseCount();
-    /**
-     * 所有订单
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
-    List<OrderDetailsPOJO>  selectBackstageOrders(@Param("currentPage") int currentPage,@Param("pageSize") int pageSize);
-
-    /**
-     * 查询所有订单总数量
-     * @return
-     */
-    Integer selectBackstageOrdersCount();
-
     /**
      * 查询待评价数量
      * @param userId
      * @return
      */
     Integer selectCommentCount(Long userId);
-    /**
-     * 待付款订单
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
-    List<OrderDetailsPOJO> selectBackstagePendingPaymentOrder(@Param("currentPage") int currentPage,@Param("pageSize") int pageSize);
-
-    /**
-     * 查询待付款数量
-     * @return
-     */
-    Integer selectBackstagePendingPaymentOrderCount();
-    /**
-     * 待发货
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
-    List<OrderDetailsPOJO> selectBackstageAwaitDeliverOrder(@Param("currentPage") int currentPage,@Param("pageSize") int pageSize);
-
-    /**
-     * 查询代发货数量
-     * @return
-     */
-    Integer selectBackstageAwaitDeliverOrderCount();
-    /**
-     * 待收货
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
-    List<OrderDetailsPOJO> selectBackstageAwaitGoodsReceipt(@Param("currentPage") int currentPage,@Param("pageSize") int pageSize);
-
-    /**
-     * 查询待收货数量
-     * @return
-     */
-    Integer selectBackstageAwaitGoodsReceiptCount();
-    /**
-     * 查询已完成订单
-     * @param currentPage
-     * @param pageSize
-     * @return
-     */
-    List<OrderDetailsPOJO> selectFinishOrder(@Param("currentPage") int currentPage,@Param("pageSize") int pageSize);
-
-    /**
-     * 查询已完成订单数量
-     * @return
-     */
-    Integer selectFinishOrderCount();
-
-    /**
-     * 发货
-     * @param map
-     * @return
-     */
-    Integer deliverOrder(Map<String,Object> map);
-
-    /**
-     * 订单备注
-     * @return
-     */
-    Integer orderRemark(Map<String,Object> map);
 
     /**
      * 根据订单编号查询账单需要的信息

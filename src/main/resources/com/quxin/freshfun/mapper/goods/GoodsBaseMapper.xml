@@ -26,8 +26,8 @@
   </select>
 
   <!--查询二级类目下商品-->
-  <select id="selectCatagory2Goods" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where catagory2 = #{catagory} and is_on_sale = 1 and is_deleted = 0
+  <select id="selectCatagory2Goods" resultMap="BaseResultMap">
+    select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where category2 = #{category} and is_on_sale = 1 and is_deleted = 0 order by created DESC limit #{page},#{pageSize}
   </select>
 
   <!--查询推荐商品-->
@@ -43,6 +43,23 @@
   <!--根据商品编号查询商品图-->
   <select id="selectGoodsImgByGoodsId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsImage">
     select `detail_img` as `detailImg`,carousel_img as `carouselImg` from goods_img where goods_id = #{goodsId}
+  </select>
+  <!--支付查询商品信息-->
+  <select id="selectOrderPayInfo" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
+    select `id`,`title`,`shop_price` as `shopPrice` from goods_base where id = #{goodsId}
+  </select>
+
+  <!--修改商品库存-->
+  <update id="updateGoodsStock" parameterType="java.lang.Long" >
+      update goods_base set stock_num = stock_num - 1 where id = #{goodsId} and stock_num > 0
+  </update>
+  <!--增加销量-->
+  <update id="updateGoodsSaleNum" parameterType="java.lang.Long">
+      update goods_base set sale_num = sale_num + 1 where id = #{goodsId}
+  </update>
+  <!--根据商品编号查询商品信息-->
+  <select id="selectGoodsByGoodsId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.param.GoodsParam">
+      select `id`,`title` as `goodsName`,`sub_title` as `goodsDes`,`img` as `goodsImg`,shop_price as `goodsPrice`,origin_price as `marketPrice` from goods_base where id = #{goodsId}
   </select>
 
 

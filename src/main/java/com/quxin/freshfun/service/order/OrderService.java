@@ -48,13 +48,6 @@ public interface OrderService {
 	int PayCallback(InputStream in);
 	
 	/**
-	 * 添加订单信息
-	 * @param orderInfo
-	 * @return
-	 */
-	ResponseResult addLimitOrder(OrderInfo orderInfo);
-	
-	/**
 	 * 根据订单详情id查询订单详情
 	 * @param orderDetailId
 	 * @return

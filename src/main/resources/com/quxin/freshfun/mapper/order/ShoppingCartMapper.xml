@@ -16,7 +16,7 @@
     <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
     <result column="create_date" jdbcType="BIGINT" property="createDate"/>
     <result column="update_date" jdbcType="BIGINT" property="updateDate"/>
-    <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsMapper.selectGoodsById"></association>
+    <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsBaseMapper.selectGoodsByGoodsId"></association>
   </resultMap>
   <resultMap id="IdResultMap" type="java.lang.Integer">
     <result column="sc_id" jdbcType="INTEGER" property="scId"/>

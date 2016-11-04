@@ -30,7 +30,7 @@
     <result column="is_limit" jdbcType="INTEGER" property="isLimit"/>
     <result column="recive_time" jdbcType="INTEGER" property="reciveTime"/>
     <result column="delivery_time" jdbcType="BIGINT" property="deliveryTime"/>
-
+    <result column="pay_price" jdbcType="INTEGER" property="payPrice"/>
     <result column="goods_cost" jdbcType="INTEGER" property="goodsCost"/>
     <result column="name" jdbcType="VARCHAR" property="name"/>
     <result column="tel" jdbcType="VARCHAR" property="tel"/>
@@ -39,7 +39,7 @@
     <result column="remark" jdbcType="VARCHAR" property="remark"/>
     <result column="delivery_remark" jdbcType="VARCHAR" property="deliveryRemark"/>
     <result column="extra" jdbcType="VARCHAR" property="extra"/>
-    <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsMapper.selectGoodsById"></association>
+    <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsBaseMapper.selectGoodsByGoodsId"></association>
   </resultMap>
 
   <resultMap id="PayResultId" type="java.lang.Long">
@@ -163,9 +163,13 @@
   </select>
 
 
-  <!-- 查询付款编号 -->
-  <select id="selectPayId" parameterType="java.lang.Long" resultMap="PayResultId">
-    select id from order_details where order_id = #{orderId}
+  <!-- 根据parentOrderId查询付款编号,商品编号 -->
+  <select id="selectPayId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select `id`,`goods_id` from order_details where order_id = #{orderId}
+  </select>
+  <!--根据orderId查询付款编号,商品编号-->
+  <select id="selectPayOrderInfoById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
+    select `id`,`goods_id` as `goodsId` from order_details where id = #{orderId}
   </select>
   <!-- 查询付款编号 -->
   <select id="selectPayIdByOrderDetailsId" parameterType="java.lang.String" resultMap="PayResultId">
@@ -208,81 +212,7 @@
     update order_details set order_status = 100 where id = #{orderId}
   </update>
 
-  <!--订单后台接口-->
-  <!--查询所有订单-->
-  <select id="selectBackstageOrders" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 order by create_date desc limit #{currentPage},#{pageSize};
-  </select>
-  <!--查询所有订单数量-->
-  <select id="selectBackstageOrdersCount" resultType="java.lang.Integer" >
-    select count(id) from order_details where is_deleted = 0
-  </select>
-  <!--查询待付款-->
-  <select id="selectBackstagePendingPaymentOrder" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
-    from order_details where is_deleted = 0 and order_status = 10 and (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0
-    order by create_date desc limit #{currentPage},#{pageSize}
-  </select>
-  <!--查询待付款数量-->
-  <select id="selectBackstagePendingPaymentOrderCount" resultType="java.lang.Integer">
-    select count(id) from order_details where is_deleted = 0 and order_status = 10 and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0
-  </select>
-  <!--待发货-->
-  <select id="selectBackstageAwaitDeliverOrder" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
-    from order_details where is_deleted = 0 and order_status = 30
-    order by create_date desc
-    limit #{currentPage},#{pageSize}
-  </select>
-  <!--查询代发货数量-->
-  <select id="selectBackstageAwaitDeliverOrderCount" resultType="java.lang.Integer">
-    select count(id) from order_details where is_deleted = 0 and order_status = 30
-  </select>
-  <!--待收货-->
-  <select id="selectBackstageAwaitGoodsReceipt" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
-    from order_details where is_deleted = 0 and order_status = 50
-    order by create_date desc
-    limit #{currentPage},#{pageSize}
-  </select>
-  <!--查询待收货数量-->
-  <select id="selectBackstageAwaitGoodsReceiptCount" resultType="java.lang.Integer">
-    select count(id) from order_details where is_deleted = 0 and order_status = 50
-  </select>
-  <!--已完成-->
-  <select id="selectFinishOrder" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date`
-    from order_details where is_deleted = 0 and order_status = 100
-    order by create_date desc
-    limit #{currentPage},#{pageSize}
-  </select>
-  <select id="selectFinishOrderCount" resultType="java.lang.Integer">
-    select count(id) from order_details where is_deleted = 0 and order_status = 100
-  </select>
-  <!--查询已关闭订单-->
-  <select id="selectBackstageOrderClose" resultMap="BaseResultMap">
-    select `id` as `order_id`,`count`,`order_status`,`pay_plateform`,`goods_id`,`name`,`tel`,`city`,`address`,`create_date` from order_details where is_deleted = 0 and order_status = 10 and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[<]]> 0
-    order by create_date desc
-    limit #{currentPage},#{pageSize}
-  </select>
-  <!--查询已关闭订单数量-->
-  <select id="selectBackstageOrderCloseCount" resultType="java.lang.Integer">
-    select count(id) from order_details where is_deleted = 0 and order_status = 10 and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[<]]> 0
-  </select>
-  <!--订单发货-->
-  <update id="deliverOrder" parameterType="java.util.Map">
-    update order_details set delivery_num=#{deliveryNum},order_status = 50,delivery_name=#{deliveryName},delivery_time=#{deliveryTime},goods_cost=#{goodsCost},delivery_remark=#{deliveryRemark} where id = #{orderId}
-  </update>
-  <!--订单备注-->
-  <update id="orderRemark" parameterType="java.util.Map" >
-    update order_details set remark = #{remark} where id = #{orderId}
-  </update>
-
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    <!--
-      WARNING - @mbggenerated
-      This element is automatically generated by MyBatis Generator, do not modify.
-    -->
     delete from order_details
     where id = #{id,jdbcType=INTEGER}
   </delete>

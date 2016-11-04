@@ -1,5 +1,6 @@
 package com.quxin.freshfun.dao;
 
+import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsImage;
 import com.quxin.freshfun.model.pojo.goods.GoodsStandard;
@@ -20,10 +21,10 @@ public interface GoodsBaseMapper {
 
     /**
      * 查询二级类目商品
-     * @param catagory
+     * @param category
      * @return
      */
-    List<GoodsBasePOJO> selectCatagory2Goods(Integer catagory);
+    List<GoodsBasePOJO> selectCatagory2Goods(@Param("category") Integer category,@Param("page") Integer page,@Param("pageSize") Integer pageSize);
 
     /**
      * 查询商品列表
@@ -50,4 +51,30 @@ public interface GoodsBaseMapper {
      * @return
      */
     GoodsStandard selectGoodsStandard(Long goodsId);
+
+    /**
+     * 订单支付根据商品编号查询商品信息
+     * @return
+     */
+    GoodsBasePOJO selectOrderPayInfo(Long goodsId);
+
+    /**
+     * 修改库存数量
+     * @return
+     */
+    Integer updateGoodsStock(Long goodsId);
+
+    /**
+     * 修改商品销量
+     * @param goodsId 商品编号
+     * @return
+     */
+    Integer updateGoodsSaleNum(Long goodsId);
+
+    /**
+     * 根据商品编号查询商品信息
+     * @param goodsId
+     * @return
+     */
+    GoodsParam selectGoodsByGoodsId(Long goodsId);
 }

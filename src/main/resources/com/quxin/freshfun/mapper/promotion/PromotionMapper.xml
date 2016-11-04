@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.quxin.freshfun.dao.PromotionMapper">
+  <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.pojo.PromotionPOJO">
+    <result column="object_id" jdbcType="BIGINT" property="objectId"/>
+    <result column="object_type" jdbcType="INTEGER" property="objectType"/>
+    <result column="content" jdbcType="VARCHAR" property="content"/>
+    <result column="start_time" jdbcType="BIGINT" property="startTime"/>
+    <result column="end_time" jdbcType="BIGINT" property="endTime"/>
+    <result column="created" jdbcType="BIGINT" property="created"/>
+    <result column="updated" jdbcType="BIGINT" property="updated"/>
+  </resultMap>
 
+  <resultMap id="IdResultMap" type="java.lang.Long">
+      <result column="object_id" jdbcType="INTEGER" property="goodsId"/>
+  </resultMap>
   <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.quxin.freshfun.model.param.PromotionParam">
     insert into
       promotion
@@ -43,7 +55,28 @@
       and #{now} <![CDATA[>=]]> start_time
       and #{now} <![CDATA[<=]]> end_time
       and is_deleted = 0
+  </select>
+  <!--查询限时购商品-->
+  <select id="selectLimitGoodsInfo" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select id,object_id,object_type,content,start_time,end_time,created,updated from promotion
+    WHERE
+    object_type = 1
+    and #{currentDate} <![CDATA[<=]]> end_time
+    and is_deleted = 0
+  </select>
+  <!--查询单个限时购商品-->
+  <select id="selectLimitByGoodsId" resultType="com.quxin.freshfun.model.pojo.PromotionPOJO">
+    select id,object_id as objectId,start_time as startTime,end_time as endTime from promotion
+    WHERE
+    object_id = #{goodsId}
+    and object_type = 1
+    and #{currentDate} <![CDATA[<=]]> end_time
+    and is_deleted = 0
+  </select>
 
+  <!--查询限时购商品编号-->
+  <select id="selectLimitGoodsId" resultMap="IdResultMap">
+    select object_id from promotion where object_type = 1 and is_deleted = 0
   </select>
 
 </mapper>
