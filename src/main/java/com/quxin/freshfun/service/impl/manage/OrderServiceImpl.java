@@ -187,7 +187,10 @@ public class OrderServiceImpl implements OrderService {
 		od.setPaymentMethod(orderInfo.getPaymentMethod());
 		//生成平台标识
 		if(!StringUtils.isEmpty(orderInfo.getAppId())){
-			od.setAppId(orderInfo.getAppId());
+			Long urlId = FreshFunEncoder.urlToId(orderInfo.getAppId());
+			if(urlId != null){
+				od.setAppId(urlId.toString());
+			}
 		}
 		/**
 		 * 订单支付金额
