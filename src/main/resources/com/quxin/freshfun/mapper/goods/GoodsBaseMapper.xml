@@ -37,7 +37,7 @@
 
   <!--查询更多商品-->
   <select id="selectGoodsList" resultMap="BaseResultMap">
-      select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where is_deleted = 0 order by created DESC limit #{page},#{pageSize}
+      select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where is_deleted = 0 and is_on_sale = 1 order by created DESC limit #{page},#{pageSize}
   </select>
 
   <!--根据商品编号查询商品图-->
