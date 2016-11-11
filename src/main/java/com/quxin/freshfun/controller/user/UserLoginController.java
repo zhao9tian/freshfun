@@ -65,15 +65,13 @@ public class UserLoginController {
 
 	/**
 	 * 校验cookie
-	 * @param code
-	 * @param request
-	 * @param response
-	 * @return
+	 * @param code 获取微信信息的code
 	 */
 	@RequestMapping("/checkLogin")
 	@ResponseBody
 	public Map<String, Object> checkLogin(String code, HttpServletRequest request, HttpServletResponse response) throws BusinessException {
 		//校验cookie    true为可用cookie
+		String phoneNum = "";
 		Map<String, Object> map = new HashMap<String, Object>();
 		boolean authResult = CookieUtil.checkAuth(request);
 		//判断userId是否有效，在数据库中是否存在
@@ -167,6 +165,10 @@ public class UserLoginController {
 						map.put("userId", FreshFunEncoder.idToUrl(userId));
 					else
 						map.put("userId", "");
+					UserInfoOutParam userInfoOutParam = userBaseService.queryUserInfoByUserId(userId);
+					if(userInfoOutParam!=null)
+						phoneNum = userInfoOutParam.getPhoneNumber();
+					map.put("phoneNum",phoneNum);
 					return ResultUtil.success(map);
 				} else {
 					//校验cookie  有code,获取到微信信息，插入数据，userId为空
@@ -176,7 +178,15 @@ public class UserLoginController {
 		}
 		//校验cookie  获取有效cookie
 		Long userId = CookieUtil.getUserIdFromCookie(request);
-		map.put("userId", FreshFunEncoder.idToUrl(userId));
+		boolean result = userBaseService.checkIsFetcherByUserId(userId);
+		if (result)
+			map.put("userId", FreshFunEncoder.idToUrl(userId));
+		else
+			map.put("userId", "");
+		UserInfoOutParam userInfoOutParam = userBaseService.queryUserInfoByUserId(userId);
+		if(userInfoOutParam!=null)
+			phoneNum = userInfoOutParam.getPhoneNumber();
+		map.put("phoneNum",phoneNum);
 		return ResultUtil.success(map);
 	}
 
