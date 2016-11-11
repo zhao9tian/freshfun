@@ -6,8 +6,6 @@ import com.quxin.freshfun.model.param.RefundParam;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.refund.RefundService;
 import com.quxin.freshfun.utils.ResultUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +19,6 @@ import java.util.Map;
 @Controller
 public class RefundController {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private RefundService refundSerivce;
@@ -43,26 +40,21 @@ public class RefundController {
 			if(orderId != null && orderId != 0){
 				OrderDetailsPOJO orderDetailsPOJO = orderManager.selectSigleOrder(orderId);
 				if(orderDetailsPOJO == null){
-					logger.error("该订单不存在");
 					return ResultUtil.fail(1004 , "该订单不存在");
 				}
 			}else{
-				logger.error("订单号不能不为空");
-				return ResultUtil.fail(1004 ,"订单号不能不为空");
+				return ResultUtil.fail(1004 ,"订单号为空");
 			}
 			String refundMoney = refundParam.getRefundMoney();
 			String serverType = refundParam.getServerType();
 			String refundReason = refundParam.getRefundReason();
 			if(refundMoney == null || "".equals(refundMoney) ){
-				logger.error("退款金额不能为空");
 				return ResultUtil.fail(1004 , "退款金额不能为空");
 			}
 			if(serverType == null || "".equals(serverType) || "请选择申请服务".equals(serverType)){
-				logger.error("服务类型未选择");
 				return ResultUtil.fail(1004 , "服务类型未选择");
 			}
 			if(refundReason == null || "".equals(refundReason) || "请选择退货原因".equals(refundReason)){
-				logger.error("退款原因未选择");
 				return ResultUtil.fail(1004, "退款原因未选择");
 			}
 			RefundPOJO refund = new RefundPOJO();
@@ -81,7 +73,6 @@ public class RefundController {
 				result = ResultUtil.fail(1004 ,"申请退款失败");
 			}
 		}else{
-			logger.error("退款对象不能为null");
 			result = ResultUtil.fail(1004 , "退款对象不能为null");
 		}
 		return result;
