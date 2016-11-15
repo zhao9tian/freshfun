@@ -118,7 +118,7 @@ public class LogisticalController {
 					}
 					Collections.reverse(list);//倒序物流信息
 					Map<String , Object> data = Maps.newHashMap();
-					data.put("getTraces" , list);
+					data.put("gtexTraces" , list);
 					result = ResultUtil.success(data);
 				}
 			}
