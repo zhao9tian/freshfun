@@ -117,7 +117,9 @@ public class LogisticalController {
 						list.add(trace1);
 					}
 					Collections.reverse(list);//倒序物流信息
-					result = ResultUtil.success(list);
+					Map<String , Object> data = Maps.newHashMap();
+					data.put("getTraces" , list);
+					result = ResultUtil.success(data);
 				}
 			}
 		}else{
