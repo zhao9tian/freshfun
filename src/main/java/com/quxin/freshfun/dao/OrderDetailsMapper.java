@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 
 import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.model.OrderStatusInfo;
-import com.quxin.freshfun.model.PayModify;
 
 public interface OrderDetailsMapper {
     /**
@@ -172,10 +171,10 @@ public interface OrderDetailsMapper {
 
     /**
      * 根据订单Id查询物流信息
-     * @param orderDetailId
+     * @param orderId
      * @return
      */
-    OrderDetailsPOJO getLogistic(String orderDetailId);
+    OrderDetailsPOJO getLogistic(Long orderId);
     /**
      * 查询支付编号
      * @return

@@ -516,7 +516,7 @@
     <result column="delivery_name" jdbcType="VARCHAR" property="deliveryName" />
     <result column="create_date" jdbcType="BIGINT" property="createDate" />
   </resultMap>
-  <select id="getLogistic" parameterType="java.lang.String" resultMap="LogisticRM" >
+  <select id="getLogistic" parameterType="java.lang.Long" resultMap="LogisticRM" >
     select delivery_num , delivery_name , create_date from order_details where id = #{orderDetailId}
   </select>
   <!--订单确认收货修改状态-->

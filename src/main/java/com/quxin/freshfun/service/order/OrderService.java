@@ -49,10 +49,10 @@ public interface OrderService {
 	
 	/**
 	 * 根据订单详情id查询订单详情
-	 * @param orderDetailId
-	 * @return
+	 * @param orderId 订单Id
+	 * @return 返回物流信息
 	 */
-	OrderDetailsPOJO getOrderLogistic(String orderDetailId);
+	OrderDetailsPOJO getOrderLogistic(Long orderId);
 
 	String getOpenId(Long userId);
 

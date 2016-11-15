@@ -15,9 +15,9 @@ import java.util.Map;
  *
  * 快递鸟物流轨迹即时查询接口
  *
- * @技术QQ群: 456320272
- * @see: http://www.kdniao.com/YundanChaxunAPI.aspx
- * @copyright: 深圳市快金数据技术服务有限公司
+ * 技术QQ群: 456320272
+ * see: http://www.kdniao.com/YundanChaxunAPI.aspx
+ * copyright: 深圳市快金数据技术服务有限公司
  *
  * DEMO中的电商ID与私钥仅限测试使用，正式环境请单独注册账号
  * 单日超过500单查询量，建议接入我方物流轨迹订阅推送接口
@@ -31,7 +31,7 @@ public class KdniaoTrackQueryAPI {
      * Json方式 查询订单物流轨迹
      * @throws Exception 异常
      */
-    public String getOrderTracesByJson(String expCode, String expNo) throws Exception{
+    public static String getOrderTracesByJson(String expCode, String expNo) throws Exception{
         String EBusinessID = "1264904";
         String appKey = "9dcafff3-fd2e-4986-85c8-a3b91caec0cf";
         String reqURL = "http://api.kdniao.cc/Ebusiness/EbusinessOrderHandle.aspx";
@@ -53,7 +53,7 @@ public class KdniaoTrackQueryAPI {
      * @param charset 编码方式
      * @throws Exception 异常
      */
-    private String MD5(String str, String charset) throws Exception {
+    private static String MD5(String str, String charset) throws Exception {
         MessageDigest md = MessageDigest.getInstance("MD5");
         md.update(str.getBytes(charset));
         byte[] result = md.digest();
@@ -74,11 +74,11 @@ public class KdniaoTrackQueryAPI {
      * @param charset 编码方式
      * @throws UnsupportedEncodingException 异常
      */
-    private String base64(String str, String charset) throws UnsupportedEncodingException{
+    private static String base64(String str, String charset) throws UnsupportedEncodingException{
         return base64Encode(str.getBytes(charset));
     }
 
-    private String urlEncoder(String str, String charset) throws UnsupportedEncodingException{
+    private static String urlEncoder(String str, String charset) throws UnsupportedEncodingException{
         return URLEncoder.encode(str, charset);
     }
 
@@ -90,7 +90,7 @@ public class KdniaoTrackQueryAPI {
      * @throws UnsupportedEncodingException ,Exception
      * @return DataSign签名
      */
-    private String encrypt (String content, String keyValue, String charset) throws Exception
+    private static String encrypt(String content, String keyValue, String charset) throws Exception
     {
         if (keyValue != null)
         {
@@ -105,7 +105,7 @@ public class KdniaoTrackQueryAPI {
      * @param params 请求的参数集合
      * @return 远程资源的响应结果
      */
-    private String sendPost(String url, Map<String, String> params) {
+    private static String sendPost(String url, Map<String, String> params) {
         OutputStreamWriter out = null;
         BufferedReader in = null;
         StringBuilder result = new StringBuilder();
@@ -214,13 +214,13 @@ public class KdniaoTrackQueryAPI {
 
     //DEMO
     public static void main(String[] args) {
-        KdniaoTrackQueryAPI api = new KdniaoTrackQueryAPI();
         try {
             long start = System.currentTimeMillis();
-            String result = api.getOrderTracesByJson("GTO", "2847951289");
+//            String result = api.getOrderTracesByJson("GTO", "2847951289");
+            String result = getOrderTracesByJson("HTKY", "70351809261132");
             System.out.println(System.currentTimeMillis()-start);
             System.out.println(result);
-            Map<String , Object> map = JSON.parseObject(result,Map.class);
+            Map map = JSON.parseObject(result,Map.class);
 
             JSONArray jsonArray =  (JSONArray) map.get("Traces");
 

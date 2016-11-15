@@ -7,7 +7,6 @@ import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.outparam.UserInfoOutParam;
-import com.quxin.freshfun.model.outparam.goods.GoodsOut;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.service.impl.wechat.ClientRequestHandler;
 import com.quxin.freshfun.service.impl.wechat.PrepayIdRequestHandler;
@@ -305,8 +304,8 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public OrderDetailsPOJO getOrderLogistic(String orderDetailId) {
-		OrderDetailsPOJO orderDetail = orderDetailsMapper.getLogistic(orderDetailId);
+	public OrderDetailsPOJO getOrderLogistic(Long orderId) {
+		OrderDetailsPOJO orderDetail = orderDetailsMapper.getLogistic(orderId);
 		return orderDetail;
 	}
 	/**
