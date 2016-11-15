@@ -14,6 +14,7 @@ import com.quxin.freshfun.utils.FieldUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.MD5Util;
 import com.quxin.freshfun.utils.weixinPayUtils.Sha1Util;
+import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,8 @@ public class PrepayIdRequestHandler extends RequestHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	public PrepayIdRequestHandler(HttpServletRequest request,
-								  HttpServletResponse response) {
-		super(request, response);
+	public PrepayIdRequestHandler() {
+		super();
 	}
 
 	/**
@@ -35,15 +35,9 @@ public class PrepayIdRequestHandler extends RequestHandler {
 	 * @throws Exception
 	 */
 	public String createSHA1Sign() {
-		StringBuffer sb = new StringBuffer();
 		Set es = super.getAllParameters().entrySet();
 		Iterator it = es.iterator();
-		while (it.hasNext()) {
-			Map.Entry entry = (Map.Entry) it.next();
-			String k = (String) entry.getKey();
-			String v = (String) entry.getValue();
-			sb.append(k + "=" + v + "&");
-		}
+		StringBuilder sb = getSignStr(it);
 		String params = sb.substring(0, sb.lastIndexOf("&"));
 		String appsign = Sha1Util.getSha1(params);
 		this.setDebugInfo(this.getDebugInfo() + "\r\n" + "sha1 sb:" + params);
@@ -51,46 +45,54 @@ public class PrepayIdRequestHandler extends RequestHandler {
 		return appsign;
 	}
 
-	public String createMD5Sign(){
-		StringBuffer sbf = new StringBuffer();
+	/**
+	 * MD5签名
+	 * @param partnerKey 商户对应密钥
+	 * @return
+	 */
+	public String createMD5Sign(String partnerKey){
 		Set es = super.getAllParameters().entrySet();
 		Iterator it = es.iterator();
+		StringBuilder sb = getSignStr(it);
+		String stringA = sb.substring(0, sb.lastIndexOf("&"));
+        String params = stringA+"&key="+ partnerKey;
+		String payStr = MD5Util.MD5Encode(params,"UTF-8").toUpperCase();
+        return payStr;
+	}
+
+	private StringBuilder getSignStr(Iterator it) {
+		StringBuilder sb = new StringBuilder();
 		while (it.hasNext()) {
 			Map.Entry entry = (Map.Entry) it.next();
 			String k = (String) entry.getKey();
 			String v = (String) entry.getValue();
-			sbf.append(k + "=" + v + "&");
+			sb.append(k + "=" + v + "&");
 		}
-		String stringA = sbf.substring(0, sbf.lastIndexOf("&"));
-        String params = stringA+"&key="+ConstantUtil.PARTNER_KEY;
-		String payStr = MD5Util.MD5Encode(params,"UTF-8").toUpperCase();
-        return payStr;
+		return sb;
 	}
 
 	// 提交预支付
 	public String sendPrepay() throws JSONException {
 		String prepayid = "";
-		StringBuffer sb = new StringBuffer("{");
+		StringBuilder sb = new StringBuilder("{");
+		StringBuilder paramsStr = new StringBuilder();
 		Set es = super.getAllParameters().entrySet();
 		Iterator it = es.iterator();
 		while (it.hasNext()) {
 			Map.Entry entry = (Map.Entry) it.next();
 			String k = (String) entry.getKey();
 			String v = (String) entry.getValue();
-			if (null != v && !"".equals(v) && !"appkey".equals(k)) {
+			if (null != v && !"".equals(v)) {
 				sb.append("\"" + k + "\":\"" + v + "\",");
 			}
 		}
-		String params = sb.substring(0, sb.lastIndexOf(","));
-		params += "}";
-        String payStr = FieldUtil.jsonToXml(params);
+		paramsStr.append(sb.substring(0, sb.lastIndexOf(",")));
+		paramsStr.append("}");
+        String payStr = FieldUtil.jsonToXml(paramsStr.toString());
         String requestUrl = super.getGateUrl();
-		this.setDebugInfo(this.getDebugInfo() + "\r\n" + "requestUrl:"
-				+ requestUrl);
 		TenpayHttpClient httpClient = new TenpayHttpClient();
 		httpClient.setReqContent(requestUrl);
-		String resContent = "";
-		this.setDebugInfo(this.getDebugInfo() + "\r\n" + "post data:" + params);
+
 		if (httpClient.callHttpPost(requestUrl, payStr)) {
 			String resultXml = httpClient.getResContent();
 			String resultJson = FieldUtil.xmlToJson(resultXml);

@@ -242,6 +242,12 @@ public interface OrderDetailsMapper {
      */
     OrderDetailsPOJO selectConfirmOrderInfo(String orderId);
 
+    /**
+     * 查询超时订单编号
+     * @return
+     */
+    List<Long> selectOvertimeOrder();
+
     List<OrderDetailsPOJO> selectOrders();
 
     Integer updatePayPrice(@Param("payPrice") Integer payPrice,@Param("id") Long id);

@@ -366,6 +366,8 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
         if(goodsImage != null) {
             GoodsOut goods = getGoods(goodsBase);
             if(goods != null) {
+                //是否上架
+                goods.setIsOnSale(goodsBase.getIsOnSale());
                 goods.setDescriptionStr(goodsBase.getGoodsDes());
                 goods.setBannerImgList(ImgStrToList(goodsImage.getCarouselImg()));
                 goods.setDetailImgList(ImgStrToList(goodsImage.getDetailImg()));
@@ -447,6 +449,8 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
      * @param goodsOut 商品类
      */
     private void isLimitGoods(GoodsOut goodsOut) {
+        if(goodsOut == null)
+            return;
         PromotionPOJO promotionPOJO = promotionMapper.selectLimitByGoodsId(goodsOut.getGoodsId(), DateUtils.getCurrentDate());
         goodsOut.setIsDiscount(0);
         if(promotionPOJO != null){

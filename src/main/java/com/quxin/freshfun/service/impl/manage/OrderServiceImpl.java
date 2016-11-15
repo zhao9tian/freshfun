@@ -7,7 +7,10 @@ import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.outparam.UserInfoOutParam;
+import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
+import com.quxin.freshfun.service.impl.mail.MailSender;
+import com.quxin.freshfun.service.impl.mail.MailSenderFactory;
 import com.quxin.freshfun.service.impl.wechat.ClientRequestHandler;
 import com.quxin.freshfun.service.impl.wechat.PrepayIdRequestHandler;
 import com.quxin.freshfun.dao.*;
@@ -16,6 +19,7 @@ import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.service.promotion.PromotionService;
 import com.quxin.freshfun.service.user.UserBaseService;
+import com.quxin.freshfun.service.wechat.WeChatService;
 import com.quxin.freshfun.utils.*;
 import com.quxin.freshfun.utils.weixinPayUtils.ConstantUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.TenpayUtil;
@@ -31,11 +35,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("orderService")
@@ -60,6 +65,8 @@ public class OrderServiceImpl implements OrderService {
 	private PromotionService promotionService;
 	@Autowired
 	private UserAddressMapper userAddress;
+	@Autowired
+	private WeChatService weChatService;
 
 
 	private Logger resultLogger = LoggerFactory.getLogger("info_log");
@@ -71,10 +78,10 @@ public class OrderServiceImpl implements OrderService {
 	 * @throws BusinessException
 	 */
 	@Override
-	public ResponseResult addOrder(OrderInfo orderInfo) throws BusinessException {
+	public ResponseResult addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException {
 		OrderPayInfo [] orderPayInfos = new OrderPayInfo[orderInfo.getGoodsInfo().size()];
 		//订单总价格
-		int orderSumPrice = 0;
+		Integer orderSumPrice = 0;
 		//订单编号
 		Long uId = orderInfo.getUserId();
 
@@ -122,13 +129,26 @@ public class OrderServiceImpl implements OrderService {
 		//获取用户openId
         String openId = userBaseService.queryUserInfoByUserId(uId).getOpenId();
 		//生成订单后 调用支付
-		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
 		StringBuilder payId = new StringBuilder();
 		payId.append("Z");
 		payId.append(orderId);
+		//微信支付
+		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
+		/*WxPayInfo wxPayInfo = weChatService.wzPay(request, payId.toString(), orderSumPrice.toString(), openId);
+		wxPayInfo.setOrderId(orderDetailsId);*/
 		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
 		payResult.setOrderId(orderDetailsId);
 		//修改支付状态
+		modifyShoppingCartState(orderInfo);
+		return payResult;
+	}
+
+	/**
+	 * 修改订单状态
+	 * @param orderInfo
+	 * @throws BusinessException 业务异常
+	 */
+	private void modifyShoppingCartState(OrderInfo orderInfo) throws BusinessException {
 		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
 			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
 				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
@@ -138,7 +158,6 @@ public class OrderServiceImpl implements OrderService {
 				}
 			}
 		}
-		return payResult;
 	}
 
 	/**
@@ -332,20 +351,24 @@ public class OrderServiceImpl implements OrderService {
 				if("W".equals(orderId.subSequence(0, 1))){
 					Long id = Long.parseLong(orderId.substring(1,orderId.length()));
 					payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate,id,transactionId);
-					OrderDetailsPOJO orderDetails = orderDetailsMapper.selectPayOrderInfoById(id);
-					if(orderDetails != null) {
-						//修改库存
-						Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
-						if (stockStatus <= 0)
-							logger.error("订单修改库存失败");
-						//修改销量
-						Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
-						if (saleStatus <= 0)
-							logger.error("订单修改销量失败");
-					}else{
-						logger.error("订单回调查询商品失败");
+					if(payStatus > 0) {
+						OrderDetailsPOJO orderDetails = orderDetailsMapper.selectPayOrderInfoById(id);
+						if (orderDetails != null) {
+							//发送邮件
+							senderMail(orderDetails,1);
+							//修改库存
+							Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
+							if (stockStatus <= 0)
+								logger.error("订单修改库存失败");
+							//修改销量
+							Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
+							if (saleStatus <= 0)
+								logger.error("订单修改销量失败");
+						} else {
+							logger.error("订单回调查询商品失败");
+						}
 					}
-				}else if("B".equals(orderId.subSequence(0, 1))){
+				} else if("B".equals(orderId.subSequence(0, 1))){
 					//商户代理费支付回调
 					Integer id = Integer.parseInt(orderId.substring(1,orderId.length()));
 					payStatus = merchantAgentMapper.updatePayStatus(id);
@@ -357,21 +380,25 @@ public class OrderServiceImpl implements OrderService {
 						billLogger.error("修改商品代理状态失败");
 					}
 					billLogger.info("商户编号："+map.get("attach")+"支付状态："+payStatus);
-				}else if("Z".equals(orderId.subSequence(0,1))){
+				} else if ("Z".equals(orderId.subSequence(0,1))){
 					String oId = orderId.substring(1,orderId.length());
 					List<OrderDetailsPOJO> orderDetailsList = orderDetailsMapper.selectPayId(Long.parseLong(oId));
 					if(orderDetailsList != null) {
 						for (OrderDetailsPOJO orderDetails : orderDetailsList) {
 							payStatus = orderDetailsMapper.updateOrderDetailPayStatus(currentDate, orderDetails.getId(), transactionId);
 							//修改库存
-							Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
-							if (stockStatus <= 0) {
-								logger.error("修改商品库存失败");
-							}
-							//修改销量
-							Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
-							if (saleStatus <= 0) {
-								logger.error("修改商品销量失败");
+							if(payStatus > 0) {
+								//发送邮件
+								senderMail(orderDetails,0);
+								Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
+								if (stockStatus <= 0) {
+									logger.error("修改商品库存失败");
+								}
+								//修改销量
+								Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
+								if (saleStatus <= 0) {
+									logger.error("修改商品销量失败");
+								}
 							}
 						}
 					}else{
@@ -391,6 +418,63 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * 发送请求
+	 * @param order	订单POJO
+	 */
+	private void senderMail(OrderDetailsPOJO order,int sign) {
+		if(order == null) {
+			logger.error("订单发送Mail订单不能为空");
+			return;
+		}
+		if(sign == 1) {
+			GoodsParam goods = goodsBaseMapper.selectGoodsByGoodsId(order.getGoodsId().longValue());
+			order.setGoods(goods);
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("订单编号：");
+		sb.append(order.getId());
+		sb.append(",商品名：");
+		if(order.getGoods() != null)
+			sb.append(order.getGoods().getGoodsName());
+		sb.append(",支付金额：");
+		sb.append(MoneyFormat.priceFormatString(order.getActualPrice()));
+		sb.append(",成交时间：");
+		//成交时间
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		sb.append(dateFormat.format(order.getPayTime()*1000));
+		sb.append(",数量：");
+		sb.append(order.getCount());
+		sb.append(",单价：");
+		sb.append(MoneyFormat.priceFormatString(order.getPayPrice()));
+		sb.append(",成本价：");
+		if(order.getGoods() != null)
+			sb.append(MoneyFormat.priceFormatString(order.getGoods().getCost()));
+		sb.append(",订单来源：");
+		switch (order.getPayPlateform()){
+			case 1:
+				sb.append("捕手流量");
+				break;
+			default:
+				sb.append("自然流量");
+				break;
+		}
+		sb.append(",收货人：");
+		sb.append(order.getName());
+		sb.append(",联系电话：");
+		sb.append(order.getTel());
+		sb.append(",收货地址：");
+		sb.append(order.getCity());
+		sb.append(order.getAddress());
+		//发送
+		MailSender sender = MailSenderFactory.getSender();
+		try {
+			sender.send("order@freshfun365.com","支付订单详细数据",sb.toString());
+		} catch (MessagingException e) {
+			logger.error("发送邮件出现异常",e);
+		}
 	}
 	/**
 	 * 订单支付
@@ -414,13 +498,13 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public WxPayInfo appOrderPay(String orderId,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException, JSONException {
+    public WxPayInfo appOrderPay(String orderId,HttpServletRequest request) throws UnsupportedEncodingException, JSONException {
         OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(orderId);
         //String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
         StringBuilder sb = new StringBuilder();
         sb.append("W");
         sb.append(orderId);
-        WxPayInfo payInfo = appPay(request, response, sb.toString(), detailsPOJO.getActualPrice().toString());
+        WxPayInfo payInfo = appPay(request, sb.toString(), detailsPOJO.getActualPrice().toString());
         return payInfo;
     }
 
@@ -469,11 +553,10 @@ public class OrderServiceImpl implements OrderService {
 	 * 原生支付
 	 * @param orderInfo
 	 * @param request
-	 * @param response
 	 * @return
 	 */
 	@Override
-	public WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException {
+	public WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request) throws BusinessException, UnsupportedEncodingException, JSONException {
 		OrderPayInfo [] orderPayInfos = new OrderPayInfo[orderInfo.getGoodsInfo().size()];
 		//订单总价格
 		Integer orderSumPrice = 0;
@@ -499,28 +582,10 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		//订单支付
-		WxPayInfo info = appPay(request, response, payId.toString(), orderSumPrice.toString());
+		WxPayInfo info = appPay(request, payId.toString(), orderSumPrice.toString());
 		//修改购物车状态
-		updateGoodsCartStatus(orderInfo);
+		modifyShoppingCartState(orderInfo);
 		return info;
-	}
-
-
-    /**
-	 * 生成订单后修改购物车状态
-	 * @param orderInfo
-	 * @throws BusinessException
-	 */
-	private void updateGoodsCartStatus(OrderInfo orderInfo) throws BusinessException {
-		if(orderInfo.getGoodsInfo().get(0).getScId() != null){
-			for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
-				Integer status = shoppingCartMapper.updateOrderPayStatus(orderInfo.getGoodsInfo().get(i).getScId());
-				if(status <= 0){
-					logger.error(orderInfo.getUserId()+"修改购物车状态失败");
-					throw new BusinessException("修改购物车状态");
-				}
-			}
-		}
 	}
 
 	/**
@@ -583,7 +648,7 @@ public class OrderServiceImpl implements OrderService {
 		return orderSumPrice;
 	}
 
-	public WxPayInfo appPay(HttpServletRequest request, HttpServletResponse response,String payId,String payMoney) throws JSONException, UnsupportedEncodingException {
+	public WxPayInfo appPay(HttpServletRequest request,String payId,String payMoney) throws JSONException, UnsupportedEncodingException {
 		WxPayInfo info = new WxPayInfo();
 		//接收财付通通知的URL
 		String notify_url = "https://www.freshfun365.com/FreshFun/payCallback.do";
@@ -601,8 +666,8 @@ public class OrderServiceImpl implements OrderService {
 		String out_trade_no = strReq;
 		//---------------生成订单号 结束------------------------
 
-		PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler(request, response);//获取prepayid的请求类
-		ClientRequestHandler clientHandler = new ClientRequestHandler(request, response);//返回客户端支付参数的请求类
+		PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler();//获取prepayid的请求类
+		ClientRequestHandler clientHandler = new ClientRequestHandler();//返回客户端支付参数的请求类
 
 		int retcode ;
 		String retmsg = "";
@@ -627,7 +692,7 @@ public class OrderServiceImpl implements OrderService {
 		prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
 		prepayReqHandler.setParameter("trade_type","APP");
 		//生成获取预支付签名
-		String sign = prepayReqHandler.createMD5Sign();
+		String sign = prepayReqHandler.createMD5Sign(ConstantUtil.PARTNER_KEY);
 		//增加非参与签名的额外参数
 		prepayReqHandler.setParameter("sign", sign);
 		String gateUrl = ConstantUtil.GATEURL;
@@ -648,7 +713,7 @@ public class OrderServiceImpl implements OrderService {
 			clientHandler.setParameter("noncestr", noncestr);
 			clientHandler.setParameter("timestamp", timestamp);
 			//生成签名
-			sign = clientHandler.createMD5Sign();
+			sign = clientHandler.createMD5Sign(ConstantUtil.PARTNER_KEY);
 
 			info.setAppid(ConstantUtil.APP_ID);
 			info.setPartnerid(ConstantUtil.PARTNER);
@@ -666,14 +731,4 @@ public class OrderServiceImpl implements OrderService {
 		return info;
 	}
 
-
-    @Override
-    public Integer updatePayPrice(Integer payPrice,Long id) {
-		return orderDetailsMapper.updatePayPrice(payPrice,id);
-    }
-
-	@Override
-	public List<OrderDetailsPOJO> selectOrders() {
-		return  orderDetailsMapper.selectOrders();
-	}
 }

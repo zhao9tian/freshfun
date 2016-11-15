@@ -150,7 +150,7 @@
   </select>
   <!-- 查询退款订单数量 -->
   <select id="selectRefundCounts" parameterType="java.lang.Long" resultMap="BaseResultInfo">
-    select count(id) as refund_counts from order_details WHERE user_id=#{userId} and order_status in (20,40) and is_deleted = 0
+    select count(id) as refund_counts from order_details WHERE user_id=#{userId} and order_status =40 and is_deleted = 0
   </select>
   <!--查询待评价数量-->
   <select id="selectCommentCount" parameterType="java.lang.Long" resultType="java.lang.Integer">
@@ -165,11 +165,28 @@
 
   <!-- 根据parentOrderId查询付款编号,商品编号 -->
   <select id="selectPayId" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select `id`,`goods_id` from order_details where order_id = #{orderId}
+    select `id`,`goods_id`,`actual_price`,
+    `pay_time`,`count`,`order_status`,
+    `pay_plateform`,`pay_price`,`name`,
+    `tel`,`city`,`address`,`pay_price`,`goods_cost`
+     from order_details where order_id = #{orderId}
   </select>
   <!--根据orderId查询付款编号,商品编号-->
   <select id="selectPayOrderInfoById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
-    select `id`,`goods_id` as `goodsId` from order_details where id = #{orderId}
+    select `id`,`goods_id` as `goodsId`,
+    `actual_price` as `actualPrice`,
+    `pay_time` as `payTime`,
+    `count`,
+    `order_status` as `orderStatus`,
+    `pay_plateform` as `payPlateform`,
+    `pay_price` as `payPrice`,
+    `name`,
+    `tel`,
+    `city`,
+    `address`,
+    `pay_price` as `payPrice`,
+    `goods_cost` as `goodsCost`
+     from order_details where id = #{orderId}
   </select>
   <!-- 查询付款编号 -->
   <select id="selectPayIdByOrderDetailsId" parameterType="java.lang.String" resultMap="PayResultId">
@@ -177,7 +194,7 @@
   </select>
   <!-- 根据订单编号修改订单详情支付状态 -->
   <update id="updateOrderDetailPayStatus">
-    update order_details set order_status = 30,pay_time=#{date},transaction_id = #{transactionId} where id =#{orderId}
+    update order_details set order_status = 30,pay_time=#{date},transaction_id = #{transactionId} where id =#{orderId} and order_status = 10
   </update>
   <!-- 批量修改订单状态 -->
   <update id="bachUpdateOrder" parameterType="java.util.List">
@@ -218,6 +235,11 @@
   <update id="updateAlreadyPayMoney" parameterType="java.lang.Long">
     update order_details set order_status = 100 where id = #{orderId}
   </update>
+
+  <!--查询超时订单-->
+  <select id="selectOvertimeOrder" resultMap="PayResultId">
+    select id from order_details where order_status = 10 and is_deleted = 0 and (create_date + 1440*60 - unix_timestamp(now()) <![CDATA[<=]]> 0);
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from order_details

@@ -11,11 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 public class AccessTokenRequestHandler extends RequestHandler {
 
-	public AccessTokenRequestHandler(HttpServletRequest request,
-									 HttpServletResponse response) {
-		super(request, response);
-	}
-
 	private static String access_token = "";
 
 	/**
@@ -68,7 +63,7 @@ public class AccessTokenRequestHandler extends RequestHandler {
 	 */
 	private static boolean tokenIsExpire(String access_token) {
 		boolean flag = false;
-		PrepayIdRequestHandler wxReqHandler = new PrepayIdRequestHandler(null, null);
+		PrepayIdRequestHandler wxReqHandler = new PrepayIdRequestHandler();
 		wxReqHandler.setParameter("appid", ConstantUtil.APP_ID);
 		wxReqHandler.setParameter("appkey",ConstantUtil.APP_KEY);
 		wxReqHandler.setParameter("noncestr", WXUtil.getNonceStr());

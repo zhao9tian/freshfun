@@ -1,7 +1,8 @@
 package com.quxin.freshfun.model.outparam;
 
 /**
- * Created by gsix on 2016/10/10.
+ * Created by qingtian on 2016/10/10.
+ * 预支付信息
  */
 public class WxPayInfo {
     private String appid;
@@ -11,6 +12,30 @@ public class WxPayInfo {
     private String noncestr;
     private String timestamp;
     private String sign;
+    /**
+     * 是否绑定手机
+     */
+    private Integer isPhone;
+    /**
+     * 订单编号
+     */
+    private Long orderId;
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
+
+    public Integer getIsPhone() {
+        return isPhone;
+    }
+
+    public void setIsPhone(Integer isPhone) {
+        this.isPhone = isPhone;
+    }
 
     public String getAppid() {
         return appid;

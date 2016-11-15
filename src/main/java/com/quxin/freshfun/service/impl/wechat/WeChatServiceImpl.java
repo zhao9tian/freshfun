@@ -9,14 +9,17 @@ import com.quxin.freshfun.utils.weixinPayUtils.*;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Created by gsix on 2016/10/18.
+ * Created by qingtian on 2016/10/18.
+ * 微信支付，分享
  */
+@Service
 public class WeChatServiceImpl implements WeChatService {
 
 
@@ -52,17 +55,16 @@ public class WeChatServiceImpl implements WeChatService {
 
     /**
      * 微信公众号支付
-     * @param request
-     * @param response
-     * @param payId
-     * @param payMoney
+     * @param request  请求
+     * @param payId 支付ID
+     * @param payMoney 支付金额
      * @param openId
      */
     @Override
-    public WxPayInfo wzPay(HttpServletRequest request, HttpServletResponse response, String payId, String payMoney, String openId) throws JSONException {
+    public WxPayInfo wzPay(HttpServletRequest request, String payId, String payMoney, String openId) throws JSONException {
         WxPayInfo info = null;
         //预支付编号请求类
-        PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler(request, response);
+        PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler();
         //签名随机串
         String noncestr = WXUtil.getNonceStr();
         //签名时间戳
@@ -81,7 +83,7 @@ public class WeChatServiceImpl implements WeChatService {
         prepayReqHandler.setParameter("trade_type","JSAPI");
         prepayReqHandler.setParameter("openid",openId);
         //生成获取预支付签名
-        String sign = prepayReqHandler.createMD5Sign();
+        String sign = prepayReqHandler.createMD5Sign(WxConstantUtil.PARTNER_KEY);
         //增加非参与签名的额外参数
         prepayReqHandler.setParameter("sign", sign);
         String gateUrl = WxConstantUtil.GATEURL;

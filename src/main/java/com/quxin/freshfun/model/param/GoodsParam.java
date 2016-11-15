@@ -16,6 +16,10 @@ public class GoodsParam {
 
     private Integer marketPrice;
     /**
+     * 商品成本价
+     */
+    private Integer cost;
+    /**
      * 前端显示商品价格
      */
     private String goodsMoney;
@@ -23,6 +27,14 @@ public class GoodsParam {
      * 前端显示商品参考价格
      */
     private String marketMoney;
+
+    public Integer getCost() {
+        return cost;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
+    }
 
     public Long getId() {
         return id;

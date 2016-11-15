@@ -9,9 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ClientRequestHandler extends PrepayIdRequestHandler {
 
-	public ClientRequestHandler(HttpServletRequest request,
-			HttpServletResponse response) {
-		super(request, response);
+	public ClientRequestHandler() {
+		super();
 		// TODO Auto-generated constructor stub
 	}
 

@@ -8,6 +8,7 @@
     <result column="des" jdbcType="VARCHAR" property="goodsDes" />
     <result column="shop_price" jdbcType="INTEGER" property="shopPrice" />
     <result column="origin_price" jdbcType="INTEGER" property="originPrice" />
+    <result column="cost" jdbcType="INTEGER" property="cost"/>
     <result column="img" jdbcType="VARCHAR" property="goodsImg" />
     <result column="sale_num" jdbcType="INTEGER" property="saleNum" />
     <result column="stock_num" jdbcType="INTEGER" property="stockNum" />
@@ -22,7 +23,7 @@
   </resultMap>
   <!--根据商品编号查询商品信息-->
   <select id="findGoodsById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
-      select `id`,`title`,`des` as `goodsDes`,`sub_title` as `subTitle`,`img` as `goodsImg`,`shop_price` as `shopPrice`,origin_price as `originPrice` from goods_base where id = #{goodsId} and is_on_sale = 1 and is_deleted = 0
+      select `id`,`title`,`des` as `goodsDes`,`sub_title` as `subTitle`,`img` as `goodsImg`,`shop_price` as `shopPrice`,origin_price as `originPrice`,`is_on_sale` as `isOnSale` from goods_base where id = #{goodsId} and is_on_sale = 1 and is_deleted = 0
   </select>
 
   <!--查询二级类目下商品-->
@@ -59,7 +60,7 @@
   </update>
   <!--根据商品编号查询商品信息-->
   <select id="selectGoodsByGoodsId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.param.GoodsParam">
-      select `id`,`title` as `goodsName`,`sub_title` as `goodsDes`,`img` as `goodsImg`,shop_price as `shopPrice`,origin_price as `marketPrice` from goods_base where id = #{goodsId}
+      select `id`,`title` as `goodsName`,`cost`,`sub_title` as `goodsDes`,`img` as `goodsImg`,shop_price as `shopPrice`,origin_price as `marketPrice` from goods_base where id = #{goodsId}
   </select>
 
 

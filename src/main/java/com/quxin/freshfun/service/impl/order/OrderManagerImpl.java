@@ -314,6 +314,21 @@ public class OrderManagerImpl implements OrderManager {
 	}
 
 	/**
+	 * 修改超时订单状态
+	 * @return
+	 */
+	@Override
+	public void scanningOvertimeOrder() {
+		Long currentDate = DateUtils.getCurrentDate();
+		List<Long> orderIds = orderDetailsMapper.selectOvertimeOrder();
+		for (Long orderId: orderIds) {
+			int state = orderDetailsMapper.delOrder(currentDate,orderId.toString());
+			if(state <= 0)
+				logger.error("关闭超时订单失败");
+		}
+	}
+
+	/**
 	 * 确认评价
 	 * @param orderId
 	 * @return

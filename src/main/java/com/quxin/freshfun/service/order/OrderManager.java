@@ -164,6 +164,12 @@ public interface OrderManager {
 	List<OrderDetailsPOJO> autoConfirmDelivery();
 
 	/**
+	 * 修改超时订单状态
+	 * @return
+	 */
+	void scanningOvertimeOrder();
+
+	/**
 	 * 根据订单编号查询账单需要的信息
 	 * @param orderId
 	 * @return

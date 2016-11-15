@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.quxin.freshfun.dao.ResponseResult;
 import com.quxin.freshfun.utils.BusinessException;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,7 +24,7 @@ public interface OrderService {
 	 * @param orderInfo
 	 * @return
 	 */
-	ResponseResult addOrder(OrderInfo orderInfo) throws BusinessException;
+	ResponseResult addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException;
 
 	/**
 	 * 全名电商支付
@@ -37,7 +38,7 @@ public interface OrderService {
 	 * @param orderId
 	 * @return
 	 */
-	WxPayInfo appOrderPay(String orderId,HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException, JSONException;
+	WxPayInfo appOrderPay(String orderId,HttpServletRequest request) throws UnsupportedEncodingException, JSONException;
 	/**
 	 * 订单支付
 	 * @param order
@@ -74,9 +75,6 @@ public interface OrderService {
 	 * 原生支付
 	 * @return
 	 */
-	WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request, HttpServletResponse response) throws BusinessException, UnsupportedEncodingException, JSONException;
+	WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request) throws BusinessException, UnsupportedEncodingException, JSONException;
 
-	Integer updatePayPrice(Integer payPrice,Long id);
-
-	List<OrderDetailsPOJO> selectOrders();
 }

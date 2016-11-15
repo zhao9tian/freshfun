@@ -26,6 +26,10 @@ public class GoodsBasePOJO {
      */
     private Integer originPrice;
     /**
+     * 商品成本价
+     */
+    private Integer cost;
+    /**
      * 商品图片
      */
     private String goodsImg;
@@ -37,6 +41,10 @@ public class GoodsBasePOJO {
      * 库存
      */
     private Integer stockNum;
+    /**
+     * 是否上架
+     */
+    private Integer isOnSale;
     /**
      * 类目1
      */
@@ -59,6 +67,22 @@ public class GoodsBasePOJO {
     private Long created;
 
     private Long updated;
+
+    public Integer getCost() {
+        return cost;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
+    }
+
+    public Integer getIsOnSale() {
+        return isOnSale;
+    }
+
+    public void setIsOnSale(Integer isOnSale) {
+        this.isOnSale = isOnSale;
+    }
 
     public Long getId() {
         return id;

@@ -48,7 +48,7 @@ public class PayController{
             if(orderInfo.getUserId()==null||"".equals(orderInfo.getUserId())){
                 orderInfo.setUserId(CookieUtil.getUserIdFromCookie(request));
             }
-            WxPayInfo info = orderService.addWeixinAppPay(orderInfo, request, response);
+            WxPayInfo info = orderService.addWeixinAppPay(orderInfo, request);
             map.put("code",1001);
             map.put("msg","请求成功");
             resultMap.put("status",map);
@@ -75,7 +75,7 @@ public class PayController{
             errorResultMsg(map, resultMap, "订单编号不能为空");
             return resultMap;
         }
-        WxPayInfo payInfo = orderService.appOrderPay(orderId, request, response);
+        WxPayInfo payInfo = orderService.appOrderPay(orderId, request);
         if(payInfo == null){
             errorResultMsg(map,resultMap,"订单异常");
             return resultMap;

@@ -57,6 +57,18 @@ public class GoodsOut {
      * 是否打折中
      */
     private Integer isDiscount;
+    /**
+     * 是否上架
+     */
+    private Integer isOnSale;
+
+    public Integer getIsOnSale() {
+        return isOnSale;
+    }
+
+    public void setIsOnSale(Integer isOnSale) {
+        this.isOnSale = isOnSale;
+    }
 
     public Long getStartTime() {
         return startTime;

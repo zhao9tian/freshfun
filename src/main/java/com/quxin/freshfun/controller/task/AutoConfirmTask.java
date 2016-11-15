@@ -58,4 +58,12 @@ public class AutoConfirmTask {
         identifiedCodeService.removeIdentifiedCode();
     }
 
+    /**
+     * 扫描超过一天没支付订单
+     */
+    @Scheduled(cron="0 0 *／1 * * ? ")
+    public void scanningOvertimeOrder(){
+        orderManager.scanningOvertimeOrder();
+    }
+
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.quxin.freshfun.dao.GoodsLimitMapper;
 import com.quxin.freshfun.dao.ResponseResult;
 import com.quxin.freshfun.model.*;
+import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
@@ -13,6 +14,7 @@ import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.CookieUtil;
 import com.quxin.freshfun.utils.MoneyFormat;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,14 +279,15 @@ public class OrderController {
 	 */
 	@RequestMapping(value="/createOrder",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, ResponseResult> createOrder(@RequestBody OrderInfo orderInfo,HttpServletRequest httpServletRequest){
-		Map<String, ResponseResult> map = Maps.newHashMap();
+	public Map<String, Object> createOrder(@RequestBody OrderInfo orderInfo,HttpServletRequest request){
+		Map<String, Object> map = Maps.newHashMap();
+		//WxPayInfo wxPayInfo = null;
 		ResponseResult payResult = null;
 		try {
-			Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
+			Long userId = CookieUtil.getUserIdFromCookie(request);
 			if(userId != null){
 				orderInfo.setUserId(userId);
-				payResult = orderService.addOrder(orderInfo);
+				payResult = orderService.addOrder(orderInfo, request);
 				//判断用户是否绑定了手机
 				String phoneNumber = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
 				if(phoneNumber!=null&&!"".equals(phoneNumber)){
@@ -295,9 +298,10 @@ public class OrderController {
 			}else{
 				logger.error("用户创建订单时userId为null");
 			}
-
 		} catch (BusinessException e) {
-			resultLogger.error("添加订单失败",e);
+			logger.error("添加订单失败",e);
+		} catch (JSONException e) {
+			logger.error("订单支付Json转换异常",e);
 		}
 		map.put("payResult", payResult);
 		return map;
