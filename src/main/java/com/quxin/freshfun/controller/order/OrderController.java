@@ -364,13 +364,12 @@ public class OrderController {
 		int awaitPaymentCount =  orderManager.selectPayCounts(ui);
 		//查询出已确认收货且未评价的订单数
         int commentCount = orderManager.selectCommentCount(ui);
-		Map<String, Object> orderMap = new HashMap<String, Object>(5);
+		Map<String, Object> orderMap = new HashMap<>(5);
 		orderMap.put("daishouhuo","");
 		orderMap.put("daipingjia","");
 		orderMap.put("daifahuo","");
 		orderMap.put("tuihuo","");
 		orderMap.put("daifukuan","");
-        Integer refundCount = 0;
 		for(OrderStatusInfo orderStatus : statusCounts){
 			if(orderStatus.getOrderStatus() == 10){
 				if(awaitPaymentCount > 0){
@@ -384,16 +383,8 @@ public class OrderController {
 				if(commentCount > 0){
 					orderMap.put("daipingjia", commentCount);
 				}
-			}else if(orderStatus.getOrderStatus() == 40 || orderStatus.getOrderStatus() == 20){
-				if(orderStatus.getOrderStatus() == 40){
-					refundCount += orderStatus.getStatusCounts();
-				}
-				if(orderStatus.getOrderStatus() == 20){
-					refundCount += orderStatus.getStatusCounts();
-				}
-				if(refundCount > 0){
-			    	orderMap.put("tuihuo", refundCount);
-                }
+			}else if(orderStatus.getOrderStatus() == 40){
+			   orderMap.put("tuihuo", orderStatus.getStatusCounts());
 			}
 		}
 		return orderMap;
