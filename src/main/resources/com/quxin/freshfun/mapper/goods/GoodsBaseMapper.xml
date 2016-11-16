@@ -23,7 +23,7 @@
   </resultMap>
   <!--根据商品编号查询商品信息-->
   <select id="findGoodsById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
-      select `id`,`title`,`des` as `goodsDes`,`sub_title` as `subTitle`,`img` as `goodsImg`,`shop_price` as `shopPrice`,origin_price as `originPrice`,`is_on_sale` as `isOnSale` from goods_base where id = #{goodsId} and is_on_sale = 1 and is_deleted = 0
+      select `id`,`title`,`des` as `goodsDes`,`sub_title` as `subTitle`,`img` as `goodsImg`,`shop_price` as `shopPrice`,origin_price as `originPrice`,`is_on_sale` as `isOnSale` from goods_base where id = #{goodsId} and is_deleted = 0
   </select>
 
   <!--查询二级类目下商品-->
