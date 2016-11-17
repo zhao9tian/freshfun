@@ -23,6 +23,16 @@ public class AddressPOJO extends BaseEntity {
 	
 	private String address;
 
+	private String city;
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
 	public Integer getId() {
 		return id;
 	}

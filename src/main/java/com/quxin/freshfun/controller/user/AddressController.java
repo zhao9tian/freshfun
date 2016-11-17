@@ -38,7 +38,7 @@ public class AddressController {
     private AddressService addressService;
 
     /**
-     * 获取地址数据
+     * 获取地址数据H5
      */
     @ResponseBody
     @RequestMapping("/getAddresses")
@@ -51,7 +51,7 @@ public class AddressController {
     }
 
     /**
-     * 获取地址数据
+     * 获取地址数据IOS
      */
     @ResponseBody
     @RequestMapping("/getAddressesIos")
@@ -187,6 +187,44 @@ public class AddressController {
         }else{
             return ResultUtil.fail(1004,"删除失败");
         }
+    }
+
+    /**
+     * 添加地址数据
+     */
+    @ResponseBody
+    @RequestMapping(value = "/addAddressIos",method = {RequestMethod.POST})
+    public Map<String,Object> addAddressIos(HttpServletRequest request, @RequestBody AddressPOJO address){
+        Map<String,Object> map = new HashMap<String,Object>();
+        String[] arrCity = address.getCity().split(",");
+        address.setProvCode(addressUtilService.queryCodeByName(arrCity[0]));
+        address.setCityCode(addressUtilService.queryCodeByName(arrCity[1]));
+        address.setDistCode(addressUtilService.queryCodeByName(arrCity[2]));
+        Integer result = addressService.addAddress(address);
+        if(result>0){
+            map.put("addressId",address.getId());
+            return ResultUtil.success(map);
+        }else
+            return ResultUtil.fail(1004,"新增失败");
+    }
+
+    /**
+     * 更新地址数据
+     */
+    @ResponseBody
+    @RequestMapping(value = "/modifyAddressIos",method = {RequestMethod.POST})
+    public Map<String,Object> modifyAddressIos(HttpServletRequest request, @RequestBody AddressPOJO address){
+        Map<String,Object> map = new HashMap<String,Object>();
+        String[] arrCity = address.getCity().split(",");
+        address.setProvCode(addressUtilService.queryCodeByName(arrCity[0]));
+        address.setCityCode(addressUtilService.queryCodeByName(arrCity[1]));
+        address.setDistCode(addressUtilService.queryCodeByName(arrCity[2]));
+        Integer result = addressService.modifyAddress(address);
+        if(result>0){
+            map.put("addressId",address.getId());
+            return ResultUtil.success(map);
+        }else
+            return ResultUtil.fail(1004,"更新失败");
     }
 
 }

@@ -29,10 +29,19 @@ public class AddressUtilServiceImpl implements AddressUtilService {
      */
     public String queryNameByCode(Integer provCode,Integer cityCode,Integer distCode) {
         if(provCode==null||provCode==0||cityCode==null||cityCode==0||distCode==null||distCode==0){
-            logger.warn("根据父级id查询地址信息,入参有误");
+            logger.warn("根据codes获取省市区字符串,入参有误");
             return "";
         }
         return addressUtilMapper.selectNameByCode(provCode)+addressUtilMapper.selectNameByCode(cityCode)+addressUtilMapper.selectNameByCode(distCode);
+    }
+
+    @Override
+    public Integer queryCodeByName(String name) {
+        if(name==null||"".equals(name)){
+            logger.warn("根据codes获取省市区字符串,入参有误");
+            return 0;
+        }
+        return addressUtilMapper.selectCodeByName(name);
     }
 
     /**

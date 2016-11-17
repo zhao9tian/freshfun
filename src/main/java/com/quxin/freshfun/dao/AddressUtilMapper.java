@@ -15,6 +15,12 @@ public interface AddressUtilMapper {
     String selectNameByCode(Integer code);
 
     /**
+     * 通过name取code
+     * @return code
+     */
+    Integer selectCodeByName(String name);
+
+    /**
      * 根据父级id查询地址信息
      * @param parentNo 父级id
      * @return 地址信息

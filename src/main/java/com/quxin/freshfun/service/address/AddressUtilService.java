@@ -18,6 +18,13 @@ public interface AddressUtilService {
     String queryNameByCode(Integer provCode,Integer cityCode,Integer distCode);
 
     /**
+     * 根据name获取code
+     * @param name name
+     * @return code
+     */
+    Integer queryCodeByName(String name);
+
+    /**
      * 根据父级id查询地址信息
      * @param parentNo 父级id
      * @return 地址信息
