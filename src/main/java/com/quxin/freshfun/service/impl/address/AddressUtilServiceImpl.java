@@ -21,12 +21,18 @@ public class AddressUtilServiceImpl implements AddressUtilService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * 获取省份信息
-     * @return 省份信息
+     * 根据codes获取省市区字符串
+     * @param provCode 省级code
+     * @param cityCode 市级code
+     * @param distCode 县区级code
+     * @return 省市区字符串
      */
-    @Override
-    public List<AddressUtilPOJO> queryProvince() {
-        return addressUtilMapper.selectProvince();
+    public String queryNameByCode(Integer provCode,Integer cityCode,Integer distCode) {
+        if(provCode==null||provCode==0||cityCode==null||cityCode==0||distCode==null||distCode==0){
+            logger.warn("根据父级id查询地址信息,入参有误");
+            return "";
+        }
+        return addressUtilMapper.selectNameByCode(provCode)+addressUtilMapper.selectNameByCode(cityCode)+addressUtilMapper.selectNameByCode(distCode);
     }
 
     /**

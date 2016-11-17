@@ -24,8 +24,9 @@ public class AddressUtil implements ApplicationContextAware {
     @Autowired
     private AddressUtilService addressUtilService;
     public static List<Map<String, Object>> provResult = new ArrayList<Map<String, Object>>();
-    public static Map<String, Object> mapProv = new HashMap<String, Object>();
     public static Map<String, Object> mapC = new HashMap<String, Object>();
+    public static Map<String, Object> mapProv = new HashMap<String, Object>();
+    public static List<Map<String, Object>> provResultIOS = new ArrayList<Map<String, Object>>();
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -33,6 +34,7 @@ public class AddressUtil implements ApplicationContextAware {
         List<AddressUtilPOJO> addressProvList = addressUtilService.queryCityOrArea(0);
         if (addressProvList != null && addressProvList.size() > 0) {
             for (AddressUtilPOJO address : addressProvList) {
+                Map<String, Object> mapProvIOS = new HashMap<String, Object>();     //ios省级
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("text", address.getAreaName());
                 map.put("value", address.getAreaNo());
@@ -40,25 +42,38 @@ public class AddressUtil implements ApplicationContextAware {
                 List<AddressUtilPOJO> addressCityList = addressUtilService.queryCityOrArea(address.getAreaNo());
                 if (addressCityList != null && addressCityList.size() > 0) {
                     List<Map<String, Object>> cityResult = new ArrayList<Map<String, Object>>();
+                    List<Map<String, Object>> cityResultIOS = new ArrayList<Map<String, Object>>();//ios市级
+
                     for (AddressUtilPOJO addressCity : addressCityList) {
                         Map<String, Object> mapCity = new HashMap<String, Object>();
                         mapCity.put("text", addressCity.getAreaName());
                         mapCity.put("value", addressCity.getAreaNo());
                         cityResult.add(mapCity);
-
                         List<AddressUtilPOJO> addressAreaList = addressUtilService.queryCityOrArea(addressCity.getAreaNo());
                         if (addressAreaList != null && addressAreaList.size() > 0) {
+                            List<String> distsResultIOS = new ArrayList<String>();     //ios县区级，名称
                             List<Map<String, Object>> distsResult = new ArrayList<Map<String, Object>>();
                             for (AddressUtilPOJO addressArea : addressAreaList) {
                                 Map<String, Object> mapD = new HashMap<String, Object>();
                                 mapD.put("text", addressArea.getAreaName());
                                 mapD.put("value", addressArea.getAreaNo());
                                 distsResult.add(mapD);
+                                //ios
+                                distsResultIOS.add(addressArea.getAreaName());
                             }
                             mapC.put(addressCity.getAreaNo().toString(), distsResult);
+                            //ios
+                            Map<String, Object> mapCityIOS = new HashMap<String, Object>();   //ios市级
+                            mapCityIOS.put("areas",distsResultIOS);     //放入县区
+                            mapCityIOS.put("city",addressCity.getAreaName());   //放入市级
+                            cityResultIOS.add(mapCityIOS);      //cities
                         }
                     }
                     mapProv.put(address.getAreaNo().toString(), cityResult);
+                    //ios
+                    mapProvIOS.put("cities",cityResultIOS);
+                    mapProvIOS.put("state",address.getAreaName());
+                    provResultIOS.add(mapProvIOS);
                 }
             }
         }

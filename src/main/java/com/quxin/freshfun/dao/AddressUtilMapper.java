@@ -9,10 +9,10 @@ import java.util.List;
  */
 public interface AddressUtilMapper {
     /**
-     * 获取省份信息
-     * @return 省份信息
+     * 通过code取name
+     * @return name
      */
-    List<AddressUtilPOJO> selectProvince();
+    String selectNameByCode(Integer code);
 
     /**
      * 根据父级id查询地址信息

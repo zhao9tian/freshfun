@@ -9,10 +9,13 @@ import java.util.List;
  */
 public interface AddressUtilService {
     /**
-     * 获取省份信息
-     * @return 省份信息
+     * 根据codes获取省市区字符串
+     * @param provCode 省级code
+     * @param cityCode 市级code
+     * @param distCode 县区级code
+     * @return 省市区字符串
      */
-    List<AddressUtilPOJO> queryProvince();
+    String queryNameByCode(Integer provCode,Integer cityCode,Integer distCode);
 
     /**
      * 根据父级id查询地址信息
