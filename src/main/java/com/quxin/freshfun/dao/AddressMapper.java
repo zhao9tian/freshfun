@@ -53,4 +53,11 @@ public interface AddressMapper {
      * @return 默认收货地址
      */
     AddressPOJO selectDefaultAddress(Long userId);
+
+    /**
+     * 根据id获取地址信息
+     * @param addressId 地址id
+     * @return 地址信息
+     */
+    AddressPOJO selectAddressById(Integer addressId);
 }

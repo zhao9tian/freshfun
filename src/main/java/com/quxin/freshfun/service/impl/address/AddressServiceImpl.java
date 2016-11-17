@@ -102,4 +102,13 @@ public class AddressServiceImpl implements AddressService{
         }
         return addressMapper.selectDefaultAddress(userId);
     }
+
+    @Override
+    public AddressPOJO queryAddressById(Integer addressId) {
+        if(addressId==null||addressId==0){
+            logger.warn("根据id获取收货地址信息入参有误");
+            return null;
+        }
+        return addressMapper.selectAddressById(addressId);
+    }
 }

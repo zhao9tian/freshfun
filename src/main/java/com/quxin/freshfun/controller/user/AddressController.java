@@ -87,6 +87,7 @@ public class AddressController {
         Map<String,Object> map = new HashMap<String,Object>();
         Long userId = CookieUtil.getUserIdFromCookie(request);
         address.setUserId(userId);
+        address.setId(address.getAddressId());
         Integer result = addressService.modifyAddress(address);
         if(result>0){
             map.put("addressId",address.getId());
@@ -100,14 +101,20 @@ public class AddressController {
      */
     @ResponseBody
     @RequestMapping("/getDefaultAddress")
-    public Map<String,Object> getDefaultAddress(HttpServletRequest request){
+    public Map<String,Object> getDefaultAddress(HttpServletRequest request,String addressId,String userIdStr){
         Map<String,Object> map = new HashMap<String,Object>();
-        Long userId = CookieUtil.getUserIdFromCookie(request);
-        AddressPOJO address = addressService.queryDefaultAddress(userId);
-        if(address==null){
-            List<AddressPOJO> addressList = addressService.queryAddress(userId);
-            if(addressList!=null&&addressList.size()>0)
-                address = addressList.get(0);
+
+        AddressPOJO address = null;
+        if(addressId!=null&&!"".equals(addressId)){
+            address = addressService.queryAddressById(Integer.parseInt(addressId));
+        }else{
+            Long userId = userIdStr!=null&&!"".equals(userIdStr)?Long.parseLong(userIdStr):CookieUtil.getUserIdFromCookie(request);
+            address = addressService.queryDefaultAddress(userId);
+            if(address==null){
+                List<AddressPOJO> addressList = addressService.queryAddress(userId);
+                if(addressList!=null&&addressList.size()>0)
+                    address = addressList.get(0);
+            }
         }
         if(address!=null){
             map.put("addressId",address.getId());
@@ -121,7 +128,7 @@ public class AddressController {
             map.put("address",address.getAddress());
             return ResultUtil.success(map);
         }else
-            return ResultUtil.fail(1005,"获取默认收货失败");
+            return ResultUtil.fail(1005,"获取默认收货地址失败");
     }
 
     /**
@@ -129,11 +136,11 @@ public class AddressController {
      */
     @ResponseBody
     @RequestMapping("/getAllAddress")
-    public Map<String,Object> getAllAddress(HttpServletRequest request){
+    public Map<String,Object> getAllAddress(HttpServletRequest request,String userIdStr){
 
         Map<String,Object> result = new HashMap<String,Object>();
         List<Map<String,Object>> mapResult = new ArrayList<Map<String, Object>>();
-        Long userId = CookieUtil.getUserIdFromCookie(request);
+        Long userId = userIdStr!=null&&!"".equals(userIdStr)?Long.parseLong(userIdStr):CookieUtil.getUserIdFromCookie(request);
         AddressPOJO addressPOJO = addressService.queryDefaultAddress(userId);
         if(addressPOJO!=null){
             Map<String,Object> map = new HashMap<String,Object>();
@@ -165,7 +172,9 @@ public class AddressController {
                 map.put("isDefault",address.getIsDefault());
                 mapResult.add(map);
             }
-            result.put("addressId",mapResult);
+        }
+        if(addressPOJO!=null||(addressList!=null&&addressList.size()>0)){
+            result.put("addressList",mapResult);
             return ResultUtil.success(result);
         }else
             return ResultUtil.fail(1004,"获取数据失败");
