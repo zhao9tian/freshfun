@@ -52,7 +52,7 @@
   <select id="selectAddressById" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.pojo.address.AddressPOJO">
     select id ,name,
     tel, prov_code  as provCode, city_code cityCode, dist_code as distCode, address,
-    is_default as isDefault, gmt_create as created, gmt_modified as updated from user_address where id=#{addressId}
+    is_default as isDefault,city, gmt_create as created, gmt_modified as updated from user_address where id=#{addressId}
   </select>
 
   <select id="selectDefaultAddress" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.address.AddressPOJO">
