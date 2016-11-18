@@ -40,7 +40,7 @@ public class AddressUtilServiceImpl implements AddressUtilService {
     @Override
     public Integer queryCodeByName(String name,Integer areaLevel) {
         if(name==null||"".equals(name)){
-            logger.warn("根据codes获取省市区字符串,入参有误");
+            logger.warn("根据地址名称获取code，入参有误");
             return 0;
         }
         Map<String,Object> map = new HashMap<String,Object>();

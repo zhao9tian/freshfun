@@ -205,10 +205,6 @@ public class AddressController {
     @RequestMapping(value = "/addAddressIos",method = {RequestMethod.POST})
     public Map<String,Object> addAddressIos(HttpServletRequest request, @RequestBody AddressPOJO address){
         Map<String,Object> map = new HashMap<String,Object>();
-        String[] arrCity = address.getCity().split(",");
-        address.setProvCode(addressUtilService.queryCodeByName(arrCity[0],1));
-        address.setCityCode(addressUtilService.queryCodeByName(arrCity[1],2));
-        address.setDistCode(addressUtilService.queryCodeByName(arrCity[2],3));
         Integer result = addressService.addAddress(address);
         if(result>0){
             map.put("addressId",address.getId());
@@ -224,10 +220,6 @@ public class AddressController {
     @RequestMapping(value = "/modifyAddressIos",method = {RequestMethod.POST})
     public Map<String,Object> modifyAddressIos(HttpServletRequest request, @RequestBody AddressPOJO address){
         Map<String,Object> map = new HashMap<String,Object>();
-        String[] arrCity = address.getCity().split(",");
-        address.setProvCode(addressUtilService.queryCodeByName(arrCity[0],1));
-        address.setCityCode(addressUtilService.queryCodeByName(arrCity[1],2));
-        address.setDistCode(addressUtilService.queryCodeByName(arrCity[2],3));
         Integer result = addressService.modifyAddress(address);
         if(result>0){
             map.put("addressId",address.getId());
