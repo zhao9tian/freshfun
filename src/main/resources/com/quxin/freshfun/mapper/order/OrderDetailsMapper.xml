@@ -357,9 +357,6 @@
       <if test="address != null">
         address,
       </if>
-      <if test="extra != null">
-        extra,
-      </if>
       <if test="appId != null">
         app_id,
       </if>
@@ -455,9 +452,6 @@
       </if>
       <if test="address != null">
         #{address},
-      </if>
-      <if test="extra != null">
-        #{extra},
       </if>
       <if test="appId != null">
         #{appId},
