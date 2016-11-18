@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ASus on 2016/11/14.
@@ -36,12 +38,15 @@ public class AddressUtilServiceImpl implements AddressUtilService {
     }
 
     @Override
-    public Integer queryCodeByName(String name) {
+    public Integer queryCodeByName(String name,Integer areaLevel) {
         if(name==null||"".equals(name)){
             logger.warn("根据codes获取省市区字符串,入参有误");
             return 0;
         }
-        return addressUtilMapper.selectCodeByName(name);
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("name",name);
+        map.put("areaLevel",areaLevel);
+        return addressUtilMapper.selectCodeByName(map);
     }
 
     /**

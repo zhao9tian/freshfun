@@ -22,7 +22,7 @@ public interface AddressUtilService {
      * @param name name
      * @return code
      */
-    Integer queryCodeByName(String name);
+    Integer queryCodeByName(String name,Integer areaLevel);
 
     /**
      * 根据父级id查询地址信息
