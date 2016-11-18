@@ -63,6 +63,18 @@ public class OrderDetailsPOJO {
     private String city;
     private String address;
     /**
+     * 省code
+     */
+    private Integer provCode;
+    /**
+     * 市code
+     */
+    private Integer cityCode;
+    /**
+     * 区code
+     */
+    private Integer distCode;
+    /**
      * 备注
      */
     private String remark;
@@ -70,10 +82,6 @@ public class OrderDetailsPOJO {
      * 发货备注
      */
     private String deliveryRemark;
-    /**
-     * 扩展信息
-     */
-    private String extra;
     /**
      * 平台标识
      */
@@ -142,15 +150,6 @@ public class OrderDetailsPOJO {
     public void setActualMoney(String actualMoney) {
         this.actualMoney = actualMoney;
     }
-
-    public String getExtra() {
-        return extra;
-    }
-
-    public void setExtra(String extra) {
-        this.extra = extra;
-    }
-
     /**
      * 是否可以申请退款
      */
@@ -159,6 +158,30 @@ public class OrderDetailsPOJO {
      * 确认收货时间
      */
     private Long reciveTime;
+
+    public Integer getProvCode() {
+        return provCode;
+    }
+
+    public void setProvCode(Integer provCode) {
+        this.provCode = provCode;
+    }
+
+    public Integer getCityCode() {
+        return cityCode;
+    }
+
+    public void setCityCode(Integer cityCode) {
+        this.cityCode = cityCode;
+    }
+
+    public Integer getDistCode() {
+        return distCode;
+    }
+
+    public void setDistCode(Integer distCode) {
+        this.distCode = distCode;
+    }
 
     public Integer getGoodsCost() {
         return goodsCost;
@@ -482,7 +505,6 @@ public class OrderDetailsPOJO {
                 ", address='" + address + '\'' +
                 ", remark='" + remark + '\'' +
                 ", deliveryRemark='" + deliveryRemark + '\'' +
-                ", extra='" + extra + '\'' +
                 ", goods=" + goods +
                 ", deliveryName='" + deliveryName + '\'' +
                 ", actualMoney='" + actualMoney + '\'' +

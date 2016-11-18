@@ -8,7 +8,11 @@ import com.quxin.freshfun.common.FreshFunEncoder;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.model.param.GoodsParam;
+import com.quxin.freshfun.model.param.OrderParam;
+import com.quxin.freshfun.model.pojo.address.AddressPOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
+import com.quxin.freshfun.service.address.AddressService;
+import com.quxin.freshfun.service.address.AddressUtilService;
 import com.quxin.freshfun.service.impl.mail.MailSender;
 import com.quxin.freshfun.service.impl.mail.MailSenderFactory;
 import com.quxin.freshfun.service.impl.wechat.ClientRequestHandler;
@@ -65,6 +69,10 @@ public class OrderServiceImpl implements OrderService {
 	private PromotionService promotionService;
 	@Autowired
 	private UserAddressMapper userAddress;
+	@Autowired
+	private AddressUtilService addressUtilService;
+	@Autowired
+	private AddressService addressService;
 	@Autowired
 	private WeChatService weChatService;
 
@@ -185,11 +193,9 @@ public class OrderServiceImpl implements OrderService {
 	 * @param payInfo
 	 * @param goodsInfo
 	 */
-	private OrderDetailsPOJO makeOrderDetail(OrderPayInfo payInfo, GoodsInfo goodsInfo,OrderInfo orderInfo,Long orderId) {
+	private OrderDetailsPOJO makeOrderDetail(OrderPayInfo payInfo, GoodsInfo goodsInfo,OrderInfo orderInfo,Long orderId) throws BusinessException {
 		long currentTime = DateUtils.getCurrentDate();
         long uid = orderInfo.getUserId();
-		//根据地址编号查询地址信息
-		UserAddress address = userAddress.selectAddressById(orderInfo.getAddressId());
 		//查询捕手信息
 		Long fetcherId = null;
 		UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(uid);
@@ -251,10 +257,22 @@ public class OrderServiceImpl implements OrderService {
 		od.setCount(goodsInfo.getCount());
 		od.setCreateDate(currentTime);
 		od.setUpdateDate(currentTime);
-		od.setName(address.getName());
-		od.setTel(address.getTel());
-		od.setCity(address.getCity());
-		od.setAddress(address.getAddress());
+		//添加地址
+		AddressPOJO address = addressService.queryAddressById(orderInfo.getAddressId());
+		if(address != null) {
+			od.setName(address.getName());
+			od.setTel(address.getTel());
+			od.setAddress(address.getAddress());
+			if (address.getIsNew() == 1) {
+				od.setProvCode(address.getProvCode());
+				od.setCityCode(address.getCityCode());
+				od.setDistCode(address.getDistCode());
+			} else {
+				od.setCity(address.getCity());
+			}
+		} else{
+			throw new BusinessException("下单时查询地址为空");
+		}
 		return od;
 	}
 
@@ -419,63 +437,113 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return 0;
 	}
-
-	/**
-	 * 发送请求
-	 * @param order	订单POJO
-	 */
-	private void senderMail(OrderDetailsPOJO order,int sign) {
+	@Override
+	public void senderMail(OrderDetailsPOJO order,int sign){
 		if(order == null) {
 			logger.error("订单发送Mail订单不能为空");
 			return;
 		}
+		getAddress(order);
 		if(sign == 1) {
 			GoodsParam goods = goodsBaseMapper.selectGoodsByGoodsId(order.getGoodsId().longValue());
 			order.setGoods(goods);
 		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("订单编号：");
-		sb.append(order.getId());
-		sb.append(",商品名：");
-		if(order.getGoods() != null)
-			sb.append(order.getGoods().getGoodsName());
-		sb.append(",支付金额：");
-		sb.append(MoneyFormat.priceFormatString(order.getActualPrice()));
-		sb.append(",成交时间：");
+		OrderParam orderParam = new OrderParam();
+		orderParam.setOrderId(order.getId());
+		orderParam.setGoodsName(order.getGoods().getGoodsName());
+		orderParam.setPayPrice(MoneyFormat.priceFormatString(order.getActualPrice()));
 		//成交时间
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		sb.append(dateFormat.format(order.getPayTime()*1000));
-		sb.append(",数量：");
-		sb.append(order.getCount());
-		sb.append(",单价：");
-		sb.append(MoneyFormat.priceFormatString(order.getPayPrice()));
-		sb.append(",成本价：");
-		if(order.getGoods() != null)
-			sb.append(MoneyFormat.priceFormatString(order.getGoods().getCost()));
-		sb.append(",订单来源：");
+		orderParam.setPayTime(dateFormat.format(order.getPayTime()*1000));
+		orderParam.setCount(order.getCount());
+		orderParam.setUnitPrice(MoneyFormat.priceFormatString(order.getPayPrice()));
+		orderParam.setCostPrice(MoneyFormat.priceFormatString(order.getGoodsCost()));
 		switch (order.getPayPlateform()){
 			case 1:
-				sb.append("捕手流量");
+				orderParam.setOrderSource("捕手流量");
 				break;
 			default:
-				sb.append("自然流量");
+				orderParam.setOrderSource("自然流量");
 				break;
 		}
-		sb.append(",收货人：");
-		sb.append(order.getName());
-		sb.append(",联系电话：");
-		sb.append(order.getTel());
-		sb.append(",收货地址：");
-		sb.append(order.getCity());
-		sb.append(order.getAddress());
+		orderParam.setConsignee(order.getName());
+		orderParam.setTel(order.getTel());
+		orderParam.setAddress(order.getCity()+order.getAddress());
+
+		String [] titles = {"订单编号","商品名","支付金额","成交时间","数量","单价","成本价","订单来源","收货人","联系电话","收货地址"};
+		String htmlStr = ObjectToHtml.getHtmlStr(orderParam, titles);
 		//发送
 		MailSender sender = MailSenderFactory.getSender();
 		try {
-			sender.send("order@freshfun365.com","支付订单详细数据",sb.toString());
+			sender.send("1260855435@qq.com","支付订单详细数据",htmlStr);
 		} catch (MessagingException e) {
 			logger.error("发送邮件出现异常",e);
 		}
 	}
+
+	/**
+	 * 获取用户地址
+	 * @param orderDetailsPOJO 订单实体
+	 */
+	private void getAddress(OrderDetailsPOJO orderDetailsPOJO) {
+		if(StringUtils.isEmpty(orderDetailsPOJO.getCity())){
+			String city = addressUtilService.queryNameByCode(orderDetailsPOJO.getProvCode(), orderDetailsPOJO.getCityCode(), orderDetailsPOJO.getDistCode());
+			orderDetailsPOJO.setCity(city);
+		}
+	}
+
+//	private void senderMail(OrderDetailsPOJO order,int sign) {
+//		if(order == null) {
+//			logger.error("订单发送Mail订单不能为空");
+//			return;
+//		}
+//		if(sign == 1) {
+//			GoodsParam goods = goodsBaseMapper.selectGoodsByGoodsId(order.getGoodsId().longValue());
+//			order.setGoods(goods);
+//		}
+//		StringBuilder sb = new StringBuilder();
+//		sb.append("订单编号：");
+//		sb.append(order.getId());
+//		sb.append(",商品名：");
+//		if(order.getGoods() != null)
+//			sb.append(order.getGoods().getGoodsName());
+//		sb.append(",支付金额：");
+//		sb.append(MoneyFormat.priceFormatString(order.getActualPrice()));
+//		sb.append(",成交时间：");
+//		//成交时间
+//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//		sb.append(dateFormat.format(order.getPayTime()*1000));
+//		sb.append(",数量：");
+//		sb.append(order.getCount());
+//		sb.append(",单价：");
+//		sb.append(MoneyFormat.priceFormatString(order.getPayPrice()));
+//		sb.append(",成本价：");
+//		if(order.getGoods() != null)
+//			sb.append(MoneyFormat.priceFormatString(order.getGoods().getCost()));
+//		sb.append(",订单来源：");
+//		switch (order.getPayPlateform()){
+//			case 1:
+//				sb.append("捕手流量");
+//				break;
+//			default:
+//				sb.append("自然流量");
+//				break;
+//		}
+//		sb.append(",收货人：");
+//		sb.append(order.getName());
+//		sb.append(",联系电话：");
+//		sb.append(order.getTel());
+//		sb.append(",收货地址：");
+//		sb.append(order.getCity());
+//		sb.append(order.getAddress());
+//		//发送
+//		MailSender sender = MailSenderFactory.getSender();
+//		try {
+//			sender.send("order@freshfun365.com","支付订单详细数据",sb.toString());
+//		} catch (MessagingException e) {
+//			logger.error("发送邮件出现异常",e);
+//		}
+//	}
 	/**
 	 * 订单支付
 	 */
@@ -586,6 +654,26 @@ public class OrderServiceImpl implements OrderService {
 		//修改购物车状态
 		modifyShoppingCartState(orderInfo);
 		return info;
+	}
+
+	/**
+	 * 根据父级编号查询订单信息
+	 * @param parentOrderId
+	 * @return
+	 */
+	@Override
+	public List<OrderDetailsPOJO> selectPayId(Long parentOrderId) {
+		return orderDetailsMapper.selectPayId(parentOrderId);
+	}
+
+	/**
+	 * 根据订单编号查询订单信息
+	 * @param orderId
+	 * @return
+	 */
+	@Override
+	public OrderDetailsPOJO selectPayOrderInfoById(Long orderId) {
+		return orderDetailsMapper.selectPayOrderInfoById(orderId);
 	}
 
 	/**

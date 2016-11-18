@@ -24,11 +24,11 @@ public class ReflectionUtils {
     /** 
      * 调用Getter方法. 
      */  
-//    public static Object invokeGetterMethod(Object obj, String propertyName) {
-//        String getterMethodName = "get" + StringUtils.capitalize(propertyName);
-//        return invokeMethod(obj, getterMethodName, new Class[] {}, new Object[] {});
-//    }
-//
+    public static Object invokeGetterMethod(Object obj, String propertyName) {
+        String getterMethodName = "get" + StringUtils.capitalize(propertyName);
+        return invokeMethod(obj, getterMethodName, new Class[] {}, new Object[] {});
+    }
+
     /** 
      * 调用Setter方法.使用value的Class来查找Setter方法. 
      */  
@@ -59,7 +59,7 @@ public class ReflectionUtils {
   
         Object result = null;  
         try {  
-            result = field.get(obj);  
+            result = field.get(obj);
         } catch (IllegalAccessException e) {  
             logger.error("不可能抛出的异常{}", e.getMessage());  
         }  

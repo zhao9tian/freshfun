@@ -6,12 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.quxin.freshfun.dao.GoodsBaseMapper;
-import com.quxin.freshfun.model.outparam.UserInfoOutParam;
-import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
-import com.quxin.freshfun.service.flow.FlowService;
-import com.quxin.freshfun.service.user.UserBaseService;
+import com.quxin.freshfun.service.address.AddressUtilService;
 import com.quxin.freshfun.utils.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
-import com.quxin.freshfun.dao.GoodsMapper;
 import com.quxin.freshfun.dao.OrderDetailsMapper;
 import com.quxin.freshfun.dao.ShoppingCartMapper;
-import com.quxin.freshfun.model.GoodsPOJO;
 import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.model.OrderStatusInfo;
 import com.quxin.freshfun.model.ShoppingCartPOJO;
@@ -39,6 +34,8 @@ public class OrderManagerImpl implements OrderManager {
 	private ShoppingCartMapper shoppingCartMapper;
 	@Autowired
 	private GoodsBaseMapper goodsBaseMapper;
+	@Autowired
+	private AddressUtilService addressUtilService;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -63,9 +60,22 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : orderList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
+			getAddress(orderDetailsPOJO);
 		}
 		return orderList;
 	}
+
+	/**
+	 * 获取用户地址
+	 * @param orderDetailsPOJO 订单实体
+	 */
+	private void getAddress(OrderDetailsPOJO orderDetailsPOJO) {
+		if(StringUtils.isEmpty(orderDetailsPOJO.getCity())){
+			String city = addressUtilService.queryNameByCode(orderDetailsPOJO.getProvCode(), orderDetailsPOJO.getCityCode(), orderDetailsPOJO.getDistCode());
+			orderDetailsPOJO.setCity(city);
+		}
+	}
+
 	/**
 	 * 根据用户编号查询待付款订单
 	 */
@@ -78,6 +88,7 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : orderDetailsList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
+			getAddress(orderDetailsPOJO);
 		}
 		return orderDetailsList;
 	}
@@ -93,6 +104,7 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : goodsReceipt) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
+			getAddress(orderDetailsPOJO);
 		}
 		return goodsReceipt;
 	}
@@ -108,6 +120,7 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : awaitDeliverOrder) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
+			getAddress(orderDetailsPOJO);
 		}
 		return awaitDeliverOrder;
 	}
@@ -123,6 +136,7 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : awaitComment) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
+			getAddress(orderDetailsPOJO);
 		}
 		return awaitComment;
 	}
@@ -138,6 +152,7 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : cancelOrder) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
+			getAddress(orderDetailsPOJO);
 		}
 		return cancelOrder;
 	}

@@ -38,7 +38,9 @@
     <result column="address" jdbcType="VARCHAR" property="address"/>
     <result column="remark" jdbcType="VARCHAR" property="remark"/>
     <result column="delivery_remark" jdbcType="VARCHAR" property="deliveryRemark"/>
-    <result column="extra" jdbcType="VARCHAR" property="extra"/>
+    <result column="province_code" jdbcType="INTEGER" property="provCode"/>
+    <result column="city_code" jdbcType="INTEGER" property="cityCode"/>
+    <result column="district_code" jdbcType="INTEGER" property="distCode"/>
     <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsBaseMapper.selectGoodsByGoodsId"></association>
   </resultMap>
 
@@ -82,21 +84,21 @@
 
   <!-- 根据用户编号分页查询所有订单 -->
   <select id="selectAll" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`comment_status`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`
+    select `id`,`address_id`,`goods_id`,`comment_status`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`,`province_code`,`city_code`,`district_code`
     from order_details where user_id = #{userId} and is_deleted = 0
     order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待发货订单 -->
   <select id="selectAwaitDeliverOrder" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address
+    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address,`province_code`,`city_code`,`district_code`
     from order_details where user_id = #{userId} and order_status = 30 and is_deleted = 0
     order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待付款订单 -->
   <select id="selectPendingPaymentOrder" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address
+    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address,`province_code`,`city_code`,`district_code`
     from order_details where user_id = #{userId} and order_status = 10 and is_deleted = 0
     and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0
     order by create_date DESC
@@ -104,14 +106,14 @@
   </select>
   <!-- 待收货 -->
   <select id="selectAwaitGoodsReceipt" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address
+    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address,`province_code`,`city_code`,`district_code`
     from order_details where user_id = #{userId} and order_status = 50 and is_deleted = 0
     order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 待评价 -->
   <select id="selectAwaitComment" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`
+    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`,`province_code`,`city_code`,`district_code`
     from order_details
     where user_id = #{userId} and is_deleted = 0 and order_status = 70 and comment_status = 0
     order by create_date DESC
@@ -119,7 +121,7 @@
   </select>
   <!-- 查询退货 -->
   <select id="selectCancelOrder" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address` ,`update_date` , `order_status`
+    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address` ,`update_date` , `order_status`,`province_code`,`city_code`,`district_code`
     from order_details where user_id = #{userId} and order_status in (20,40) and is_deleted = 0
     order by update_date DESC
     limit #{currentPage},#{pageSize}
@@ -168,7 +170,8 @@
     select `id`,`goods_id`,`actual_price`,
     `pay_time`,`count`,`order_status`,
     `pay_plateform`,`pay_price`,`name`,
-    `tel`,`city`,`address`,`pay_price`,`goods_cost`
+    `tel`,`city`,`address`,`pay_price`,`goods_cost`,
+    `province_code`,`city_code`,`district_code`
      from order_details where order_id = #{orderId}
   </select>
   <!--根据orderId查询付款编号,商品编号-->
@@ -185,7 +188,10 @@
     `city`,
     `address`,
     `pay_price` as `payPrice`,
-    `goods_cost` as `goodsCost`
+    `goods_cost` as `goodsCost`,
+    `province_code` as `provCode`,
+    `city_code` as `cityCode`,
+    `district_code` as `distCode`
      from order_details where id = #{orderId}
   </select>
   <!-- 查询付款编号 -->
@@ -357,6 +363,15 @@
       <if test="appId != null">
         app_id,
       </if>
+      <if test="provCode != null">
+        province_code,
+      </if>
+      <if test="cityCode != null">
+        city_code,
+      </if>
+      <if test="distCode != null">
+        district_code,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       #{id,jdbcType=BIGINT},
@@ -446,6 +461,15 @@
       </if>
       <if test="appId != null">
         #{appId},
+      </if>
+      <if test="provCode != null">
+        #{provCode},
+      </if>
+      <if test="cityCode != null">
+        #{cityCode},
+      </if>
+      <if test="distCode != null">
+        #{distCode},
       </if>
     </trim>
   </insert>
