@@ -59,20 +59,20 @@ public class AddressUtil implements ApplicationContextAware {
                                 mapD.put("value", addressArea.getAreaNo());
                                 distsResult.add(mapD);
                                 //ios
-                                distsResultIOS.add(addressArea.getAreaName());
+                                distsResultIOS.add(addressArea.getAreaName()+","+addressArea.getAreaNo());
                             }
                             mapC.put(addressCity.getAreaNo().toString(), distsResult);
                             //ios
                             Map<String, Object> mapCityIOS = new HashMap<String, Object>();   //ios市级
                             mapCityIOS.put("areas",distsResultIOS);     //放入县区
-                            mapCityIOS.put("city",addressCity.getAreaName());   //放入市级
+                            mapCityIOS.put("city",addressCity.getAreaName()+","+addressCity.getAreaNo());   //放入市级
                             cityResultIOS.add(mapCityIOS);      //cities
                         }
                     }
                     mapProv.put(address.getAreaNo().toString(), cityResult);
                     //ios
                     mapProvIOS.put("cities",cityResultIOS);
-                    mapProvIOS.put("state",address.getAreaName());
+                    mapProvIOS.put("state",address.getAreaName()+","+address.getAreaNo());
                     provResultIOS.add(mapProvIOS);
                 }
             }
