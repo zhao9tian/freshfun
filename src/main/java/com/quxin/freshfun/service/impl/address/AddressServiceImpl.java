@@ -109,6 +109,13 @@ public class AddressServiceImpl implements AddressService{
             logger.warn("根据id获取收货地址信息入参有误");
             return null;
         }
-        return addressMapper.selectAddressById(addressId);
+        AddressPOJO address = addressMapper.selectAddressById(addressId);
+        if(address!=null){
+            if(address.getProvCode()==0&&address.getCityCode()==0&&address.getDistCode()==0)
+                address.setIsNew(0);
+            else
+                address.setIsNew(1);
+        }
+        return address;
     }
 }

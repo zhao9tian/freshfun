@@ -25,6 +25,16 @@ public class AddressPOJO extends BaseEntity {
 
 	private String city;
 
+	private Integer isNew;
+
+	public Integer getIsNew() {
+		return isNew;
+	}
+
+	public void setIsNew(Integer isNew) {
+		this.isNew = isNew;
+	}
+
 	public String getCity() {
 		return city;
 	}
