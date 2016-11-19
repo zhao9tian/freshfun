@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ASus on 2016/11/14.
@@ -21,12 +23,30 @@ public class AddressUtilServiceImpl implements AddressUtilService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
-     * 获取省份信息
-     * @return 省份信息
+     * 根据codes获取省市区字符串
+     * @param provCode 省级code
+     * @param cityCode 市级code
+     * @param distCode 县区级code
+     * @return 省市区字符串
      */
+    public String queryNameByCode(Integer provCode,Integer cityCode,Integer distCode) {
+        if(provCode==null||provCode==0||cityCode==null||cityCode==0||distCode==null||distCode==0){
+            logger.warn("根据codes获取省市区字符串,入参有误");
+            return "";
+        }
+        return addressUtilMapper.selectNameByCode(provCode)+addressUtilMapper.selectNameByCode(cityCode)+addressUtilMapper.selectNameByCode(distCode);
+    }
+
     @Override
-    public List<AddressUtilPOJO> queryProvince() {
-        return addressUtilMapper.selectProvince();
+    public Integer queryCodeByName(String name,Integer areaLevel) {
+        if(name==null||"".equals(name)){
+            logger.warn("根据地址名称获取code，入参有误");
+            return 0;
+        }
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("name",name);
+        map.put("areaLevel",areaLevel);
+        return addressUtilMapper.selectCodeByName(map);
     }
 
     /**
