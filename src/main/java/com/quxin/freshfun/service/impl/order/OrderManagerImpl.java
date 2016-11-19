@@ -60,7 +60,6 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : orderList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
-			getAddress(orderDetailsPOJO);
 		}
 		return orderList;
 	}
@@ -88,7 +87,6 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : orderDetailsList) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
-			getAddress(orderDetailsPOJO);
 		}
 		return orderDetailsList;
 	}
@@ -104,7 +102,6 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : goodsReceipt) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
-			getAddress(orderDetailsPOJO);
 		}
 		return goodsReceipt;
 	}
@@ -120,7 +117,6 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : awaitDeliverOrder) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
-			getAddress(orderDetailsPOJO);
 		}
 		return awaitDeliverOrder;
 	}
@@ -136,7 +132,6 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : awaitComment) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
-			getAddress(orderDetailsPOJO);
 		}
 		return awaitComment;
 	}
@@ -152,7 +147,6 @@ public class OrderManagerImpl implements OrderManager {
 		for (OrderDetailsPOJO orderDetailsPOJO : cancelOrder) {
 			orderDetailsPOJO.setActualMoney(MoneyFormat.priceFormatString(orderDetailsPOJO.getActualPrice()));
 			orderDetailsPOJO.setActualPrice(null);
-			getAddress(orderDetailsPOJO);
 		}
 		return cancelOrder;
 	}
@@ -194,11 +188,9 @@ public class OrderManagerImpl implements OrderManager {
 			goodsParam.setMarketMoney(MoneyFormat.priceFormatString(goodsBase.getOriginPrice()));
 			recommendGoods.add(goodsParam);
 		}
-
 		Map<String,Object> map = Maps.newHashMap();
 		map.put("cart", carts);
 		map.put("recommendGoods", recommendGoods);
-
 		return map;
 	}
 	@Override
@@ -265,6 +257,7 @@ public class OrderManagerImpl implements OrderManager {
 			OrderDetailsPOJO detailsPOJO = sigleOrder.get(0);
 			detailsPOJO.setActualMoney(MoneyFormat.priceFormatString(detailsPOJO.getActualPrice()));
 			detailsPOJO.setActualPrice(null);
+			getAddress(detailsPOJO);
 			return detailsPOJO;
 		}
 		return null;
@@ -285,32 +278,6 @@ public class OrderManagerImpl implements OrderManager {
 		if(returnNum <= 0){
 			throw new BusinessException("修改确认收货状态失败");
 		}
-		//查询订单信息
-		/*OrderDetailsPOJO orderDetails = orderDetailsMapper.selectConfirmOrderInfo(orderId);
-		if(orderDetails.getAgentId() !=0){
-			//添加账单信息
-			Long currentDate = DateUtils.getCurrentDate();
-			FlowParam flowParam = new FlowParam();
-			flowParam.setOrderId(orderDetails.getId());
-			flowParam.setUserId(orderDetails.getAgentId());
-			flowParam.setCreated(currentDate);
-			flowParam.setUpdated(currentDate);
-			flowParam.setAgentFlow(orderDetails.getAgentPrice().longValue());
-			flowService.add(flowParam);
-		}
-		if(orderDetails.getFetcherId() != 0){
-			//添加账单信息
-			Long currentDate = DateUtils.getCurrentDate();
-			FlowParam flowParam = new FlowParam();
-			flowParam.setOrderId(orderDetails.getId());
-			flowParam.setUserId(orderDetails.getFetcherId());
-			flowParam.setCreated(currentDate);
-			flowParam.setUpdated(currentDate);
-//			flowParam.setAgentFlow(orderDetails.getFetcherPrice().longValue());
-			flowParam.setFetcherFlow(orderDetails.getFetcherPrice().longValue());
-			flowService.add(flowParam);
-		}*/
-
 		return returnNum;
 	}
 

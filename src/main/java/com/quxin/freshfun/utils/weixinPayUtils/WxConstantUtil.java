@@ -1,7 +1,7 @@
 package com.quxin.freshfun.utils.weixinPayUtils;
 
 /**
- * Created by gsix on 2016/10/10.
+ * Created by qingtian on 2016/10/10.
  */
 public class WxConstantUtil {
     /**

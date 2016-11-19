@@ -75,7 +75,7 @@
   </select>
   <!-- 查询单个商品 -->
   <select id="selectSigleOrder" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`recive_time`,`name`,`tel`,`city`,`address` from order_details where id = #{orderId} and is_deleted = 0
+    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`recive_time`,`name`,`tel`,`city`,`address`,`province_code`,`city_code`,`district_code` from order_details where id = #{orderId} and is_deleted = 0
   </select>
   <!-- 查询代支付订单 -->
   <select id="selectPayOrder" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -84,21 +84,21 @@
 
   <!-- 根据用户编号分页查询所有订单 -->
   <select id="selectAll" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`comment_status`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`,`province_code`,`city_code`,`district_code`
+    select `id`,`address_id`,`goods_id`,`comment_status`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`
     from order_details where user_id = #{userId} and is_deleted = 0
     order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待发货订单 -->
   <select id="selectAwaitDeliverOrder" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address,`province_code`,`city_code`,`district_code`
+    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address
     from order_details where user_id = #{userId} and order_status = 30 and is_deleted = 0
     order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 查询待付款订单 -->
   <select id="selectPendingPaymentOrder" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address,`province_code`,`city_code`,`district_code`
+    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address
     from order_details where user_id = #{userId} and order_status = 10 and is_deleted = 0
     and  (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]> 0
     order by create_date DESC
@@ -106,14 +106,14 @@
   </select>
   <!-- 待收货 -->
   <select id="selectAwaitGoodsReceipt" resultMap="BaseResultMap">
-    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address,`province_code`,`city_code`,`district_code`
+    select id,address_id,goods_id,actual_price,count,delivery_num,`pay_price`, is_limit,name,tel,city,address
     from order_details where user_id = #{userId} and order_status = 50 and is_deleted = 0
     order by create_date DESC
     limit #{currentPage},#{pageSize}
   </select>
   <!-- 待评价 -->
   <select id="selectAwaitComment" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`,`province_code`,`city_code`,`district_code`
+    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address`
     from order_details
     where user_id = #{userId} and is_deleted = 0 and order_status = 70 and comment_status = 0
     order by create_date DESC
@@ -121,7 +121,7 @@
   </select>
   <!-- 查询退货 -->
   <select id="selectCancelOrder" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address` ,`update_date` , `order_status`,`province_code`,`city_code`,`district_code`
+    select `id`,`address_id`,`goods_id`,`actual_price`,`count`,`delivery_num`,`pay_price`,`name`,`tel`,`city`,`address` ,`update_date` , `order_status`
     from order_details where user_id = #{userId} and order_status in (20,40) and is_deleted = 0
     order by update_date DESC
     limit #{currentPage},#{pageSize}
