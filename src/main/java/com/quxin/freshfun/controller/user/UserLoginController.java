@@ -121,7 +121,7 @@ public class UserLoginController {
 							UserBasePOJO userBase = new UserBasePOJO();
 							String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
 							userBase.setUserName(userName);
-							String wxHeadUrl = OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
+							String wxHeadUrl = weChatInfo.getHeadimgurl()==null||"".equals(weChatInfo.getHeadimgurl())?getHeadImgUrl():OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
 							userBase.setUserHeadImg(wxHeadUrl);
 							userBase.setUnionId(unionId);
 							userBase.setOpenId(openId);
@@ -358,7 +358,7 @@ public class UserLoginController {
 						UserBasePOJO userBase = new UserBasePOJO();
 						String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
 						userBase.setUserName(userName);
-						String wxHeadUrl = OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
+						String wxHeadUrl = weChatInfo.getHeadimgurl()==null||"".equals(weChatInfo.getHeadimgurl())?getHeadImgUrl():OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
 						userBase.setUserHeadImg(wxHeadUrl);
 						userBase.setPhoneNumber("");
 						userBase.setUnionId(weChatInfo.getUnionid());
