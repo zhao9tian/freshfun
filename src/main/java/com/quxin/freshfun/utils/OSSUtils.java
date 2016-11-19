@@ -1,6 +1,8 @@
 package com.quxin.freshfun.utils;
 
 import com.aliyun.oss.OSSClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.net.www.protocol.http.HttpURLConnection;
 
 import java.io.IOException;
@@ -12,9 +14,12 @@ import java.util.UUID;
 
 /**
  * @author qucheng
+ * updated 2016-11-19
  */
 public class OSSUtils {
     private static OSSClient client = null;
+
+    private static final Logger logger = LoggerFactory.getLogger(OSSUtils.class);
 
     static {
         String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
@@ -63,27 +68,32 @@ public class OSSUtils {
      */
     public static String uploadWxHeadImg(String headImgUrl) {
         String wxHeadImg = "";
-        String fileName = "/" + UUID.randomUUID() + ".png";
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        //生成远程的路径
-        String remotePath = "image/" + year + month + day + fileName;
-        //将URL转为可读取的文件流
-        URL url;
-        HttpURLConnection httpUrl = null;
-        try {
-            url = new URL(headImgUrl);
-            httpUrl = (HttpURLConnection) url.openConnection();
-            httpUrl.connect();
-            //获取上传后的地址
-            wxHeadImg = OSSUtils.uploadPic(httpUrl.getInputStream(), remotePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            assert httpUrl != null;
-            httpUrl.disconnect();//关闭httpUrl
+        if(headImgUrl != null && !"".equals(headImgUrl)){
+            String fileName = "/" + UUID.randomUUID() + ".png";
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1;
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            //生成远程的路径
+            String remotePath = "image/" + year + month + day + fileName;
+            //将URL转为可读取的文件流
+            URL url;
+            HttpURLConnection httpUrl = null;
+            try {
+                url = new URL(headImgUrl);
+                httpUrl = (HttpURLConnection) url.openConnection();
+                httpUrl.connect();
+                //获取上传后的地址
+                wxHeadImg = OSSUtils.uploadPic(httpUrl.getInputStream(), remotePath);
+            } catch (Exception e) {
+                logger.error("用户头像信息有误");
+            } finally {
+                if(httpUrl != null) {
+                    httpUrl.disconnect();//关闭httpUrl
+                }
+            }
+        }else{
+            logger.error("用户头像的url不存在");
         }
         return wxHeadImg;
     }
@@ -107,6 +117,7 @@ public class OSSUtils {
 //        System.out.println(uploadWxHeadImg(a6));//556788   /image/20161013/f40fd240-3231-40a5-a6d1-c2228f47f398.png
 //        System.out.println(uploadWxHeadImg(a7));//556794   /image/20161013/b6b2d616-b253-439a-8ebb-273ed5fc42e0.png
 //        System.out.println(uploadWxHeadImg(a8));//556825   /image/20161013/8f42e7c2-9ff5-45f6-841d-19fb763da998.png
-//        System.out.println(uploadWxHeadImg(a9));//556909   /image/20161013/39d4a356-c660-4dc4-b936-d0084d22a5c3.png
+        System.out.println(uploadWxHeadImg(a9));//556909   /image/20161013/39d4a356-c660-4dc4-b936-d0084d22a5c3.png
+//        System.out.println(uploadWxHeadImg("aa"));//556909   /image/20161013/39d4a356-c660-4dc4-b936-d0084d22a5c3.png
     }
 }
