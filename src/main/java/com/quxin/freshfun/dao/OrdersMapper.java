@@ -77,4 +77,10 @@ public interface OrdersMapper {
      * @return
      */
     int updateOrderPayStatus(Integer orderId);
+
+    /**
+     * 根据父级订单编号查询订单信息
+     * @return
+     */
+    OrdersPOJO selectById(String orderId);
 }

@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
 	 * @throws BusinessException
 	 */
 	@Override
-	public ResponseResult addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException {
+	public WxPayInfo addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException {
 		OrderPayInfo [] orderPayInfos = new OrderPayInfo[orderInfo.getGoodsInfo().size()];
 		//订单总价格
 		Integer orderSumPrice = 0;
@@ -141,14 +141,16 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		//微信支付
-		String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
-		/*WxPayInfo wxPayInfo = weChatService.wzPay(request, payId.toString(), orderSumPrice.toString(), openId);
-		wxPayInfo.setOrderId(orderDetailsId);*/
-		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
-		payResult.setOrderId(orderDetailsId);
+		//String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
+		WxPayInfo wxPayInfo = weChatService.wzPay(request, payId.toString(), orderSumPrice.toString(), openId);
+		wxPayInfo.setOrderId(orderDetailsId);
+		//保存二维码支付url
+		savePayUrl(wxPayInfo);
+//		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
+//		payResult.setOrderId(orderDetailsId);
 		//修改支付状态
 		modifyShoppingCartState(orderInfo);
-		return payResult;
+		return wxPayInfo;
 	}
 
 	/**
@@ -169,6 +171,19 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	/**
+	 * 保存二维码支付url
+	 * @param wxPayInfo	返回客户端支付信息
+	 */
+	private void savePayUrl(WxPayInfo wxPayInfo) {
+		Map<String,Object> map = new HashMap<>();
+		map.put("payUrl",wxPayInfo.getPayUrl());
+		map.put("orderId",wxPayInfo.getOrderId());
+		Integer state = orderDetailsMapper.updatePayUrl(map);
+		if(state <= 0)
+			logger.error("保存二维码支付url失败");
+	}
+
+	/**
 	 * 设置商品价格
 	 * @param goodsBase  商品实体
 	 */
@@ -181,7 +196,6 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 	}
-
 
 	@Override
 	public String getOpenId(Long userId){
@@ -345,6 +359,14 @@ public class OrderServiceImpl implements OrderService {
 		OrderDetailsPOJO orderDetail = orderDetailsMapper.getLogistic(orderId);
 		return orderDetail;
 	}
+
+	@Override
+	public String findPayUrl(Long orderId) throws BusinessException {
+		if(orderId == null)
+			throw new BusinessException("查询二维码支付url订单编号不能为null");
+		return orderDetailsMapper.selectPayUrl(orderId);
+	}
+
 	/**
 	 * 回调
 	 */
@@ -437,8 +459,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return 0;
 	}
-	@Override
-	public void senderMail(OrderDetailsPOJO order,int sign){
+
+	private void senderMail(OrderDetailsPOJO order,int sign){
 		if(order == null) {
 			logger.error("订单发送Mail订单不能为空");
 			return;
@@ -475,7 +497,7 @@ public class OrderServiceImpl implements OrderService {
 		//发送
 		MailSender sender = MailSenderFactory.getSender();
 		try {
-			sender.send("1260855435@qq.com","支付订单详细数据",htmlStr);
+			sender.send("order@freshfun365.com","支付订单详细数据",htmlStr);
 		} catch (MessagingException e) {
 			logger.error("发送邮件出现异常",e);
 		}
@@ -491,76 +513,60 @@ public class OrderServiceImpl implements OrderService {
 			orderDetailsPOJO.setCity(city);
 		}
 	}
-
-//	private void senderMail(OrderDetailsPOJO order,int sign) {
-//		if(order == null) {
-//			logger.error("订单发送Mail订单不能为空");
-//			return;
-//		}
-//		if(sign == 1) {
-//			GoodsParam goods = goodsBaseMapper.selectGoodsByGoodsId(order.getGoodsId().longValue());
-//			order.setGoods(goods);
-//		}
-//		StringBuilder sb = new StringBuilder();
-//		sb.append("订单编号：");
-//		sb.append(order.getId());
-//		sb.append(",商品名：");
-//		if(order.getGoods() != null)
-//			sb.append(order.getGoods().getGoodsName());
-//		sb.append(",支付金额：");
-//		sb.append(MoneyFormat.priceFormatString(order.getActualPrice()));
-//		sb.append(",成交时间：");
-//		//成交时间
-//		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//		sb.append(dateFormat.format(order.getPayTime()*1000));
-//		sb.append(",数量：");
-//		sb.append(order.getCount());
-//		sb.append(",单价：");
-//		sb.append(MoneyFormat.priceFormatString(order.getPayPrice()));
-//		sb.append(",成本价：");
-//		if(order.getGoods() != null)
-//			sb.append(MoneyFormat.priceFormatString(order.getGoods().getCost()));
-//		sb.append(",订单来源：");
-//		switch (order.getPayPlateform()){
-//			case 1:
-//				sb.append("捕手流量");
-//				break;
-//			default:
-//				sb.append("自然流量");
-//				break;
-//		}
-//		sb.append(",收货人：");
-//		sb.append(order.getName());
-//		sb.append(",联系电话：");
-//		sb.append(order.getTel());
-//		sb.append(",收货地址：");
-//		sb.append(order.getCity());
-//		sb.append(order.getAddress());
-//		//发送
-//		MailSender sender = MailSenderFactory.getSender();
-//		try {
-//			sender.send("order@freshfun365.com","支付订单详细数据",sb.toString());
-//		} catch (MessagingException e) {
-//			logger.error("发送邮件出现异常",e);
-//		}
-//	}
 	/**
 	 * 订单支付
 	 */
 	@Override
-	public ResponseResult awaitPayOrder(OrderPayPOJO order,Long userId) {
+	public WxPayInfo awaitPayOrder(HttpServletRequest request,OrderPayPOJO order,Long userId) throws BusinessException, JSONException {
+		if(order.getOrderId() == null || userId == null)
+			throw new BusinessException("订单支付订单编号不能为空");
 		OrderDetailsPOJO detailsPOJO = orderDetailsMapper.selectPayOrder(order.getOrderId());
-		String payMoney = MoneyFormat.priceFormatString(detailsPOJO.getActualPrice());
-		//获取用户openId
-        String openId = userBaseService.queryUserInfoByUserId(userId).getOpenId();
-		StringBuilder sb = new StringBuilder();
-		sb.append("W");
-		sb.append(order.getOrderId());
-		ResponseResult orderPay = orderPay(sb.toString(),payMoney,order.getCode(),openId);
-		return orderPay;
+		WxPayInfo wxPayInfo = null;
+		if(detailsPOJO != null) {
+			//获取用户openId
+			String openId = userBaseService.queryUserInfoByUserId(userId).getOpenId();
+			StringBuilder sb = new StringBuilder();
+			sb.append("W");
+			sb.append(order.getOrderId());
+			wxPayInfo = weChatService.wzPay(request, sb.toString(), detailsPOJO.getActualPrice().toString(), openId);
+			wxPayInfo.setOrderId(Long.parseLong(order.getOrderId()));
+			savePayUrl(wxPayInfo);
+		}
+		return wxPayInfo;
 	}
 
-    /**
+	/**
+	 * 二维码支付
+	 * @param productId 商品或订单编号
+	 * @param openId 用户凭证
+	 * @return
+	 */
+	@Override
+	public String QRCodePay(HttpServletRequest request,String productId, String openId) throws BusinessException, JSONException {
+		if(productId == null || openId == null)
+			throw new BusinessException("二维码支付参数不能为null");
+		String payResult = null;
+		String payOrderId = productId.subSequence(0, 1).toString();
+		switch (payOrderId){
+			case "Z":
+				OrdersPOJO ordersPOJO = ordersMapper.selectById(productId.substring(1,productId.length()));
+				if (ordersPOJO != null) {
+					payResult = weChatService.QRCodePay(request, productId, ordersPOJO.getActualPrice().toString(), openId);
+				}
+				break;
+			case "W":
+				OrderDetailsPOJO orderDetails = orderDetailsMapper.selectPayOrder(productId.substring(1, productId.length()));
+				if(orderDetails != null){
+					payResult = weChatService.QRCodePay(request, productId, orderDetails.getActualPrice().toString(), openId);
+				}
+				break;
+		}
+		if(StringUtils.isEmpty(payResult))
+			throw new BusinessException("二维码支付提交预支付异常");
+		return payResult;
+	}
+
+	/**
      * App订单支付
      * @param orderId
      * @return
@@ -654,26 +660,6 @@ public class OrderServiceImpl implements OrderService {
 		//修改购物车状态
 		modifyShoppingCartState(orderInfo);
 		return info;
-	}
-
-	/**
-	 * 根据父级编号查询订单信息
-	 * @param parentOrderId
-	 * @return
-	 */
-	@Override
-	public List<OrderDetailsPOJO> selectPayId(Long parentOrderId) {
-		return orderDetailsMapper.selectPayId(parentOrderId);
-	}
-
-	/**
-	 * 根据订单编号查询订单信息
-	 * @param orderId
-	 * @return
-	 */
-	@Override
-	public OrderDetailsPOJO selectPayOrderInfoById(Long orderId) {
-		return orderDetailsMapper.selectPayOrderInfoById(orderId);
 	}
 
 	/**

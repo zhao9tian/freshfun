@@ -20,6 +20,8 @@ public class WxConstantUtil {
     public static String EXPIRE_ERRCODE = "42001";//access_token失效后请求返回的errcode
     public static String FAIL_ERRCODE = "40001";//重复获取导致上一次获取的access_token失效,返回错误码
     public static String GATEURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";//获取预支付id的接口url
+
+    public static String CREATE_IP = "8.8.8.8";
     /**
      * 微信oAuth认证获取accessToken地址
      */

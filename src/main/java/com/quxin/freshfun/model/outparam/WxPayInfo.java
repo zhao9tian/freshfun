@@ -1,9 +1,12 @@
 package com.quxin.freshfun.model.outparam;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Created by qingtian on 2016/10/10.
  * 预支付信息
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WxPayInfo {
     private String appid;
     private String partnerid;
@@ -20,6 +23,18 @@ public class WxPayInfo {
      * 订单编号
      */
     private Long orderId;
+    /**
+     * 支付地址
+     */
+    private String payUrl;
+
+    public String getPayUrl() {
+        return payUrl;
+    }
+
+    public void setPayUrl(String payUrl) {
+        this.payUrl = payUrl;
+    }
 
     public Long getOrderId() {
         return orderId;

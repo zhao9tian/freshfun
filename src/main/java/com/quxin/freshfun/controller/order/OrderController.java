@@ -280,20 +280,26 @@ public class OrderController {
 	@RequestMapping(value="/createOrder",method={RequestMethod.POST})
 	@ResponseBody
 	public Map<String, Object> createOrder(@RequestBody OrderInfo orderInfo,HttpServletRequest request){
-		Map<String, Object> map = Maps.newHashMap();
-		//WxPayInfo wxPayInfo = null;
-		ResponseResult payResult = null;
+		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> resultMap = new HashMap<>();
+		WxPayInfo wxPayInfo = null;
+		if(orderInfo == null){
+			map.put("code", 1004);
+			map.put("msg", "创建订单参数不能为空");
+			resultMap.put("status", map);
+			return resultMap;
+		}
 		try {
 			Long userId = CookieUtil.getUserIdFromCookie(request);
 			if(userId != null){
 				orderInfo.setUserId(userId);
-				payResult = orderService.addOrder(orderInfo, request);
+				wxPayInfo = orderService.addOrder(orderInfo, request);
 				//判断用户是否绑定了手机
 				String phoneNumber = userBaseService.queryUserInfoByUserId(userId).getPhoneNumber();
 				if(phoneNumber!=null&&!"".equals(phoneNumber)){
-					payResult.setIsPhone(1);
+					wxPayInfo.setIsPhone(1);
 				}else{
-					payResult.setIsPhone(0);
+					wxPayInfo.setIsPhone(0);
 				}
 			}else{
 				logger.error("用户创建订单时userId为null");
@@ -303,11 +309,36 @@ public class OrderController {
 		} catch (JSONException e) {
 			logger.error("订单支付Json转换异常",e);
 		}
-		map.put("payResult", payResult);
-		return map;
+		map.put("code", 1001);
+		map.put("msg", "请求成功");
+		resultMap.put("status", map);
+		resultMap.put("data",wxPayInfo);
+		return resultMap;
 	}
 
-
+	/**
+	 * 查询二维码支付url
+	 * @param orderId	订单编号
+	 * @return
+	 */
+	@RequestMapping("/findPayUrl")
+	@ResponseBody
+	public Map<String, Object> findPayUrl(Long orderId) throws BusinessException {
+		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> resultMap = new HashMap<>();
+		if(orderId == null){
+			map.put("code", 1004);
+			map.put("msg", "参数不能为空");
+			resultMap.put("status", map);
+			return resultMap;
+		}
+		String payUrl = orderService.findPayUrl(orderId);
+		map.put("code", 1001);
+		map.put("msg", "请求成功");
+		resultMap.put("status", map);
+		resultMap.put("data",payUrl);
+		return resultMap;
+	}
 
 	@RequestMapping(value="/quanMingPay",method={RequestMethod.POST})
 	@ResponseBody
@@ -324,14 +355,42 @@ public class OrderController {
 		return payResult;
 	}
 
+	/**
+	 * 公众号订单支付
+	 * @param orderPay	订单支付参数
+	 * @param request	请求
+	 * @return
+	 * @throws BusinessException
+	 */
 	@RequestMapping(value="/awaitPayOrder",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, ResponseResult> awaitPayOrder(@RequestBody OrderPayPOJO orderPay,HttpServletRequest httpServletRequest){
-		Map<String, ResponseResult> map = Maps.newHashMap();
-		Long userId = CookieUtil.getUserIdFromCookie(httpServletRequest);
-		ResponseResult result = orderService.awaitPayOrder(orderPay,userId);
-		map.put("payResult", result);
-		return map;
+	public Map<String, Object> awaitPayOrder(@RequestBody OrderPayPOJO orderPay,HttpServletRequest request) throws BusinessException {
+		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> resultMap = new HashMap<>();
+		if(orderPay == null){
+			map.put("code", 1004);
+			map.put("msg", "订单支付参数不能为空");
+			resultMap.put("status", map);
+			return resultMap;
+		}
+		Long userId = CookieUtil.getUserIdFromCookie(request);
+		WxPayInfo payInfo = null;
+		try {
+			payInfo = orderService.awaitPayOrder(request, orderPay, userId);
+			if(payInfo == null){
+				map.put("code", 1004);
+				map.put("msg", "订单支付失败");
+				resultMap.put("status", map);
+				return resultMap;
+			}
+		} catch (JSONException e) {
+			logger.error("订单支付Json转换异常",e);
+		}
+		map.put("code", 1001);
+		map.put("msg", "请求成功");
+		resultMap.put("status", map);
+		resultMap.put("data",payInfo);
+		return resultMap;
 	}
 
 

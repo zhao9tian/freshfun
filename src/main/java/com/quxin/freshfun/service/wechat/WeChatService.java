@@ -21,4 +21,10 @@ public interface WeChatService {
      */
     WxPayInfo wzPay(HttpServletRequest request,String payId, String payMoney, String openId) throws JSONException;
 
+    /**
+     * 二维码扫描支付
+     * @return
+     */
+    String QRCodePay(HttpServletRequest request,String payId, String payMoney, String openId) throws JSONException;
+
 }

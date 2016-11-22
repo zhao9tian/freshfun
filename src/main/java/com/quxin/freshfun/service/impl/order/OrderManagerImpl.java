@@ -250,15 +250,24 @@ public class OrderManagerImpl implements OrderManager {
 		return totals;
 	}
 
+	/**
+	 * 查询单个商品信息
+	 * @param orderDetailsId 订单编号
+	 * @return
+	 */
 	@Override
 	public OrderDetailsPOJO selectSigleOrder(Long orderDetailsId) {
-		List<OrderDetailsPOJO> sigleOrder = orderDetailsMapper.selectSigleOrder(orderDetailsId);
-		if(sigleOrder != null && sigleOrder.size() > 0){
-			OrderDetailsPOJO detailsPOJO = sigleOrder.get(0);
-			detailsPOJO.setActualMoney(MoneyFormat.priceFormatString(detailsPOJO.getActualPrice()));
-			detailsPOJO.setActualPrice(null);
-			getAddress(detailsPOJO);
-			return detailsPOJO;
+		if(orderDetailsId != null)
+			logger.error("查询订单详情订单编号不能为null");
+		OrderDetailsPOJO sigleOrder = orderDetailsMapper.selectSigleOrder(orderDetailsId);
+		if(sigleOrder != null){
+			//根据订单编号查询商品信息
+			GoodsParam goodsParam = goodsBaseMapper.selectGoodsByGoodsId(sigleOrder.getGoodsId().longValue());
+			sigleOrder.setGoods(goodsParam);
+			sigleOrder.setActualMoney(MoneyFormat.priceFormatString(sigleOrder.getActualPrice()));
+			sigleOrder.setActualPrice(null);
+			getAddress(sigleOrder);
+			return sigleOrder;
 		}
 		return null;
 	}
