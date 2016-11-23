@@ -24,7 +24,7 @@ public interface OrderService {
 	 * @param orderInfo
 	 * @return
 	 */
-	ResponseResult addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException;
+	WxPayInfo addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException;
 
 	/**
 	 * 全名电商支付
@@ -44,8 +44,18 @@ public interface OrderService {
 	 * @param order
 	 * @return
 	 */
-	ResponseResult awaitPayOrder(OrderPayPOJO order,Long userId);
-	
+	WxPayInfo awaitPayOrder(HttpServletRequest request,OrderPayPOJO order,Long userId) throws BusinessException, JSONException;
+
+	/**
+	 * 二维码支付
+	 */
+	String QRCodePay(HttpServletRequest request,String productId,String openId) throws BusinessException, JSONException;
+
+	/**
+	 * 支付回调
+	 * @param in 输出流
+	 * @return
+	 */
 	int PayCallback(InputStream in);
 	
 	/**
@@ -54,6 +64,12 @@ public interface OrderService {
 	 * @return 返回物流信息
 	 */
 	OrderDetailsPOJO getOrderLogistic(Long orderId);
+	/**
+	 * 根据订单编号查询二维码支付url
+	 * @param orderId
+	 * @return
+	 */
+	String findPayUrl(Long orderId) throws BusinessException;
 
 	String getOpenId(Long userId);
 
@@ -77,18 +93,4 @@ public interface OrderService {
 	 */
 	WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request) throws BusinessException, UnsupportedEncodingException, JSONException;
 
-	/**
-	 * 根据父级订单编号查询支付信息
-	 * @return
-	 */
-	List<OrderDetailsPOJO> selectPayId(Long parentOrderId);
-
-	/**
-	 * 根据订单编号查询支付信息
-	 * @param orderId
-	 * @return
-	 */
-	OrderDetailsPOJO selectPayOrderInfoById(Long orderId);
-
-	void senderMail(OrderDetailsPOJO order,int sign);
 }

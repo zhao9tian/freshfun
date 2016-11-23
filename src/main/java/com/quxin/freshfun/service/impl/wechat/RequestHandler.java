@@ -1,6 +1,8 @@
 package com.quxin.freshfun.service.impl.wechat;
 
 
+import com.quxin.freshfun.utils.weixinPayUtils.WxConstantUtil;
+
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -28,7 +30,8 @@ public class RequestHandler {
 	 * 构造函数
 	 */
 	public RequestHandler() {
-		this.gateUrl = "https://gw.tenpay.com/gateway/pay.htm";
+		//"https://gw.tenpay.com/gateway/pay.htm"
+		this.gateUrl = WxConstantUtil.GATEURL;
 		this.key = "";
 		this.parameters = new TreeMap<>();
 		this.debugInfo = "";

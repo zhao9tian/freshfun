@@ -74,12 +74,26 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
   <!-- 查询单个商品 -->
-  <select id="selectSigleOrder" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select `id`,`address_id`,`goods_id`,`pay_time`,`create_date`,`update_date`,`count`,`order_status`,`actual_price`,`delivery_num`,`pay_price`,`recive_time`,`name`,`tel`,`city`,`address`,`province_code`,`city_code`,`district_code` from order_details where id = #{orderId} and is_deleted = 0
+  <select id="selectSigleOrder" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
+    select `id`,`address_id` as `addressId`,
+    `goods_id` as `goodsId`,
+    `pay_time` as `payTime`,
+    `create_date` as `createDate`,
+    `update_date` as `updateDate`,
+    `count`,`order_status` as `orderStatus`,
+    `actual_price` as `actualPrice`,
+    `delivery_num` as `deliveryNum`,
+    `pay_price` as `payPrice`,
+    `recive_time` as `reciveTime`,
+    `name`,`tel`,`city`,`address`,
+    `province_code` as `provCode`,
+    `city_code` as `cityCode`,
+    `district_code` as `distCode`
+    from order_details where id = #{orderId}
   </select>
   <!-- 查询代支付订单 -->
-  <select id="selectPayOrder" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select actual_price from order_details where id = #{orderDetailsId} and is_deleted = 0 and order_status = 10
+  <select id="selectPayOrder" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
+    select `actual_price` as `actualPrice` from order_details where id = #{orderDetailsId} and is_deleted = 0 and order_status = 10
   </select>
 
   <!-- 根据用户编号分页查询所有订单 -->
@@ -164,7 +178,6 @@
     and (create_date + 1440*60 - unix_timestamp(now())) <![CDATA[>]]>0
   </select>
 
-
   <!-- 根据parentOrderId查询付款编号,商品编号 -->
   <select id="selectPayId" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select `id`,`goods_id`,`actual_price`,
@@ -194,6 +207,7 @@
     `district_code` as `distCode`
      from order_details where id = #{orderId}
   </select>
+
   <!-- 查询付款编号 -->
   <select id="selectPayIdByOrderDetailsId" parameterType="java.lang.String" resultMap="PayResultId">
     select id from order_details where id = #{orderId}
@@ -251,6 +265,14 @@
     delete from order_details
     where id = #{id,jdbcType=INTEGER}
   </delete>
+  
+  <!--二维码支付url-->
+  <update id="updatePayUrl" parameterType="java.util.HashMap">
+    update order_details set pay_url = #{payUrl} where id = #{orderId}
+  </update>
+  <select id="selectPayUrl" parameterType="java.lang.Long" resultType="java.lang.String">
+    select pay_url from order_details where id = #{orderId}
+  </select>
   <insert id="insert" parameterType="com.quxin.freshfun.model.OrderDetailsPOJO">
     <!--
       WARNING - @mbggenerated

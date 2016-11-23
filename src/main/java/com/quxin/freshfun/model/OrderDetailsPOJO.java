@@ -86,6 +86,10 @@ public class OrderDetailsPOJO {
      * 平台标识
      */
     private String appId;
+    /**
+     * 二维码支付url
+     */
+    private String payUrl;
 
     //    private GoodsPOJO goods;
     private GoodsParam goods;
@@ -103,6 +107,14 @@ public class OrderDetailsPOJO {
      * 订单用户昵称
      */
     private String nickName;
+
+    public String getPayUrl() {
+        return payUrl;
+    }
+
+    public void setPayUrl(String payUrl) {
+        this.payUrl = payUrl;
+    }
 
     public String getAppId() {
         return appId;

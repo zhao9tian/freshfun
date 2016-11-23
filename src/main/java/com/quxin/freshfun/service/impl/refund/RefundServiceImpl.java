@@ -44,7 +44,7 @@ public class RefundServiceImpl implements RefundService{
 			Integer isSuc1 = refundMapper.save(refund);
 			if(isSuc1 == 1){
 				//修改订单状态为退货,保存退款前的状态
-				Integer orderStatus = orderDetailsMapper.selectSigleOrder(refund.getOrderId()).get(0).getOrderStatus();
+				Integer orderStatus = orderDetailsMapper.selectSigleOrder(refund.getOrderId()).getOrderStatus();
 				Map<String , Object> map = new HashMap<>();
 				map.put("orderId" ,refund.getOrderId());
 				map.put("orderStatus" , orderStatus);

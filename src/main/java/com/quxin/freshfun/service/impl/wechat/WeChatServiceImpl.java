@@ -5,6 +5,7 @@ import com.quxin.freshfun.model.outparam.WxShareInfo;
 import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.model.param.WxTicketInfo;
 import com.quxin.freshfun.service.wechat.WeChatService;
+import com.quxin.freshfun.utils.FieldUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.*;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by qingtian on 2016/10/18.
@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Service
 public class WeChatServiceImpl implements WeChatService {
-
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     /**
@@ -69,6 +68,10 @@ public class WeChatServiceImpl implements WeChatService {
         String noncestr = WXUtil.getNonceStr();
         //签名时间戳
         String timestamp = WXUtil.getTimeStamp();
+        //订单号
+        StringBuilder outTradeNo = new StringBuilder();
+        outTradeNo.append(payId);
+        outTradeNo.append(String.valueOf(System.currentTimeMillis()));
         ////设置获取prepayid支付参数
         prepayReqHandler.setParameter("appid", WxConstantUtil.APP_ID);
         prepayReqHandler.setParameter("body", "悦选美食"); //商品描述
@@ -76,10 +79,10 @@ public class WeChatServiceImpl implements WeChatService {
         prepayReqHandler.setParameter("mch_id", WxConstantUtil.PARTNER); //商户号
         prepayReqHandler.setParameter("nonce_str", noncestr);
         prepayReqHandler.setParameter("notify_url", WxConstantUtil.NOTIFY_URL);
-        prepayReqHandler.setParameter("out_trade_no", payId);
+        prepayReqHandler.setParameter("out_trade_no", outTradeNo.toString());
         prepayReqHandler.setParameter("total_fee",payMoney); //商品金额,以分为单位
         prepayReqHandler.setParameter("spbill_create_ip",request.getRemoteAddr()); //订单生成的机器IP，指用户浏览器端IP
-        prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币   66
+        prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币
         prepayReqHandler.setParameter("trade_type","JSAPI");
         prepayReqHandler.setParameter("openid",openId);
         //生成获取预支付签名
@@ -92,9 +95,77 @@ public class WeChatServiceImpl implements WeChatService {
         String prepayid = prepayReqHandler.sendPrepay();
         if(!StringUtils.isEmpty(prepayid)){
             //生成客户端支付签名
-           info = paySign(prepayid,noncestr,timestamp);
+           info = paySign(prepayid,noncestr,timestamp,payId);
         }
         return info;
+    }
+
+    /**
+     * 二维码扫描支付
+     * @param request 请求
+     * @param payId 订单编号
+     * @param payMoney 支付金额
+     * @param openId 标识
+     * @return
+     */
+    @Override
+    public String QRCodePay(HttpServletRequest request, String payId, String payMoney, String openId) throws JSONException {
+        //预支付编号请求类
+        PrepayIdRequestHandler prepayReqHandler = new PrepayIdRequestHandler();
+        ClientRequestHandler clientHandler = new ClientRequestHandler();
+        //签名随机串
+        String noncestr = WXUtil.getNonceStr();
+        //签名时间戳
+        String timestamp = WXUtil.getTimeStamp();
+        //订单号
+        StringBuilder outTradeNo = new StringBuilder();
+        outTradeNo.append(payId);
+        outTradeNo.append(String.valueOf(System.currentTimeMillis()));
+        ////设置获取prepayid支付参数
+        prepayReqHandler.setParameter("appid", WxConstantUtil.APP_ID);
+        prepayReqHandler.setParameter("body", "悦选美食"); //商品描述
+        prepayReqHandler.setParameter("attach", payId);
+        prepayReqHandler.setParameter("mch_id", WxConstantUtil.PARTNER); //商户号
+        prepayReqHandler.setParameter("nonce_str", noncestr);
+        prepayReqHandler.setParameter("notify_url", WxConstantUtil.NOTIFY_URL);
+        prepayReqHandler.setParameter("out_trade_no", outTradeNo.toString());
+        prepayReqHandler.setParameter("total_fee",payMoney); //商品金额,以分为单位
+        prepayReqHandler.setParameter("spbill_create_ip",WxConstantUtil.CREATE_IP); //订单生成的机器IP，指用户浏览器端IP
+        prepayReqHandler.setParameter("fee_type", "1"); //币种，1人民币
+        prepayReqHandler.setParameter("trade_type","NATIVE");
+        prepayReqHandler.setParameter("openid",openId);
+        //生成获取预支付签名
+        String sign = prepayReqHandler.createMD5Sign(WxConstantUtil.PARTNER_KEY);
+        //增加非参与签名的额外参数
+        prepayReqHandler.setParameter("sign", sign);
+        String gateUrl = WxConstantUtil.GATEURL;
+        prepayReqHandler.setGateUrl(gateUrl);
+        //获取prepayId
+        String prepayid = prepayReqHandler.sendPrepay();
+        if(!StringUtils.isEmpty(prepayid)){
+            clientHandler.setParameter("return_code","SUCCESS");
+            clientHandler.setParameter("appid",WxConstantUtil.APP_ID);
+            clientHandler.setParameter("mch_id",WxConstantUtil.PARTNER);
+            clientHandler.setParameter("nonce_str",noncestr);
+            clientHandler.setParameter("prepay_id",prepayid);
+            clientHandler.setParameter("result_code","SUCCESS");
+            sign = clientHandler.createMD5Sign(WxConstantUtil.PARTNER_KEY);
+            clientHandler.setParameter("sign",sign);
+            String jsonBody = clientHandler.getJsonBody();
+            return FieldUtil.jsonToXml(jsonBody);
+        } else {
+            clientHandler.setParameter("return_code","FAIL");
+            clientHandler.setParameter("appid",WxConstantUtil.APP_ID);
+            clientHandler.setParameter("mch_id",WxConstantUtil.PARTNER);
+            clientHandler.setParameter("nonce_str",noncestr);
+            clientHandler.setParameter("prepay_id",prepayid);
+            clientHandler.setParameter("result_code","FAIL");
+            clientHandler.setParameter("err_code_des","网络似乎有点问题，请重试");
+            sign = clientHandler.createMD5Sign(WxConstantUtil.PARTNER_KEY);
+            clientHandler.setParameter("sign",sign);
+            String jsonBody = clientHandler.getJsonBody();
+            return FieldUtil.jsonToXml(jsonBody);
+        }
     }
 
     /**
@@ -104,7 +175,7 @@ public class WeChatServiceImpl implements WeChatService {
      * @param noncestr
      *@param prepayid  @return
      */
-    private WxPayInfo paySign(String prepayid, String noncestr, String timestamp) {
+    private WxPayInfo paySign(String prepayid, String noncestr, String timestamp,String payId) {
         StringBuilder sb = new StringBuilder();
         sb.append("appId=");
         sb.append(WxConstantUtil.APP_ID);
@@ -117,6 +188,31 @@ public class WeChatServiceImpl implements WeChatService {
         sb.append("&key=");
         sb.append(WxConstantUtil.PARTNER_KEY);
         String payStr = MD5Util.MD5Encode(sb.toString(),"UTF-8").toUpperCase();
+        //支付Url
+        StringBuilder payUrl = new StringBuilder();
+        StringBuilder signStr = new StringBuilder();
+        StringBuilder encodeStr = new StringBuilder();
+        payUrl.append("weixin://wxpay/bizpayurl?");
+        signStr.append("appid=");
+        signStr.append(WxConstantUtil.APP_ID);
+        signStr.append("&mch_id=");
+        signStr.append(WxConstantUtil.PARTNER);
+        signStr.append("&nonce_str=");
+        signStr.append(noncestr);
+        signStr.append("&product_id=");
+        signStr.append(payId);
+        signStr.append("&time_stamp=");
+        signStr.append(timestamp);
+
+        encodeStr.append(signStr);
+        encodeStr.append("&key=");
+        encodeStr.append(WxConstantUtil.PARTNER_KEY);
+        //签名
+        String paySign = MD5Util.MD5Encode(encodeStr.toString(),"UTF-8").toUpperCase();
+        signStr.append("&sign=");
+        signStr.append(paySign);
+        payUrl.append(signStr.toString());
+
 
         WxPayInfo info = new WxPayInfo();
         info.setAppid(WxConstantUtil.APP_ID);
@@ -125,6 +221,7 @@ public class WeChatServiceImpl implements WeChatService {
         info.setNoncestr(noncestr);
         info.setPrepayid(prepayid);
         info.setPackageInfo("MD5");
+        info.setPayUrl(payUrl.toString());
         return info;
     }
 

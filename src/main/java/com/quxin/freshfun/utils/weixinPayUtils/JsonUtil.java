@@ -11,7 +11,6 @@ public class JsonUtil {
 			jsonObject = new JSONObject(rescontent);
 			v = jsonObject.getString(key);
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		return v;

@@ -11,11 +11,10 @@ public class ClientRequestHandler extends PrepayIdRequestHandler {
 
 	public ClientRequestHandler() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public String getXmlBody() {
-		StringBuffer sb = new StringBuffer();
+	public String getJsonBody() {
+		StringBuilder sb = new StringBuilder();
 		Set<Object> es = super.getAllParameters().entrySet();
 		Iterator<Object> it = es.iterator();
 		sb.append('{');
@@ -23,12 +22,7 @@ public class ClientRequestHandler extends PrepayIdRequestHandler {
 			Map.Entry<String,String> entry = (Map.Entry<String,String>) it.next();
 			String k = entry.getKey();
 			String v = entry.getValue();
-			if (!"appkey".equals(k)) {
-				sb.append(k);
-				sb.append(":");
-				sb.append(v);
-				sb.append(",");
-			}
+			sb.append("\"" + k + "\":\"" + v + "\",");
 		}
 		String reqPars = sb.substring(0, sb.lastIndexOf(","));
 		reqPars+='}';

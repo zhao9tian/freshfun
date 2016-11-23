@@ -61,7 +61,7 @@ public interface OrderDetailsMapper {
      * @param orderDetailsId
      * @return
      */
-    List<OrderDetailsPOJO> selectSigleOrder(Long orderDetailsId);
+    OrderDetailsPOJO selectSigleOrder(Long orderDetailsId);
     /**
      * 修改订单支付状态
      * @param orderId
@@ -248,7 +248,17 @@ public interface OrderDetailsMapper {
      */
     List<Long> selectOvertimeOrder();
 
-    List<OrderDetailsPOJO> selectOrders();
+    /**
+     * 修改二维码支付url
+     * @param map
+     * @return
+     */
+    Integer updatePayUrl(Map<String,Object> map);
 
-    Integer updatePayPrice(@Param("payPrice") Integer payPrice,@Param("id") Long id);
+    /**
+     * 根据订单编号查询二维码支付url
+     * @param orderId
+     * @return
+     */
+    String selectPayUrl(Long orderId);
 }
