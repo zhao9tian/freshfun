@@ -31,6 +31,58 @@ public class RefundParam {
      */
     private String refundDes;
 
+
+    /******************************兼容IOS*************************************/
+    private String orderDetailsId;
+    private String serviceType;
+    private String returnReason;
+    private String returnDes;
+    private String returnMoney;
+
+
+    public String getOrderDetailsId() {
+        return orderDetailsId;
+    }
+
+    public void setOrderDetailsId(String orderDetailsId) {
+        this.orderDetailsId = orderDetailsId;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getReturnReason() {
+        return returnReason;
+    }
+
+    public void setReturnReason(String returnReason) {
+        this.returnReason = returnReason;
+    }
+
+    public String getReturnDes() {
+        return returnDes;
+    }
+
+    public void setReturnDes(String returnDes) {
+        this.returnDes = returnDes;
+    }
+
+    public String getReturnMoney() {
+        return returnMoney;
+    }
+
+    public void setReturnMoney(String returnMoney) {
+        this.returnMoney = returnMoney;
+    }
+
+    /******************************兼容IOS*************************************/
+
+
     public Long getOrderId() {
         return orderId;
     }

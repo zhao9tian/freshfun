@@ -32,11 +32,11 @@ public class KdniaoTrackQueryAPI {
      * @throws Exception 异常
      */
     public static String getOrderTracesByJson(String expCode, String expNo) throws Exception{
-        String EBusinessID = "1264904";
-        String appKey = "9dcafff3-fd2e-4986-85c8-a3b91caec0cf";
+        String EBusinessID = "1266636";
+        String appKey = "d8721e53-fc14-40c2-b0e6-598fa92f2a07";
         String reqURL = "http://api.kdniao.cc/Ebusiness/EbusinessOrderHandle.aspx";
 
-        String requestData= "{'OrderCode':'','ShipperCode':'" + expCode + "','LogisticCode':'" + expNo + "'}";
+        String requestData= "{'ShipperCode':'" + expCode + "','LogisticCode':'" + expNo + "'}";
         Map<String, String> params = new HashMap<>();
         params.put("RequestData", urlEncoder(requestData, "UTF-8"));
         params.put("EBusinessID", EBusinessID);
@@ -216,8 +216,9 @@ public class KdniaoTrackQueryAPI {
     public static void main(String[] args) {
         try {
             long start = System.currentTimeMillis();
-//            String result = api.getOrderTracesByJson("GTO", "2847951289");
-            String result = getOrderTracesByJson("HTKY", "70351809261132");
+            String result = getOrderTracesByJson("HHTT", "667066701783");
+//            String result = getOrderTracesByJson("EMS", "9890284736116");
+            //state 0-无轨迹 1-已揽收  2-在途中  201-到达派件城市 3-签收  4问题件
             System.out.println(System.currentTimeMillis()-start);
             System.out.println(result);
             Map map = JSON.parseObject(result,Map.class);
