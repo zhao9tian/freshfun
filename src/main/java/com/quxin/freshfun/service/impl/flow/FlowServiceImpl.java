@@ -2,6 +2,7 @@ package com.quxin.freshfun.service.impl.flow;
 
 import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.dao.*;
+import com.quxin.freshfun.model.FlowBasePOJO;
 import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.pojo.FlowPOJO;
 import com.quxin.freshfun.service.flow.FlowService;
@@ -112,6 +113,43 @@ public class FlowServiceImpl implements FlowService {
 		return cnt;
 	}
 
+	@Override
+	public Boolean addFlowBase(FlowBasePOJO flowBasePOJO) {
+		if (validateFlow(flowBasePOJO)) {
+			//最后一条记录的余额
+			Integer lastestBalance = flowMapper.selectBalanceByAppId(flowBasePOJO.getAppId());
+			Integer newBalance = 0;
+			if (lastestBalance != null) {//存在余额
+				if (flowBasePOJO.getFlowType() == 0) {//入账
+					newBalance = lastestBalance + flowBasePOJO.getFlowMoney();
+				} else if (flowBasePOJO.getFlowType() == 1) {//提现
+					newBalance = lastestBalance - flowBasePOJO.getFlowMoney();
+					if (newBalance < 0) {
+						logger.error("提现金额大于余额");
+						return false;
+					}
+				}
+			} else {//不存在余额,无法提现,只会入账
+				newBalance = flowBasePOJO.getFlowMoney();
+				if (flowBasePOJO.getFlowType() == 1) {
+					logger.error("提现金额大于余额");
+					return false;
+				}
+			}
+			flowBasePOJO.setBalance(newBalance);
+			flowBasePOJO.setIsDeleted(0);//默认值
+			try {
+				if (flowMapper.insertFlow(flowBasePOJO) == 1) {
+					return true;
+				}
+			} catch (Exception e) {
+				logger.error("mybatis插入异常" + e);
+			}
+
+		}
+		return false;
+	}
+
 	/**
 	 * 参数校验
 	 * @param flowParam
@@ -127,5 +165,49 @@ public class FlowServiceImpl implements FlowService {
 		}
 
 		return ValidateUtil.success();
+	}
+
+
+	/**
+	 * 校验新的流水
+	 *
+	 * @param flow 流水对象
+	 * @return 是否通过校验
+	 */
+	private boolean validateFlow(FlowBasePOJO flow) {
+		if (flow != null) {
+			if (flow.getAppId() == null || 0 == flow.getAppId()) {
+				logger.error("appId为空");
+				return false;
+			}
+			if (flow.getFlowType() == null) {
+				logger.error("流水类型为空");
+				return false;
+			} else {
+				if (flow.getFlowType() == 0) {
+					if (flow.getOrderId() == null) {
+						logger.error("入账记录orderId为空");
+						return false;
+					}
+				}
+			}
+			if (flow.getFlowMoney() == null) {
+				logger.error("流水金额为空");
+				return false;
+			}
+			if (flow.getCreated() == null) {
+				logger.error("流水记录生成时间为空");
+				return false;
+			}
+			if (flow.getUpdated() == null){
+				logger.error("流水记录编辑时间为空");
+				return false;
+			}
+
+		} else {
+			logger.error("流水对象为空");
+			return false;
+		}
+		return true;
 	}
 }

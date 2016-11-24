@@ -108,4 +108,32 @@
     limit 1
   </select>
 
+  <!--插入流水记录-->
+  <insert id="insertFlow" parameterType="com.quxin.freshfun.model.FlowBasePOJO" useGeneratedKeys="true"
+          keyProperty="flowId">
+    insert into flow_base( app_id , flow_type , flow_money , created , updated ,
+    <if test="orderId != null">
+      order_id ,
+    </if>
+    <if test="balance != null">
+      balance ,
+    </if>
+    is_deleted
+    )values(#{appId} , #{flowType} ,#{flowMoney} , #{created} , #{updated} ,
+    <if test="orderId != null">
+      #{orderId} ,
+    </if>
+    <if test="balance != null">
+      #{balance} ,
+    </if>
+    #{isDeleted})
+  </insert>
+
+  <!--根据appId查询余额-->
+  <select id="selectBalanceByAppId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select balance from flow_base where id = (select max(id) from flow_base
+    where app_id = #{appId} and is_deleted = 0)
+  </select>
+
+
 </mapper>

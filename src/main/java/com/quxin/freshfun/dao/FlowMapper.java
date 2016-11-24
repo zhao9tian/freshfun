@@ -1,5 +1,6 @@
 package com.quxin.freshfun.dao;
 
+import com.quxin.freshfun.model.FlowBasePOJO;
 import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.pojo.FlowPOJO;
 
@@ -50,4 +51,18 @@ public interface FlowMapper {
      * @return
      */
     Integer getCount(Long userId);
+
+    /**
+     * 根据AppId查询余额
+     * @param appId 平台Id
+     * @return 余额
+     */
+    Integer selectBalanceByAppId(Long appId);
+
+    /**
+     * 插入流水
+     * @param flow 流水对象
+     * @return 插入记录数
+     */
+    Integer insertFlow(FlowBasePOJO flow);
 }
