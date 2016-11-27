@@ -279,7 +279,7 @@ public class OrderController {
 	 */
 	@RequestMapping(value="/createOrder",method={RequestMethod.POST})
 	@ResponseBody
-	public Map<String, Object> createOrder(@RequestBody OrderInfo orderInfo,HttpServletRequest request){
+	public Map<String, Object> createOrder(@RequestBody OrderInfo orderInfo,HttpServletRequest request) throws BusinessException {
 		Map<String, Object> map = new HashMap<>();
 		Map<String, Object> resultMap = new HashMap<>();
 		WxPayInfo wxPayInfo = null;
@@ -304,8 +304,6 @@ public class OrderController {
 			}else{
 				logger.error("用户创建订单时userId为null");
 			}
-		} catch (BusinessException e) {
-			logger.error("添加订单失败",e);
 		} catch (JSONException e) {
 			logger.error("订单支付Json转换异常",e);
 		}
