@@ -85,7 +85,7 @@ public class OrderDetailsPOJO {
     /**
      * 平台标识
      */
-    private String appId;
+    private Long appId;
     /**
      * 二维码支付url
      */
@@ -116,10 +116,10 @@ public class OrderDetailsPOJO {
         this.payUrl = payUrl;
     }
 
-    public String getAppId() {
+    public Long getAppId() {
         return appId;
     }
-    public void setAppId(String appId) {
+    public void setAppId(Long appId) {
         this.appId = appId;
     }
 

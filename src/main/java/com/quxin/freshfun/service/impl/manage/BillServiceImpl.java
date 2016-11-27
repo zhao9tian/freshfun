@@ -64,12 +64,12 @@ public class BillServiceImpl implements BillService {
                         flowParam.setFetcherFlow(order.getFetcherPrice().longValue());
                         flowService.add(flowParam);
                     }
-                    if (order.getAppId() != null && !"888888".equals(order.getAppId())) {//
+                    if (order.getAppId() != null && order.getAppId() != 888888) {//
                         FlowBasePOJO flowParam = new FlowBasePOJO();
                         flowParam.setOrderId(order.getId());
                         flowParam.setCreated(order.getReciveTime() + 7 * 24 * 60 * 60);
                         flowParam.setUpdated(order.getReciveTime() + 7 * 24 * 60 * 60);
-                        flowParam.setAppId(Long.parseLong(order.getAppId()));
+                        flowParam.setAppId(order.getAppId());
                         flowParam.setFlowMoney(order.getActualPrice() / 10);
                         flowParam.setFlowType(0);//默认入账
                         flowService.addFlowBase(flowParam);

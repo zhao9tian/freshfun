@@ -227,7 +227,7 @@ public class OrderServiceImpl implements OrderService {
 		if(!StringUtils.isEmpty(orderInfo.getAppId())){
 			Long urlId = FreshFunEncoder.urlToId(orderInfo.getAppId());
 			if(urlId != null){
-				od.setAppId(urlId.toString());
+				od.setAppId(urlId);
 			}
 		}
 		/**
