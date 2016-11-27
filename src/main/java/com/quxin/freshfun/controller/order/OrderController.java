@@ -290,8 +290,7 @@ public class OrderController {
 			return resultMap;
 		}
 		try {
-			//Long userId = CookieUtil.getUserIdFromCookie(request);
-			Long userId = 557319l;
+			Long userId = CookieUtil.getUserIdFromCookie(request);
 			if(userId != null){
 				orderInfo.setUserId(userId);
 				wxPayInfo = orderService.addOrder(orderInfo, request);
