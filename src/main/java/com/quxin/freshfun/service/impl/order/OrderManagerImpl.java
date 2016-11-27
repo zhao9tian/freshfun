@@ -257,7 +257,7 @@ public class OrderManagerImpl implements OrderManager {
 	 */
 	@Override
 	public OrderDetailsPOJO selectSigleOrder(Long orderDetailsId) {
-		if(orderDetailsId != null)
+		if(orderDetailsId == null)
 			logger.error("查询订单详情订单编号不能为null");
 		OrderDetailsPOJO sigleOrder = orderDetailsMapper.selectSigleOrder(orderDetailsId);
 		if(sigleOrder != null){

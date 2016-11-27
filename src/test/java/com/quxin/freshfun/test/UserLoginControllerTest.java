@@ -15,6 +15,7 @@ import com.quxin.freshfun.service.impl.user.UserServiceImpl;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.user.UserService;
+import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.CookieUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -94,7 +95,7 @@ public class UserLoginControllerTest extends TestBase{
     }
 
     @Test
-    public void getUserIdFromFetcherId(){
+    public void getUserIdFromFetcherId() throws BusinessException {
         Long userId = FreshFunEncoder.urlToId("12afdr");
         UserInfoOutParam user = userBaseService.queryUserInfoByUserId(userId);
         System.out.print(user.getUserName());
