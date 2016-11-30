@@ -7,6 +7,8 @@ import com.quxin.freshfun.model.pojo.UserBasePOJO;
 import com.quxin.freshfun.service.user.NickNameService;
 import com.quxin.freshfun.service.user.UserBaseService;
 import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ public class NickNameServiceImpl implements NickNameService{
 
     @Autowired
     private UserBaseService userBaseService;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * 获取随机昵称
@@ -38,11 +41,10 @@ public class NickNameServiceImpl implements NickNameService{
             user = userBaseService.queryUserNameCount(nickNameStr);
 
             if(user!=null){//已被使用
-                System.out.println("user.getNicknameCount():"+user.getUserNameCount());
+                logger.warn("获取随机昵称使用次数:"+user.getUserNameCount());
                 nickNameStr = nickNameStr + "_" + user.getUserNameCount().toString();
                 //更新受影响行数
                 Integer result = userBaseService.modifyUserNameCount(user.getUserId(),user.getUserNameCount()+1);
-                System.out.println("受影响行数："+result);
             }
         }while (user!=null);
         return nickNameStr;

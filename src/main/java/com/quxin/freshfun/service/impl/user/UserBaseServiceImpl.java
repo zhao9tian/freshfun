@@ -214,9 +214,17 @@ public class UserBaseServiceImpl implements UserBaseService {
     @Override
     public UserBasePOJO queryUserNameCount(String nickName){
         if(nickName==null||"".equals(nickName)){
+            logger.warn("查询昵称的使用次数，入参有误");
             return null;
         }
-        UserBasePOJO userInfo = userBaseMapper.selectUserNameCount(nickName);
+        UserBasePOJO userInfo = null;
+        try{
+            userInfo = userBaseMapper.selectUserNameCount(nickName);
+        }catch (Exception e){
+            logger.warn("查询昵称"+nickName+"的使用次数出错");
+            logger.error(e.getMessage());
+        }
+
         return userInfo;
     }
 
