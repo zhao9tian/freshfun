@@ -197,11 +197,6 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
-	@Override
-	public String getOpenId(Long userId){
-        return userBaseService.queryUserInfoByUserId(userId).getOpenId();
-	}
-
 	/**
 	 * 根据用户提交的信息生成订单详情
 	 * @param payInfo
@@ -611,16 +606,6 @@ public class OrderServiceImpl implements OrderService {
 			ResponseResult payResult = orderPay(sb.toString(),agentPrice.toString(),info.getCode(),openId);
 			return payResult;
 		}
-	}
-
-
-    @Override
-	public Integer queryAllIncome(Long id) {
-		return orderDetailsMapper.selectAllIncome(id);
-	}
-	@Override
-	public Integer queryEarnedIncome(Long id) {
-		return orderDetailsMapper.selectEarnedIncome(id);
 	}
 
 	/**

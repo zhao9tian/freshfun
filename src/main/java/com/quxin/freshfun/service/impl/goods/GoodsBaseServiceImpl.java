@@ -259,7 +259,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
     @Override
     public SpecialOut getSpecialDetails(Long specialId) throws BusinessException {
         if(specialId == null){
-            throw new BusinessException("查询专题专题编号不能为空'");
+            throw new BusinessException("查询专题专题编号不能为空");
         }
         ThemePOJO theme = goodsThemeMapper.selectThemeById(specialId);
         //查询推荐商品

@@ -240,7 +240,7 @@
     from order_details where id = #{orderId} order by create_date DESC
   </select>
 
-  <!--查询所有过14天没有确认收货订单-->
+  <!--sd    9p-->
   <select id="selectUnConfirmOrder" resultMap="BaseResultMap" >
     select `id`,`user_id`,`agent_id`,`agent_price`,`fetcher_id`,`fetcher_price`
     from order_details where order_status = 50 and is_deleted = 0 and (delivery_time + 20160*60 - unix_timestamp(now())) <![CDATA[<]]> 0
@@ -588,14 +588,6 @@
 
   <select id="applyRefund" parameterType="java.lang.String" resultType="java.lang.Long">
     select id from order_details where id =#{orderDetailId} and order_status = 70 and (recive_time + 7 * 24 * 3600 - UNIX_TIMESTAMP(NOW())  <![CDATA[>]]> 0 )
-  </select>
-
-  <select id="selectAllIncome" parameterType="java.lang.Long" resultType="java.lang.Integer">
-    select sum(actual_price) from order_details where goods_id in (select id from goods where merchant_proxy_id = #{id,jdbcType=BIGINT})
-  </select>
-
-  <select id="selectEarnedIncome" parameterType="java.lang.Long" resultType="java.lang.Integer">
-    select sum(actual_price) from order_details where goods_id in (select id from goods where merchant_proxy_id = #{id,jdbcType=BIGINT}) and order_status=30
   </select>
 
 </mapper>

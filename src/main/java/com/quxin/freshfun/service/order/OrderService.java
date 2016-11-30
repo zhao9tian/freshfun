@@ -71,22 +71,6 @@ public interface OrderService {
 	 */
 	String findPayUrl(Long orderId) throws BusinessException;
 
-	String getOpenId(Long userId);
-
-	/**
-	 * 获取总收益
-	 * @param id
-	 * @return
-	 */
-	Integer queryAllIncome(Long id);
-
-	/**
-	 * 获取已入账收益
-	 * @param id
-	 * @return
-	 */
-	Integer queryEarnedIncome(Long id);
-
 	/**
 	 * 原生支付
 	 * @return

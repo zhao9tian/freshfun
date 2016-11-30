@@ -33,7 +33,7 @@
 
   <!--查询推荐商品-->
   <select id="findRecommendGoods" resultMap="BaseResultMap" >
-    select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where created >= ((select max(created) from goods)-(select min(created) from goods_base)) * rand() + (select min(created) from goods_base) and is_on_sale = 1 and is_deleted = 0 limit 10
+    select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where created >= ((select max(created) from goods_base)-(select min(created) from goods_base)) * rand() + (select min(created) from goods_base) and is_on_sale = 1 and is_deleted = 0 limit 10
   </select>
 
   <!--查询更多商品-->
