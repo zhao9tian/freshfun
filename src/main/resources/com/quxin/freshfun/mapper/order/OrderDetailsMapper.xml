@@ -87,6 +87,7 @@
     `recive_time` as `reciveTime`,
     `name`,`tel`,`city`,`address`,
     `province_code` as `provCode`,
+    `delivery_time` as `deliveryTime`,
     `city_code` as `cityCode`,
     `district_code` as `distCode`
     from order_details where id = #{orderId}
