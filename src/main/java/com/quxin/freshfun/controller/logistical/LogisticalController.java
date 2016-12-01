@@ -68,6 +68,11 @@ public class LogisticalController {
 				}
 				Collections.reverse(list);//倒序物流信息
 				Map<String , Object> data = Maps.newHashMap();
+				if(map.get("State")==null){
+					data.put("state" , 0);
+				}else{
+					data.put("state" , map.get("State"));
+				}
 				data.put("shipperCode" , map.get("ShipperCode"));
 				data.put("logisticCode" , map.get("LogisticCode"));
 				data.put("traces" , list);

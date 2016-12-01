@@ -216,13 +216,16 @@ public class KdniaoTrackQueryAPI {
     public static void main(String[] args) {
         try {
             long start = System.currentTimeMillis();
-            String result = getOrderTracesByJson("HHTT", "667066701783");
+//            String result = getOrderTracesByJson("SF", "504514526600");
+            String result = getOrderTracesByJson("YD", "1000785857681");
 //            String result = getOrderTracesByJson("EMS", "9890284736116");
+//            String result = getOrderTracesByJson("YD", "1000785857679");
             //state 0-无轨迹 1-已揽收  2-在途中  201-到达派件城市 3-签收  4问题件
             System.out.println(System.currentTimeMillis()-start);
             System.out.println(result);
             Map map = JSON.parseObject(result,Map.class);
 
+            System.out.println(map.get("State"));
             JSONArray jsonArray =  (JSONArray) map.get("Traces");
 
             Object[] objArr = jsonArray.toArray();
