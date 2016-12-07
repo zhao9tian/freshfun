@@ -208,7 +208,7 @@ public class WeChatServiceImpl implements WeChatService {
         SendWxMessage message = new SendWxMessage();
         message.setTouser(openId);
         message.setTemplate_id("gn8txiYywhVOOzqMaLsneOUAtmSoYBaCRQt_AHGbYvk");
-        message.setUrl("https://www.freshfun365.com/app/beforePay?orderId="+order.getId());
+        message.setUrl("https://www.freshfun365.com/app/beforeDel?orderId="+order.getId());
         message.setData(getOrderContent(order));
         Gson gson = new Gson();
         //发送请求
