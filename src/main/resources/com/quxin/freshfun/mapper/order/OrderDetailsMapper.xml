@@ -181,7 +181,7 @@
 
   <!-- 根据parentOrderId查询付款编号,商品编号 -->
   <select id="selectPayId" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select `id`,`goods_id`,`actual_price`,
+    select `id`,`user_id`,`goods_id`,`actual_price`,
     `pay_time`,`count`,`order_status`,
     `pay_plateform`,`pay_price`,`name`,
     `tel`,`city`,`address`,`pay_price`,`goods_cost`,
@@ -190,7 +190,7 @@
   </select>
   <!--根据orderId查询付款编号,商品编号-->
   <select id="selectPayOrderInfoById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
-    select `id`,`goods_id` as `goodsId`,
+    select `id`,`user_id` as `userId`,`goods_id` as `goodsId`,
     `actual_price` as `actualPrice`,
     `pay_time` as `payTime`,
     `count`,

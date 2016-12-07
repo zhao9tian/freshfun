@@ -32,6 +32,8 @@ public class WxConstantUtil {
      * 获取微信用户信息地址
      */
     public static String WX_USERINFO_URL = "https://api.weixin.qq.com/sns/userinfo?access_token=";
+
+    public static String WX_MESSAGE = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=";
     /**
      * 获取jsapi_ticket地址
      */

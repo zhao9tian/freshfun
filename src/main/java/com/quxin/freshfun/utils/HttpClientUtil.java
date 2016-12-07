@@ -38,7 +38,6 @@ import javax.net.ssl.X509TrustManager;
 public class HttpClientUtil {
 
 	private static HttpClient httpClient = HttpClients.createDefault();
-	//CloseableHttpClient httpClient = HttpClients.createDefault();
 
 	/**
 	 * 发送Get请求

@@ -77,4 +77,9 @@ public interface OrderService {
 	 */
 	WxPayInfo addWeixinAppPay(OrderInfo orderInfo, HttpServletRequest request) throws BusinessException, UnsupportedEncodingException, JSONException;
 
+	/**
+	 * 根据父级订单编号查询支付信息
+	 * @return
+	 */
+	List<OrderDetailsPOJO> selectPayId(Long parentOrderId);
 }

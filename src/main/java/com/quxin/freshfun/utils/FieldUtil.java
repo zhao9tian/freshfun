@@ -9,7 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.quxin.freshfun.model.Share;
+import com.quxin.freshfun.model.param.WxPushMessageResult;
 import net.sf.json.JSONSerializer;
 import net.sf.json.xml.XMLSerializer;
 
@@ -95,9 +97,17 @@ public class FieldUtil {
         System.out.println(ss);*/
 
         //String str = new String("绛惧悕閿欒\uE1E4".getBytes("",""));
-        String s = "会发光的m记\uD83C\uDF5F";
-        String str = new String(s.getBytes("utf-8"),"unicode");
-        System.out.println(str);
+//        String s = "会发光的m记\uD83C\uDF5F";
+//        String str = new String(s.getBytes("utf-8"),"unicode");
+//        System.out.println(str);
+        String str = "{\n" +
+                "           \"errcode\":0,\n" +
+                "           \"errmsg\":\"ok\",\n" +
+                "           \"msgid\":200228332\n" +
+                "       }";
+        Gson gson = new Gson();
+        WxPushMessageResult wxPushMessageResult = gson.fromJson(str, WxPushMessageResult.class);
+        System.out.println(wxPushMessageResult.getErrmsg());
 
     }
 }

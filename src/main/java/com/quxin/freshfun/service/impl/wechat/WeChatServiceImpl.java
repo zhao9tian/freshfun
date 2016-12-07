@@ -1,26 +1,39 @@
 package com.quxin.freshfun.service.impl.wechat;
 
+import com.google.gson.Gson;
+import com.quxin.freshfun.model.OrderDetailsPOJO;
+import com.quxin.freshfun.model.outparam.SendWxMessage;
+import com.quxin.freshfun.model.outparam.SendWxMessageContent;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.model.outparam.WxShareInfo;
 import com.quxin.freshfun.model.param.WxAccessTokenInfo;
+import com.quxin.freshfun.model.param.WxPushMessageResult;
 import com.quxin.freshfun.model.param.WxTicketInfo;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.wechat.WeChatService;
-import com.quxin.freshfun.utils.FieldUtil;
+import com.quxin.freshfun.utils.*;
+import com.quxin.freshfun.utils.HttpClientUtil;
 import com.quxin.freshfun.utils.weixinPayUtils.*;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by qingtian on 2016/10/18.
  * 微信支付，分享
  */
-@Service
+@Service("weChatService")
 public class WeChatServiceImpl implements WeChatService {
+
+    @Autowired
+    private UserBaseService userBaseService;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     /**
@@ -166,6 +179,60 @@ public class WeChatServiceImpl implements WeChatService {
             String jsonBody = clientHandler.getJsonBody();
             return FieldUtil.jsonToXml(jsonBody);
         }
+    }
+
+    /**
+     * 下单成功发送消息
+     * @return
+     */
+    @Override
+    public void sendWxOrderMessage(OrderDetailsPOJO order) {
+        //获取accessToken
+        WxAccessTokenInfo accessTokenInfo = WXUtil.getAccessToken(WxConstantUtil.APP_ID, WxConstantUtil.APP_SECRET);
+        sendOrderMessage(order,accessTokenInfo);
+    }
+
+    /**
+     * 发送订单信息
+     * @param order
+     * @param accessTokenInfo
+     */
+    private void sendOrderMessage(OrderDetailsPOJO order, WxAccessTokenInfo accessTokenInfo){
+        if (order == null || accessTokenInfo == null)
+            logger.error("往微信推订单信息，参数不能为空");
+        StringBuilder msgUrl = new StringBuilder();
+        msgUrl.append(WxConstantUtil.WX_MESSAGE);
+        msgUrl.append(accessTokenInfo.getAccess_token());
+        //获取用户openId
+        String openId = userBaseService.queryUserInfoByUserId(order.getUserId()).getOpenId();
+        SendWxMessage message = new SendWxMessage();
+        message.setTouser(openId);
+        message.setTemplate_id("gn8txiYywhVOOzqMaLsneOUAtmSoYBaCRQt_AHGbYvk");
+        message.setUrl("https://www.freshfun365.com/app/beforePay?orderId="+order.getId());
+        message.setData(getOrderContent(order));
+        Gson gson = new Gson();
+        //发送请求
+        String result = HttpClientUtil.jsonToPost(msgUrl.toString(), gson.toJson(message));
+        WxPushMessageResult resultMessage = new WxPushMessageResult();
+        resultMessage = WXUtil.strToJson(result, resultMessage);
+        if(!resultMessage.getErrmsg().equals("ok")){
+            logger.error(new StringBuilder().append("用户编号：").append(order.getUserId()).append("推送消息失败").toString());
+        }
+    }
+
+    /**
+     * 获取订单内容
+     * @param order
+     */
+    private Map<String,SendWxMessageContent> getOrderContent(OrderDetailsPOJO order) {
+        Map<String,SendWxMessageContent> map = new HashMap<>();
+        map.put("first",new SendWxMessageContent("您的订单已完成付款，商家即将为您发货。","#173177"));
+        map.put("orderProductPrice",new SendWxMessageContent(MoneyFormat.priceFormatString(order.getActualPrice()),"#173177"));
+        map.put("orderProductName",new SendWxMessageContent(order.getGoods().getGoodsName(),"#173177"));
+        String address = new StringBuilder().append(order.getCity()).append(order.getAddress()).toString();
+        map.put("orderAddress",new SendWxMessageContent(address,"#173177"));
+        map.put("orderName",new SendWxMessageContent(order.getId(),"#173177"));
+        return map;
     }
 
     /**

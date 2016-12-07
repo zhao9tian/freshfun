@@ -391,6 +391,8 @@ public class OrderServiceImpl implements OrderService {
 						if (orderDetails != null) {
 							//发送邮件
 							senderMail(orderDetails,1);
+							//推送消息
+							pushMessage(orderDetails,1);
 							//修改库存
 							Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
 							if (stockStatus <= 0)
@@ -425,6 +427,8 @@ public class OrderServiceImpl implements OrderService {
 							if(payStatus > 0) {
 								//发送邮件
 								senderMail(orderDetails,0);
+								//推送消息
+								pushMessage(orderDetails,0);
 								Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
 								if (stockStatus <= 0) {
 									logger.error("修改商品库存失败");
@@ -496,6 +500,19 @@ public class OrderServiceImpl implements OrderService {
 		} catch (MessagingException e) {
 			logger.error("发送邮件出现异常",e);
 		}
+	}
+
+	/**
+	 * 往微信推送消息
+	 */
+	private void pushMessage(OrderDetailsPOJO order,int sign){
+		if(sign == 1) {
+			GoodsParam goods = goodsBaseMapper.selectGoodsByGoodsId(order.getGoodsId().longValue());
+			order.setGoods(goods);
+		}
+		//设置地址信息
+		getAddress(order);
+		weChatService.sendWxOrderMessage(order);
 	}
 
 	/**
@@ -645,6 +662,11 @@ public class OrderServiceImpl implements OrderService {
 		//修改购物车状态
 		modifyShoppingCartState(orderInfo);
 		return info;
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectPayId(Long parentOrderId) {
+		return orderDetailsMapper.selectPayId(parentOrderId);
 	}
 
 	/**
