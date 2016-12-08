@@ -100,6 +100,10 @@ public class UserLoginController {
 				try {
 					//获取微信中的用户信息
 					WxInfo weChatInfo = getWxUserInfo(code, WxConstantUtil.APP_ID, WxConstantUtil.APP_SECRET);
+					if(weChatInfo==null){
+						logger.warn("获取微信信息失败，code无效，返回重新登录");
+						return ResultUtil.fail(1022,"code失效，请重新登录");
+					}
 					String unionId = weChatInfo.getUnionid();
 					String openId = weChatInfo.getOpenid();
 					if (unionId == null || openId == null) {
