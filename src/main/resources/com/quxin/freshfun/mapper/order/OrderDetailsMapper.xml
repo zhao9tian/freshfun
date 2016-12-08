@@ -83,6 +83,7 @@
     `count`,`order_status` as `orderStatus`,
     `actual_price` as `actualPrice`,
     `delivery_num` as `deliveryNum`,
+    `comment_status` as `commentStatus`,
     `pay_price` as `payPrice`,
     `recive_time` as `reciveTime`,
     `name`,`tel`,`city`,`address`,
