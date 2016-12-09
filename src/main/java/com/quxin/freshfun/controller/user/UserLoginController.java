@@ -126,6 +126,9 @@ public class UserLoginController {
 							String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
 							userBase.setUserName(userName);
 							String wxHeadUrl = weChatInfo.getHeadimgurl()==null||"".equals(weChatInfo.getHeadimgurl())?getHeadImgUrl():OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
+							if("".equals(wxHeadUrl)){
+								wxHeadUrl = getHeadImgUrl();
+							}
 							userBase.setUserHeadImg(wxHeadUrl);
 							userBase.setUnionId(unionId);
 							userBase.setOpenId(openId);
