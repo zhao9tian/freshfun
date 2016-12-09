@@ -47,7 +47,7 @@ public class WXUtil {
 		WxAccessTokenInfo wxToken = new WxAccessTokenInfo();
 		wxToken = sendWxRequest(sb,wxToken);
 		setCount();
-		logger.warn("调用AccessToken次数：",tokenCount);
+		logger.warn("调用AccessToken次数："+tokenCount);
 		return wxToken;
 	}
 
@@ -66,7 +66,7 @@ public class WXUtil {
 		WxAccessTokenInfo tokenInfo = new WxAccessTokenInfo();
 		tokenInfo = sendWxRequest(sb, tokenInfo);
 		setCount();
-		logger.warn("调用AccessToken次数：",tokenCount);
+		logger.warn("调用AccessToken次数："+tokenCount);
 		return tokenInfo;
 	}
 
