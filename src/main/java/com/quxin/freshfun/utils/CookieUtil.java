@@ -159,7 +159,7 @@ public class CookieUtil {
     }
 
    public static Long test(String str){
-       String string = getFromBase64("MzcyODkzLTE0NzY5NjE1NzktMjU5MjAwMA");
+       String string = getFromBase64(str);
        String[] strArr = string.split("-");
        return Long.parseLong(strArr[0]);
     }

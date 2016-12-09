@@ -51,6 +51,17 @@ public class AddressController {
     }
 
     /**
+     * 获取地址数据H5
+     */
+    @ResponseBody
+    @RequestMapping("/getAddressesH5")
+    public Map<String, Object> getAddressesH5(){
+        Map<String, Object> mapResult = new HashMap<String, Object>();
+        mapResult.put("addressDate",AddressUtil.addressDateH5);
+        return ResultUtil.success(mapResult);
+    }
+
+    /**
      * 获取地址数据IOS
      */
     @ResponseBody
