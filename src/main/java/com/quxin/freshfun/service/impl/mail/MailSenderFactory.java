@@ -26,7 +26,7 @@ public class MailSenderFactory {
     public static void main(String [] args){
         MailSender sender = MailSenderFactory.getSender();
         try {
-            sender.send("1260855435@qq.com","来啊","互相伤害啊");
+            sender.send("zhili.tu@freshfun365.com","邮件测试","测试");
         } catch (MessagingException e) {
             e.printStackTrace();
         }

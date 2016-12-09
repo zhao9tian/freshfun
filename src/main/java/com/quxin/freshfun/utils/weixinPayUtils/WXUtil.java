@@ -5,11 +5,17 @@ import com.google.gson.GsonBuilder;
 import com.quxin.freshfun.model.WxInfo;
 import com.quxin.freshfun.model.param.WxAccessTokenInfo;
 import com.quxin.freshfun.model.param.WxTicketInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Random;
 
 public class WXUtil {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(WXUtil.class);
+
+	private static int tokenCount = 0;
+
 	public static String getNonceStr() {
 		Random random = new Random();
 		return MD5Util.MD5Encode(String.valueOf(random.nextInt(10000)), "GBK");
@@ -17,6 +23,10 @@ public class WXUtil {
 
 	public static String getTimeStamp() {
 		return String.valueOf(System.currentTimeMillis() / 1000);
+	}
+
+	private synchronized static void setCount(){
+		tokenCount = tokenCount + 1;
 	}
 
 	/**
@@ -36,6 +46,8 @@ public class WXUtil {
 		sb.append("&grant_type=authorization_code");
 		WxAccessTokenInfo wxToken = new WxAccessTokenInfo();
 		wxToken = sendWxRequest(sb,wxToken);
+		setCount();
+		logger.warn("调用AccessToken次数：",tokenCount);
 		return wxToken;
 	}
 
@@ -53,6 +65,8 @@ public class WXUtil {
 		sb.append(appSecert);
 		WxAccessTokenInfo tokenInfo = new WxAccessTokenInfo();
 		tokenInfo = sendWxRequest(sb, tokenInfo);
+		setCount();
+		logger.warn("调用AccessToken次数：",tokenCount);
 		return tokenInfo;
 	}
 
