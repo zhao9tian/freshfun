@@ -58,6 +58,8 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserBaseService userBaseService;
 	@Autowired
+	private UserBaseMapper userBaseMapper;
+	@Autowired
 	private GoodsMapper goodsMapper;
 	@Autowired
 	private GoodsBaseMapper goodsBaseMapper;
@@ -458,8 +460,8 @@ public class OrderServiceImpl implements OrderService {
 		}
 		return 0;
 	}
-
-	private void senderMail(OrderDetailsPOJO order,int sign){
+	@Override
+	public void senderMail(OrderDetailsPOJO order,int sign){
 		if(order == null) {
 			logger.error("订单发送Mail订单不能为空");
 			return;
@@ -479,27 +481,31 @@ public class OrderServiceImpl implements OrderService {
 		orderParam.setCount(order.getCount());
 		orderParam.setUnitPrice(MoneyFormat.priceFormatString(order.getPayPrice()));
 		orderParam.setCostPrice(MoneyFormat.priceFormatString(order.getGoodsCost()));
-		switch (order.getPayPlateform()){
-			case 1:
-				orderParam.setOrderSource("捕手流量");
-				break;
-			default:
-				orderParam.setOrderSource("自然流量");
-				break;
-		}
+		orderParam.setOrderSource(setOrderSource(order));
 		orderParam.setConsignee(order.getName());
 		orderParam.setTel(order.getTel());
 		orderParam.setAddress(order.getCity()+order.getAddress());
-
-		String [] titles = {"订单编号","商品名","支付金额","成交时间","数量","单价","成本价","订单来源","收货人","联系电话","收货地址"};
+		String [] titles = new String[]{"订单编号","商品名","支付金额","成交时间","数量","单价","成本价","订单来源","收货人","联系电话","收货地址"};
+		//titles = new String[]{"orderNumber","goodsName","payMoney","payTime","amount","price","costPrice","orderSource","consignee","tel","address"};
 		String htmlStr = ObjectToHtml.getHtmlStr(orderParam, titles);
 		//发送
 		MailSender sender = MailSenderFactory.getSender();
 		try {
-			sender.send("order@freshfun365.com","支付订单详细数据",htmlStr);
+			sender.send("order@freshfun365.com",new StringBuilder().append("支付订单：").append(order.getId()).toString(),htmlStr);
 		} catch (MessagingException e) {
 			logger.error("发送邮件出现异常",e);
 		}
+	}
+
+	/**
+	 * 设置订单来源
+	 * @param order
+	 */
+	private String setOrderSource(OrderDetailsPOJO order) {
+		if(order.getAppId() != null) {
+			return userBaseMapper.selectAppNameByAppId(order.getAppId());
+		}
+		return "";
 	}
 
 	/**

@@ -95,6 +95,10 @@ public class OrderDetailsPOJO {
     private GoodsParam goods;
     private String deliveryName;
     /**
+     * 订单来源
+     */
+    private String orderSource;
+    /**
      * 用于前端价格显示
      */
     private String actualMoney;
@@ -107,6 +111,14 @@ public class OrderDetailsPOJO {
      * 订单用户昵称
      */
     private String nickName;
+
+    public String getOrderSource() {
+        return orderSource;
+    }
+
+    public void setOrderSource(String orderSource) {
+        this.orderSource = orderSource;
+    }
 
     public String getPayUrl() {
         return payUrl;

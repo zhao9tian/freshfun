@@ -106,4 +106,11 @@ public interface UserBaseMapper {
      * @return 受影响行数
      */
     Integer updateAppId(Map<String,Object> map);
+
+    /**
+     * 根据AppId查询公众号名称
+     * @param appId
+     * @return
+     */
+    String selectAppNameByAppId(Long appId);
 }

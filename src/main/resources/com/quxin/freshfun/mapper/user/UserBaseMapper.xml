@@ -56,7 +56,10 @@
         select count(id) from user_base where user_id=#{userId} and is_fetcher=1 and  is_deleted=0
     </select>
 
-
+    <!--根据AppId查询公众号名称-->
+    <select id="selectAppNameByAppId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select app_name from erp_app_info where id = #{appId}
+    </select>
 
     <!--根据设备号查询userId-->
     <select id="selectUserIdByDeviceId" parameterType="java.lang.String" resultType="java.lang.Long">

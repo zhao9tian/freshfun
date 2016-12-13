@@ -10,9 +10,9 @@ import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.service.user.UserBaseService;
-import com.quxin.freshfun.service.user.UserService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.CookieUtil;
+import com.quxin.freshfun.utils.FieldUtil;
 import com.quxin.freshfun.utils.MoneyFormat;
 import org.json.JSONException;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -70,7 +69,7 @@ public class OrderController {
 		orders = setGoodsMoney(orders);
 		return orders;
 	}
-	/**`
+	/**
 	 * 查询单个商品
 	 * @param orderDetailsId 订单Id
 	 * @return 返回单个订单信息
@@ -392,20 +391,21 @@ public class OrderController {
 	}
 
 
-	@RequestMapping(value="/payCallback",produces = "application/xml")
-	@ResponseBody
-	public String payCallback(HttpServletRequest request,HttpServletResponse response){
+	@RequestMapping(value="/payCallback")
+	public void payCallback(HttpServletRequest request,HttpServletResponse response){
+		response.setContentType("application/xml");
 		InputStream in;
 		try {
 			in = request.getInputStream();
 			int callbackStatus = orderService.PayCallback(in);
 			if(callbackStatus <= 0){
-				return "FAIL";
+				response.getWriter().write(FieldUtil.jsonToXml("{\"return_code\":\"FAIL\",\"return_msg\":\"FAIL\"}"));
+			} else {
+				response.getWriter().write(FieldUtil.jsonToXml("{\"return_code\":\"SUCCESS\",\"return_msg\":\"OK\"}"));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("支付回调IO异常",e);
 		}
-		return "SUCCESS";
 	}
 
 	/**
@@ -512,25 +512,4 @@ public class OrderController {
 		}
 		return order;
 	}
-
-	/**
-	 * 后台设置金额格式
-	 * @param order
-	 * @return
-	 */
-	public List<OrderDetailsPOJO> setBackstageMoney(List<OrderDetailsPOJO> order){
-		for (OrderDetailsPOJO o: order) {
-			if(o.getPayPrice() != null) {
-				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
-				o.setPayPrice(null);
-			}
-			GoodsParam goods = o.getGoods();
-			if(goods.getShopPrice() != null) {
-				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
-				goods.setShopPrice(null);
-			}
-		}
-		return order;
-	}
-
 }

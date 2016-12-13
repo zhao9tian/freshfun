@@ -82,4 +82,6 @@ public interface OrderService {
 	 * @return
 	 */
 	List<OrderDetailsPOJO> selectPayId(Long parentOrderId);
+
+	void senderMail(OrderDetailsPOJO order,int sign);
 }

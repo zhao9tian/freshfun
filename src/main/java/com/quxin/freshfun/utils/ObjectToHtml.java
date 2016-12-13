@@ -16,9 +16,10 @@ public class ObjectToHtml {
         content.append("<head>");
         content.append("</head>");
         content.append("<body>");
-        content.append("<table border=\"1\" cellspacing=\"0\" style=\"border-radius: 5px\">");
+        content.append("<table border=\"0\" cellspacing=\"1\" style=\"border:#fff solid 1px;color: #666\"");
+        content.append("<tr><th style=\"width:30%;background-color: #8fc500\">订单信息</th><th align=\"center\" style=\"width:70%;background-color: #8fc500\">订单数据</th></tr>");
         for (int i = 0;i < title.length;i++){
-            content.append("<tr style=\"border: none\">");
+            content.append("<tr style=\"background-color: #ddeeba\">");
             content.append(getTitle(title[i]));
             content.append(getHtmlContent(obj,fields[i]));
             content.append("</tr>");
@@ -36,7 +37,7 @@ public class ObjectToHtml {
      */
     private static String getTitle(String str) {
         StringBuilder titles = new StringBuilder();
-        titles.append("<td style=\"background-color: #00bfff;width:30%\">");
+        titles.append("<td align=\"center\" style=\"width:30%\">");
         titles.append(str);
         titles.append("</td>");
         return titles.toString();

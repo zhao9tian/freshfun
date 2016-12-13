@@ -41,6 +41,7 @@
     <result column="province_code" jdbcType="INTEGER" property="provCode"/>
     <result column="city_code" jdbcType="INTEGER" property="cityCode"/>
     <result column="district_code" jdbcType="INTEGER" property="distCode"/>
+    <result column="app_id" jdbcType="INTEGER" property="appId"/>
     <association property="goods" column="goods_id" select="com.quxin.freshfun.dao.GoodsBaseMapper.selectGoodsByGoodsId"></association>
   </resultMap>
 
@@ -186,7 +187,7 @@
     `pay_time`,`count`,`order_status`,
     `pay_plateform`,`pay_price`,`name`,
     `tel`,`city`,`address`,`pay_price`,`goods_cost`,
-    `province_code`,`city_code`,`district_code`
+    `province_code`,`city_code`,`district_code`,`app_id`
      from order_details where order_id = #{orderId}
   </select>
   <!--根据orderId查询付款编号,商品编号-->
@@ -206,7 +207,8 @@
     `goods_cost` as `goodsCost`,
     `province_code` as `provCode`,
     `city_code` as `cityCode`,
-    `district_code` as `distCode`
+    `district_code` as `distCode`,
+    `app_id` as `appId`
      from order_details where id = #{orderId}
   </select>
 

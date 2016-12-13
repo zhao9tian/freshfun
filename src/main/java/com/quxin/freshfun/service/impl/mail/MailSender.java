@@ -1,11 +1,16 @@
 package com.quxin.freshfun.service.impl.mail;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeUtility;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 /**
@@ -13,6 +18,8 @@ import java.util.Properties;
  * 发送邮件
  */
 public class MailSender {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
     /**
      * 发送邮件的props文件
      */
@@ -80,7 +87,13 @@ public class MailSender {
         // 创建mime类型邮件
         final MimeMessage message = new MimeMessage(session);
         // 设置发信人
-        message.setFrom(new InternetAddress(authenticator.getUsername()));
+        String nick="";
+        try {
+            nick=MimeUtility.encodeText("悦选美食订单");
+        } catch (UnsupportedEncodingException e) {
+            logger.error("设置邮件发件人异常",e);
+        }
+        message.setFrom(new InternetAddress(nick+" <"+authenticator.getUsername()+">"));
         // 设置收件人
         message.setRecipient(MimeMessage.RecipientType.TO, new InternetAddress(recipient));
         // 设置主题
