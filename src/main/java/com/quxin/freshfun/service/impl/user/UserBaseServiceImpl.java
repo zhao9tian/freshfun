@@ -270,4 +270,27 @@ public class UserBaseServiceImpl implements UserBaseService {
         }
         return userBaseMapper.selectUserInfoByUnionId(unionId);
     }
+
+    /**
+     * 更新用户的appId，如果用户的appId为0则更新，否则不更新
+     * @param userId 用户id
+     * @param appId appId
+     * @return 受影响行数
+     */
+    @Override
+    public Integer modifyUserAppId(Long userId, Long appId) {
+        if(userId==null||userId==0){
+            logger.error("更新用户appId时，用户id为空");
+            return 0;
+        }else if(appId==null||appId==0){
+            logger.warn("更新用户appId时，appId为空，为悦选粉丝，userId="+userId);
+            return 0;
+        }else{
+            logger.warn("更新userId为"+userId+"的用户所属公众号，appId="+appId);
+            Map<String,Object> map = new HashMap<String,Object>();
+            map.put("userId",userId);
+            map.put("appId",appId);
+            return userBaseMapper.updateAppId(map);
+        }
+    }
 }

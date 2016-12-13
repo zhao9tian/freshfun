@@ -17,11 +17,16 @@
         update user_base set user_id=#{id} where id=#{id}
     </update>
 
+    <!--s更新appId-->
+    <update id="updateAppId" parameterType="java.util.Map">
+        update user_base set app_id=#{appId} where user_id=#{userId} and app_id = 888888
+    </update>
+
     <!--根据userId查询用户信息-->
     <select id="selectUserInfoByUserId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
         select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
         device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
-        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,app_id as appId,created,updated from user_base where
         user_id = #{userId} and is_deleted=0
     </select>
 

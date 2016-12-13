@@ -23,6 +23,7 @@ public class UserBasePOJO extends BaseEntity{
     private String city;                //用户所在城市
     private String province;            //用户所在省份
     private String country;             //用户所在国家
+    private String appId;               //用户所属公众号
     //getters and setters
 
     public Long getId() {
@@ -159,5 +160,13 @@ public class UserBasePOJO extends BaseEntity{
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 }

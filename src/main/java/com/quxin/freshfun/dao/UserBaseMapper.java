@@ -99,4 +99,11 @@ public interface UserBaseMapper {
      * @return  受影响行数
      */
     Integer updateUserNameCount(Map<String,Object> map);
+
+    /**
+     * 更新用户appId
+     * @param map appId，userId
+     * @return 受影响行数
+     */
+    Integer updateAppId(Map<String,Object> map);
 }

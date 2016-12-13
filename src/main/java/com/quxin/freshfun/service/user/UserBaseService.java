@@ -98,4 +98,12 @@ public interface UserBaseService {
      * @return 用户信息
      */
     UserInfoOutParam queryUserInfoByUnionId(String unionId);
+
+    /**
+     * 更新用户的appId，如果用户的appId为888888则更新，否则不更新
+     * @param userId 用户id
+     * @param appId appId
+     * @return 受影响行数
+     */
+    Integer modifyUserAppId(Long userId,Long appId);
 }
