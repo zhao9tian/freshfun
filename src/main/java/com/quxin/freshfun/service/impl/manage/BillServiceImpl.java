@@ -4,9 +4,11 @@ package com.quxin.freshfun.service.impl.manage;
 import com.quxin.freshfun.dao.OrderDetailsMapper;
 import com.quxin.freshfun.model.FlowBasePOJO;
 import com.quxin.freshfun.model.OrderDetailsPOJO;
+import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.service.bill.BillService;
 import com.quxin.freshfun.service.flow.FlowService;
+import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.DateUtils;
 import org.slf4j.Logger;
@@ -22,6 +24,8 @@ public class BillServiceImpl implements BillService {
     private OrderDetailsMapper orderDetailsMapper;
     @Autowired
     private FlowService flowService;
+    @Autowired
+    private UserBaseService userBaseService;
 
     private Logger logger = LoggerFactory.getLogger("info_log");
 
@@ -54,7 +58,7 @@ public class BillServiceImpl implements BillService {
                         flowParam.setAgentFlow(order.getAgentPrice().longValue());
                         flowService.add(flowParam);
                     }
-                    if (order.getFetcherId() != 0) {
+                    /*if (order.getFetcherId() != 0) {
                         //添加捕手账单信息
                         FlowParam flowParam = new FlowParam();
                         flowParam.setOrderId(order.getId());
@@ -63,7 +67,7 @@ public class BillServiceImpl implements BillService {
                         flowParam.setUpdated(currentDate);
                         flowParam.setFetcherFlow(order.getFetcherPrice().longValue());
                         flowService.add(flowParam);
-                    }
+                    }*/
                     if (order.getAppId() != null && order.getAppId() != 888888) {//
                         FlowBasePOJO flowParam = new FlowBasePOJO();
                         flowParam.setOrderId(order.getId());
@@ -73,6 +77,20 @@ public class BillServiceImpl implements BillService {
                         flowParam.setFlowMoney(order.getActualPrice() / 10);
                         flowParam.setFlowType(0);//默认入账
                         flowService.addFlowBase(flowParam);
+                    }else{
+                        UserInfoOutParam user = userBaseService.queryUserInfoByUserId(order.getUserId());
+                        if(user.getAppId()!=null&&user.getAppId()!=888888){
+                            FlowBasePOJO flowParam = new FlowBasePOJO();
+                            flowParam.setOrderId(order.getId());
+                            flowParam.setCreated(order.getReciveTime() + 7 * 24 * 60 * 60);
+                            flowParam.setUpdated(order.getReciveTime() + 7 * 24 * 60 * 60);
+                            flowParam.setAppId(user.getAppId());
+                            flowParam.setFlowMoney(order.getActualPrice() / 10);
+                            flowParam.setFlowType(0);//默认入账
+                            flowService.addFlowBase(flowParam);
+                        }else{
+                            logger.error("訂單編號为"+order.getId()+"的订单下单用户不存在");
+                        }
                     }
                 }
             }
