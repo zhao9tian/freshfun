@@ -19,4 +19,11 @@ public interface RefundMapper {
 	 * @return 返回修改的数目
 	 */
 	Integer updateRefundStatus(Map<String , Object> map);
+
+	/**
+	 * 根据订单Id查询退款详情
+	 * @param orderId 订单Id
+	 * @return 订单详情
+	 */
+    RefundPOJO selectRefundByOrderId(Long orderId);
 }

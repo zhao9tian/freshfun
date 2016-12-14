@@ -34,4 +34,16 @@
   		id = #{orderId}
   	</where>
   </update>
+
+
+    <select id="selectRefundByOrderId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.RefundPOJO">
+        select  `service_type` as `serviceType`,
+        `return_reason` as `returnReason`,
+        `return_money` as `returnMoney`,
+        `return_des` as `returnDes`,
+        `remark`
+        from refund
+        where id = (select max(id) from refund where order_details_id = #{orderId} and is_delete = 0)
+    </select>
+
 </mapper>

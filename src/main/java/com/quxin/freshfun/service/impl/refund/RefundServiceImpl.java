@@ -63,4 +63,14 @@ public class RefundServiceImpl implements RefundService{
 		return b;
 	}
 
+	@Override
+	public RefundPOJO queryRefund(Long orderId) {
+		if(orderId != null){
+			refundMapper.selectRefundByOrderId(orderId);
+		}else{
+			logger.error("查询退款详情订单Id为空");
+		}
+		return null;
+	}
+
 }

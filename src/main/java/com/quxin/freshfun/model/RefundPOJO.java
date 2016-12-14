@@ -17,6 +17,8 @@ public class RefundPOJO {
 
     private Long gmtModified;
 
+    private String remark ;
+
     public Integer getId() {
         return id;
     }
@@ -79,5 +81,13 @@ public class RefundPOJO {
 
     public void setGmtModified(Long gmtModified) {
         this.gmtModified = gmtModified;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
