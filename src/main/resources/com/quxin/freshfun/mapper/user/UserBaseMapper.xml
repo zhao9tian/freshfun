@@ -42,7 +42,7 @@
     <select id="selectUserInfoByUnionId" parameterType="java.lang.String" resultType="com.quxin.freshfun.model.outparam.UserInfoOutParam">
         select user_id as userId,user_name as userName,user_head_img as userHeadImg,phone_number as phoneNumber,
         device_id as deviceId,open_id as openId,union_id as unionId,login_type as loginType,source,
-        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,created,updated from user_base where
+        identity,fetcher_id as fetcherId,is_fetcher as isFetcher,city,province,country,app_id as assId ,created,updated from user_base where
         union_id = #{unionId} and is_deleted=0
     </select>
 
