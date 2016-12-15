@@ -81,13 +81,11 @@ public class OSSUtils {
             try {
                 url = new URL(headImgUrl);
                 httpUrl = (HttpURLConnection) url.openConnection();
-                httpUrl.setConnectTimeout(2000);
-                httpUrl.setReadTimeout(2000);
+                httpUrl.setConnectTimeout(1000);
+                httpUrl.setReadTimeout(1000);
                 httpUrl.connect();
                 //获取上传后的地址
-                logger.error("未超时1");
                 InputStream is = httpUrl.getInputStream();
-                logger.error("未超时2");
                 wxHeadImg = OSSUtils.uploadPic(is, remotePath);
             } catch (Exception e) {
                 logger.error("用户头像信息有误" + e);
