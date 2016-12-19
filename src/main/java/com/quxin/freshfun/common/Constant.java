@@ -37,6 +37,10 @@ public class Constant {
      */
     public static final String GOODS_STANDARD = "goodsStandard";
 
+    /**
+     * 限量购排序
+     */
+    public static final String LIMITED_GOODS = "limitedGoodsSort";
 
     /** 限时购 */
     public static final Integer OBJECT_TYPE_TIME_LIMIT = 1;

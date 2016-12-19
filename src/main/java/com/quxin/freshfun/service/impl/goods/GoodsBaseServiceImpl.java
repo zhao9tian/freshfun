@@ -1,5 +1,6 @@
 package com.quxin.freshfun.service.impl.goods;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -8,6 +9,7 @@ import com.quxin.freshfun.dao.GoodsBaseMapper;
 import com.quxin.freshfun.dao.GoodsPropertyMapper;
 import com.quxin.freshfun.dao.GoodsThemeMapper;
 import com.quxin.freshfun.dao.PromotionMapper;
+import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.outparam.goods.BannerOut;
 import com.quxin.freshfun.model.outparam.goods.GoodsOut;
@@ -19,7 +21,6 @@ import com.quxin.freshfun.service.promotion.PromotionService;
 import com.quxin.freshfun.utils.BusinessException;
 import com.quxin.freshfun.utils.DateUtils;
 import com.quxin.freshfun.utils.MoneyFormat;
-import com.quxin.freshfun.utils.weixinPayUtils.WXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -280,19 +280,118 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
         }
         Map<String,Object> map = Maps.newHashMap();
         GoodsBasePOJO goodsBase = goodsBaseMapper.findGoodsById(goodsId);
-
+        if(goodsBase == null){
+            return null ;
+        }
         GoodsOut goodsOut = generateGoodsDetails(goodsBase);
         //是否限时
         isLimitGoods(goodsOut);
+        isLimitedNumGoods(goodsOut);
         GoodsStandard goodsStandard = goodsBaseMapper.selectGoodsStandard(goodsId);
         List<PropertyValue> goodsStandardList = getGoodsStandardList(goodsStandard);
-        if(goodsOut == null) {
-            return null;
-        } else {
-            map.put("goods", goodsOut);
-            map.put("specification", goodsStandardList);
-        }
+        map.put("goods", goodsOut);
+        map.put("specification", goodsStandardList);
         return map;
+    }
+
+    /**
+     * 是否限量购,是就赋值属性 , 不是就不赋值
+     * @param goodsOut 商品id
+     * @return 是否是限量购
+     */
+    private Boolean isLimitedNumGoods(GoodsOut goodsOut) {
+        if(goodsOut != null && goodsOut.getGoodsId() != null){
+            LimitedNumGoodsPOJO limitedNumGoods = promotionMapper.selectLimitedNumGoodsById(goodsOut.getGoodsId());
+            if(limitedNumGoods != null){
+                //处理金额
+                String limitedPriceDB = limitedNumGoods.getLimitedGoodsPrice();
+                String limitedPrice = "0.00";
+                if(limitedPriceDB!=null && !"".equals(limitedPriceDB)){
+                    Map<String , Object> map = JSON.parseObject(limitedPriceDB);
+                    limitedPrice = MoneyFormat.priceFormatString((Integer) map.get("discountPrice"));
+                }
+                goodsOut.setShopMoney(limitedPrice);
+                goodsOut.setLimitedNumStock(limitedNumGoods.getLimitedGoodsStock());
+                goodsOut.setLimitedNumLeaveStock(limitedNumGoods.getLimitedRealStock());
+                goodsOut.setIsLimitedNum(1);
+            }else {
+                goodsOut.setIsLimitedNum(0);
+            }
+            return true ;
+        }else{
+            logger.error("限量购商品id不能为空");
+        }
+        return  false;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryLimitGoods(Integer isIndex) {
+        List<Map<String , Object>> unLimitedSortGoods = new ArrayList<>();
+        List<Map<String , Object>> limitedSortGoods = new ArrayList<>();
+        //1.查询排序
+        GoodsPropertyPOJO goodsProperty = goodsPropertyMapper.selectValueByKey(Constant.LIMITED_GOODS);
+        if(goodsProperty != null && goodsProperty.getValue() != null && !"".equals(goodsProperty.getValue()) && !"[]".equals(goodsProperty.getValue())){
+            List<Long> limitedNumIds = JSON.parseArray(goodsProperty.getValue() , Long.class);//排序规则
+            //2.查询限量购商品信息
+            List<LimitedNumGoodsPOJO> limitedNumGoodsPOJOs ;
+            if(isIndex == null || isIndex.equals(1)){//null(默认)或者1都查询所有排序
+                limitedNumGoodsPOJOs= goodsBaseMapper.selectAllLimitedNumInfo(limitedNumIds);
+            }else{//查询首页--剩余库存为0的不展示
+                limitedNumGoodsPOJOs = goodsBaseMapper.selectIndexLimitedNumInfo(limitedNumIds);
+            }
+            //3.查询商品信息
+            List<GoodsBasePOJO> goodsBasePOJOs = goodsBaseMapper.selectGoodsByIds(limitedNumIds);
+            //4.组合
+            if(limitedNumGoodsPOJOs != null){
+                for(LimitedNumGoodsPOJO limitedNumGoodsPOJO : limitedNumGoodsPOJOs){
+                    for(GoodsBasePOJO goodsBasePOJO : goodsBasePOJOs){
+                        if(limitedNumGoodsPOJO.getLimitedGoodsId().equals(goodsBasePOJO.getId())){
+                            Map<String , Object> limitedGoods = Maps.newHashMap();
+                            limitedGoods.put("goodsId" ,limitedNumGoodsPOJO.getLimitedGoodsId());
+                            limitedGoods.put("limitStock" ,limitedNumGoodsPOJO.getLimitedGoodsStock());
+                            limitedGoods.put("limitLeave" ,limitedNumGoodsPOJO.getLimitedRealStock());
+                            //价格处理
+                            String limitedGoodsPriceDB = limitedNumGoodsPOJO.getLimitedGoodsPrice();
+                            if(limitedGoodsPriceDB != null && !"".equals(limitedGoodsPriceDB)){
+                                Map<String , Object> money = JSON.parseObject(limitedGoodsPriceDB);
+                                Integer limitPrice = (Integer) money.get("discountPrice");
+                                limitedGoods.put("limitPrice" ,MoneyFormat.priceFormatString(limitPrice));
+                            }
+                            limitedGoods.put("title" , goodsBasePOJO.getTitle());
+                            limitedGoods.put("originPrice" , MoneyFormat.priceFormatString(goodsBasePOJO.getOriginPrice()));
+                            limitedGoods.put("goodsImg" , goodsBasePOJO.getGoodsImg());
+                            if(isIndex == null || isIndex.equals(1)){
+                                limitedGoods.put("subTitle" , goodsBasePOJO.getSubTitle());
+                                if(limitedNumGoodsPOJO.getLimitedRealStock() > 0){
+                                    limitedGoods.put("isLimitedSell" , 0);
+                                }else{
+                                    limitedGoods.put("isLimitedSell" , 1);
+                                }
+                            }
+                            unLimitedSortGoods.add(limitedGoods);
+                        }
+                    }
+                }
+                //5.排序
+                for(Long id : limitedNumIds){
+                    for(Map<String , Object> map : unLimitedSortGoods){
+                        if(map.get("goodsId").equals(id)){
+                            limitedSortGoods.add(map);
+                        }
+                    }
+                }
+                //6.首页最多只显示4条
+                if(isIndex != null && isIndex == 2 && limitedSortGoods.size() >=4){
+                        limitedSortGoods = limitedSortGoods.subList(0,4);
+                }
+            }else{
+                logger.warn("限量购商品已经售完");
+                limitedSortGoods = new ArrayList<>();
+            }
+        }else{
+            logger.warn("数据库里面没有限量购商品排序");
+        }
+        return limitedSortGoods;
     }
 
     /**

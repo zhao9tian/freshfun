@@ -84,4 +84,10 @@ public interface GoodsBaseService {
      */
     Map<String,Object> findGoodsDetails(Long goodsId) throws BusinessException;
 
+    /**
+     * 查询限量购商品
+     * @param isIndex 是否是首页列表 1:列表页 2:首页
+     * @return 限量购排序商品
+     */
+    List<Map<String,Object>> queryLimitGoods(Integer isIndex);
 }

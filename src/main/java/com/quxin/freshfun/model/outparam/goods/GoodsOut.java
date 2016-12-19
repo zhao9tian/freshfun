@@ -26,7 +26,7 @@ public class GoodsOut {
      */
     private String goodsImg;
     /**
-     * 实际销售价格
+     * 实际销售价格 -- 取活动价格(限量购)
      */
     private String shopMoney;
     /**
@@ -61,6 +61,44 @@ public class GoodsOut {
      * 是否上架
      */
     private Integer isOnSale;
+
+    /**********************************************限量购**********************************************************/
+    /**
+     * 是否限量购
+     */
+    private Integer isLimitedNum;
+    /**
+     * 限量购库存
+     */
+    private Integer limitedNumStock;
+    /**
+     * 限量购剩余库存
+     */
+    private Integer limitedNumLeaveStock ;
+
+    public Integer getLimitedNumStock() {
+        return limitedNumStock;
+    }
+
+    public void setLimitedNumStock(Integer limitedNumStock) {
+        this.limitedNumStock = limitedNumStock;
+    }
+
+    public Integer getLimitedNumLeaveStock() {
+        return limitedNumLeaveStock;
+    }
+
+    public void setLimitedNumLeaveStock(Integer limitedNumLeaveStock) {
+        this.limitedNumLeaveStock = limitedNumLeaveStock;
+    }
+
+    public Integer getIsLimitedNum() {
+        return isLimitedNum;
+    }
+
+    public void setIsLimitedNum(Integer isLimitedNum) {
+        this.isLimitedNum = isLimitedNum;
+    }
 
     public Integer getIsOnSale() {
         return isOnSale;

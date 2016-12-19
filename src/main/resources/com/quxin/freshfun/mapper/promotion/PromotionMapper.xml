@@ -79,4 +79,10 @@
     select object_id from promotion where object_type = 1 and is_deleted = 0
   </select>
 
+  <!--限量购商品详情查询-->
+  <select id="selectLimitedNumGoodsById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO">
+    select object_id as limitedGoodsId ,  content as limitedGoodsPrice , total_stock as limitedGoodsStock , stock as limitedRealStock from promotion
+    where is_deleted = 0 and object_type = 3 and object_id = #{goodsId}
+  </select>
+
 </mapper>

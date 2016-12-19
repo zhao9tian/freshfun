@@ -1,11 +1,13 @@
 package com.quxin.freshfun.controller.goods;
 
 import com.google.common.collect.Maps;
+import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
 import com.quxin.freshfun.model.outparam.goods.BannerOut;
 import com.quxin.freshfun.model.outparam.goods.GoodsOut;
 import com.quxin.freshfun.model.outparam.goods.SpecialOut;
 import com.quxin.freshfun.service.goods.GoodsBaseService;
 import com.quxin.freshfun.utils.BusinessException;
+import com.quxin.freshfun.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +59,8 @@ public class GoodsBaseController {
         List<GoodsOut> selectionList = goodsBaseService.getSelectionList();
         List<SpecialOut> specialList = goodsBaseService.getSpecialList();
         List<GoodsOut> goodsSort = goodsBaseService.getGoodsSortList();
-        List<GoodsOut> goodsLimitList = goodsBaseService.getGoodsLimitList();
+        List<GoodsOut> goodsLimitList = goodsBaseService.getGoodsLimitList(); //限时购
+        List<Map<String , Object>> indexLimitGoods = goodsBaseService.queryLimitGoods(2);
         map.put("code", 1001);
         map.put("msg", "请求成功");
         resultMap.put("status", map);
@@ -66,9 +69,27 @@ public class GoodsBaseController {
         resultData.put("specialList",specialList);
         resultData.put("goodsSort",goodsSort);
         resultData.put("limitGoodsList",goodsLimitList);
+        resultData.put("indexLimitGoods",indexLimitGoods);
         resultMap.put("data", resultData);
         return resultMap;
     }
+
+
+    /**
+     * 查询限量购商品
+     *
+     * @return 返回查询结果
+     */
+    @RequestMapping("/queryLimitGoodsList")
+    @ResponseBody
+    public Map<String, Object> queryLimitGoodsList()  {
+        Map<String, Object> resultData = Maps.newHashMap();
+        List<Map<String, Object>> limitGoodsList = goodsBaseService.queryLimitGoods(1);
+        resultData.put("sortLimitGoods",limitGoodsList);
+        return ResultUtil.success(resultData);
+    }
+
+
 
     @RequestMapping("/getGoodsList")
     @ResponseBody

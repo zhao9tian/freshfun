@@ -1,5 +1,6 @@
 package com.quxin.freshfun.dao;
 
+import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.param.PromotionParam;
@@ -46,5 +47,12 @@ public interface PromotionMapper {
      * @return
      */
     List<Long> selectLimitGoodsId();
+
+    /**
+     * 根据商品id判断是否是限量购商品
+     * @param goodsId 商品id
+     * @return 是否限量购商品
+     */
+    LimitedNumGoodsPOJO selectLimitedNumGoodsById(@Param("goodsId") Long goodsId);
 
 }

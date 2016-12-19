@@ -1,5 +1,6 @@
 package com.quxin.freshfun.dao;
 
+import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
 import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsImage;
@@ -77,4 +78,33 @@ public interface GoodsBaseMapper {
      * @return
      */
     GoodsParam selectGoodsByGoodsId(Long goodsId);
+
+    /**
+     * 根据排序Id查询排序限量购商品
+     * @param limitedNumIds 限量购商品id
+     * @return 限量购商品
+     */
+    List<LimitedNumGoodsPOJO> selectAllLimitedNumInfo(@Param("limitedNumIds") List<Long> limitedNumIds);
+
+    /**
+     * 根据排序Id查询排序限量购剩余库存不为0的商品
+     * @param limitedNumIds 限量购商品id
+     * @return 库存不为0限量购信息
+     */
+    List<LimitedNumGoodsPOJO> selectIndexLimitedNumInfo(@Param("limitedNumIds") List<Long> limitedNumIds);
+
+    /**
+     * 根据排序Id查询限量购商品
+     * @param limitedNumIds 限量购排序id
+     * @return 限量购商品信息
+     */
+    List<GoodsBasePOJO> selectGoodsByIds(@Param("limitedNumIds") List<Long> limitedNumIds);
+
+    /**
+     * 根据商品id查询限量购商品详情
+     * @param goodsId 商品id
+     * @return 限量购商品详情
+     */
+    LimitedNumGoodsPOJO selectLimitedGoodsById(@Param("goodsId") Long goodsId);
+
 }

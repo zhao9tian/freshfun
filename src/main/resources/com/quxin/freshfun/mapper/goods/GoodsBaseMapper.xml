@@ -105,4 +105,32 @@
             `specialty`,
             `other` from goods_standard where goods_id = #{goodsId}
   </select>
+
+    <!--查询所有限量购商品信息-->
+    <select id="selectAllLimitedNumInfo" parameterType="java.util.List" resultType="com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO">
+        select object_id as limitedGoodsId ,  content as limitedGoodsPrice , total_stock as limitedGoodsStock , stock as limitedRealStock from promotion
+        where is_deleted = 0 and object_type = 3 and object_id in
+        <foreach collection="limitedNumIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!--查询首页限量购商品信息-->
+    <select id="selectIndexLimitedNumInfo" parameterType="java.util.List" resultType="com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO">
+        select object_id as limitedGoodsId ,  content as limitedGoodsPrice , total_stock as limitedGoodsStock , stock as limitedRealStock from promotion
+        where  is_deleted = 0 and stock <![CDATA[>=]]> 0 and object_type = 3 and object_id in
+        <foreach collection="limitedNumIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <!--查询排序商品信息-->
+    <select id="selectGoodsByIds" parameterType="java.util.List" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
+        select id , title , sub_title as subTitle, shop_price as shopPrice , origin_price as originPrice, img as goodsImg from goods_base
+        where is_deleted = 0 and id and is_on_sale = 1 and id in
+        <foreach collection="limitedNumIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>
