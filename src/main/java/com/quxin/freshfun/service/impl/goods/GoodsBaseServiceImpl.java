@@ -372,6 +372,9 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                             limitedGoods.put("goodsImg", goodsBasePOJO.getGoodsImg());
                             if (isIndex == null || isIndex.equals(1)) {//列表页
                                 limitedGoods.put("subTitle", goodsBasePOJO.getSubTitle());
+                                if(limitedNumGoodsPOJO.getLimitedRealStock() <= 0){
+                                    limitedGoods.put("limitPrice", MoneyFormat.priceFormatString(goodsBasePOJO.getShopPrice()));
+                                }
                                 unLimitedSortGoods.add(limitedGoods);
                             } else {
                                 if (isIndex.equals(2) && limitedNumGoodsPOJO.getLimitedRealStock() > 0) {//首页
