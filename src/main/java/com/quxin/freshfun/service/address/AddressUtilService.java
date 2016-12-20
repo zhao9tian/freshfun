@@ -30,4 +30,6 @@ public interface AddressUtilService {
      * @return 地址信息
      */
     List<AddressUtilPOJO> queryCityOrArea(Integer parentNo);
+
+    List<AddressUtilPOJO> queryAllAddress(Integer level);
 }

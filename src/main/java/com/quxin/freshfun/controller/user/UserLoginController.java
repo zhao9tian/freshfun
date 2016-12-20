@@ -75,6 +75,7 @@ public class UserLoginController {
 		Map<String, Object> map = new HashMap<String, Object>();
 		boolean authResult = CookieUtil.checkAuth(request);
 		//判断userId是否有效，在数据库中是否存在
+		// 存在
 		if (authResult) {
 			//校验cookie  存在cookie，开始校验userId有效性
 			Integer count = userBaseService.checkUserId(CookieUtil.getUserIdFromCookie(request));
@@ -88,113 +89,143 @@ public class UserLoginController {
 				cookie.setPath("/");
 				response.addCookie(cookie);
 			}
-		}
-		if (!authResult) {//cookie不存在
+		} else {
 			//校验cookie  不存在cookie，开始校验code
 			if (code == null || "".equals(code)) {  //没有code
 				//校验cookie  不存在cookie，并且没有接收到code
 				return ResultUtil.fail(1022, "无效cookie并且没有code");
-			} else {//有code
-				//校验cookie  不存在cookie，有接收到code
-				Long userId = null;  //获取userId
-				try {
-					//获取微信中的用户信息
-					WxInfo weChatInfo = getWxUserInfo(code, WxConstantUtil.APP_ID, WxConstantUtil.APP_SECRET);
-					if(weChatInfo==null){
-						logger.warn("获取微信信息失败，code无效，返回重新登录");
-						return ResultUtil.fail(1022,"code失效，请重新登录");
-					}
-					String unionId = weChatInfo.getUnionid();
-					String openId = weChatInfo.getOpenid();
-					if (unionId == null || openId == null) {
-						throw new BusinessException("微信信息获取不为空，但是openId或unionId为空");
-					} else {
-						//校验用户unionId是否存在
-						UserInfoOutParam userInfo = userBaseService.queryUserInfoByUnionId(unionId);
-						if (userInfo != null) {//用户存在
-							//存在unionId，判断openId是否一致，不一致就修改
-							userId = userInfo.getUserId();
-							if (!openId.equals(userInfo.getOpenId())) {//openId不一致
-								Integer meshResult = userBaseService.modifyUserToMesh(userInfo.getUserId(), null, openId, null);
-								if (meshResult < 1) {
-									logger.error("更新users表失败，userId：" + userInfo.getUserId());
-									throw new BusinessException("更新users表失败，userId：" + userInfo.getUserId());
-								}
-							}
-						} else {//用户不存在,插入新用户
-							UserBasePOJO userBase = new UserBasePOJO();
-							String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
-							userBase.setUserName(userName);
-							String wxHeadUrl = weChatInfo.getHeadimgurl()==null||"".equals(weChatInfo.getHeadimgurl())?getHeadImgUrl():OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
-							if("".equals(wxHeadUrl)){
-								wxHeadUrl = getHeadImgUrl();
-							}
-							userBase.setUserHeadImg(wxHeadUrl);
-							userBase.setUnionId(unionId);
-							userBase.setOpenId(openId);
-							userBase.setDeviceId("");
-							userBase.setCity(weChatInfo.getCity());
-							userBase.setProvince(weChatInfo.getProvince());
-							userBase.setCountry(weChatInfo.getCountry());
-							userBase.setSource((byte) 0);
-							userBase.setFetcherId(0l);
-							userBase.setPhoneNumber("");
-							userBase.setIdentity((byte) 0);
-							userBase.setLoginType((byte) 3);
-							userBase.setIsFetcher((byte) 0);
-							userBase.setUserNameCount(0);
-							userBase.setCreated(System.currentTimeMillis() / 1000);
-							userBase.setUpdated(System.currentTimeMillis() / 1000);
-							userBase.setIsDeleted(0);
-							Integer result = userBaseService.addUserBaseInfo(userBase);
-							if (result == 1) {
-								userId = userBase.getId();
-							} else {
-								logger.error("用户数据插入失败");
-							}
-						}
-					}
-					//校验cookie  有code,获取到微信信息，插入数据
-				} catch (Exception e) {
-					logger.error("插入用户信息失败", e);
-					throw e;
-				}
-				if (userId != null) {
-					//种植code，校验cookie  有code,获取到微信信息，插入数据
-					Cookie cookie = new Cookie("userId", CookieUtil.getCookieValueByUserId(userId));
-					cookie.setMaxAge(CookieUtil.getCookieMaxAge());
-					cookie.setDomain(".freshfun365.com");
-					cookie.setPath("/");
-					response.addCookie(cookie);
-					//检查用户是否为捕手
-					boolean result = userBaseService.checkIsFetcherByUserId(userId);
-					if (result)
-						map.put("userId", FreshFunEncoder.idToUrl(userId));
-					else
-						map.put("userId", "");
-					UserInfoOutParam userInfoOutParam = userBaseService.queryUserInfoByUserId(userId);
-					if(userInfoOutParam!=null)
-						phoneNum = userInfoOutParam.getPhoneNumber();
-					map.put("phoneNum",phoneNum);
-					return ResultUtil.success(map);
-				} else {
-					//校验cookie  有code,获取到微信信息，插入数据，userId为空
-					return ResultUtil.fail(1023, "用户创建失败");
-				}
 			}
+
+			//校验cookie  不存在cookie，有接收到code
+
+
+			//获取微信中的用户信息
+			WxInfo weChatInfo = getWxUserInfo(code, WxConstantUtil.APP_ID, WxConstantUtil.APP_SECRET);
+			if (weChatInfo == null) {
+				logger.warn("获取微信信息失败，code无效，返回重新登录");
+				return ResultUtil.fail(1022, "code失效，请重新登录");
+			}
+			String unionId = weChatInfo.getUnionid();
+			String openId = weChatInfo.getOpenid();
+			if (unionId == null || openId == null) {
+				throw new BusinessException("微信信息获取不为空，但是openId或unionId为空");
+			}
+			Long userId = null;
+			try {
+				userId = doLogin(weChatInfo);  //获取userId
+			} catch (BusinessException e) {
+				logger.error(e.getMessage());
+				// TODO: 2016/12/19
+			}
+			if (userId == null) {
+				//校验cookie  有code,获取到微信信息，插入数据，userId为空
+				logger.error("UserId为空");
+				return ResultUtil.fail(1023, "用户创建失败");
+			}
+			//种植code，校验cookie  有code,获取到微信信息，插入数据
+			Cookie cookie = new Cookie("userId", CookieUtil.getCookieValueByUserId(userId));
+			cookie.setMaxAge(CookieUtil.getCookieMaxAge());
+			cookie.setDomain(".freshfun365.com");
+			cookie.setPath("/");
+			response.addCookie(cookie);
+			//检查用户是否为捕手
+			boolean result2 = userBaseService.checkIsFetcherByUserId(userId);
+			if (result2) {
+				map.put("userId", FreshFunEncoder.idToUrl(userId));
+			} else {
+				map.put("userId", "");
+			}
+			UserInfoOutParam userInfoOutParam = userBaseService.queryUserInfoByUserId(userId);
+			if (userInfoOutParam != null) {
+				phoneNum = userInfoOutParam.getPhoneNumber();
+			}
+			map.put("phoneNum", phoneNum);
+			return ResultUtil.success(map);
+
 		}
 		//校验cookie  获取有效cookie
 		Long userId = CookieUtil.getUserIdFromCookie(request);
 		boolean result = userBaseService.checkIsFetcherByUserId(userId);
-		if (result)
+		if (result) {
 			map.put("userId", FreshFunEncoder.idToUrl(userId));
-		else
+		} else {
 			map.put("userId", "");
+		}
 		UserInfoOutParam userInfoOutParam = userBaseService.queryUserInfoByUserId(userId);
-		if(userInfoOutParam!=null)
+		if (userInfoOutParam != null) {
 			phoneNum = userInfoOutParam.getPhoneNumber();
-		map.put("phoneNum",phoneNum);
+		}
+		map.put("phoneNum", phoneNum);
 		return ResultUtil.success(map);
+	}
+
+	/**
+	 * 成功拿到微信信息（unionid&openid），保证不影响购买流程
+	 * @param weChatInfo 微信信息
+	 * @return 用户id
+	 * @throws BusinessException
+	 */
+	private Long doLogin(WxInfo weChatInfo) throws BusinessException{
+		Long userId = null;
+		//校验用户unionId是否存在
+		UserInfoOutParam userInfo = userBaseService.queryUserInfoByUnionId(weChatInfo.getUnionid());
+		if (userInfo != null) {//用户存在
+			//存在unionId，判断openId是否一致，不一致就修改
+			userId = userInfo.getUserId();
+			if (!weChatInfo.getOpenid().equals(userInfo.getOpenId())) {//openId不一致
+				Integer meshResult = userBaseService.modifyUserToMesh(userInfo.getUserId(), null, weChatInfo.getOpenid(), null);
+				if (meshResult < 1) {
+					logger.error("更新users表失败，userId：" + userInfo.getUserId());
+					throw new BusinessException("更新users表失败，userId：" + userInfo.getUserId());
+				}
+			}
+		}else {
+			Long uid = addUser(weChatInfo);
+			if (uid != null) {
+				userId = uid;
+			}
+		}
+		return userId;
+	}
+
+	/**
+	 * 新增用户信息
+	 * @param weChatInfo 微信信息
+	 * @return	userId
+	 */
+	private Long addUser(WxInfo weChatInfo) throws BusinessException{
+		UserBasePOJO userBase = new UserBasePOJO();
+		String userName = nickNameService.queryRandNickName(weChatInfo.getNickname());
+		userBase.setUserName(userName);
+		String wxHeadUrl = weChatInfo.getHeadimgurl() == null || "".equals(weChatInfo.getHeadimgurl()) ? getHeadImgUrl() : OSSUtils.uploadWxHeadImg(weChatInfo.getHeadimgurl());
+		if ("".equals(wxHeadUrl)) {
+			wxHeadUrl = getHeadImgUrl();
+		}
+		userBase.setUserHeadImg(wxHeadUrl);
+		userBase.setUnionId(weChatInfo.getUnionid());
+		userBase.setOpenId(weChatInfo.getOpenid());
+		userBase.setDeviceId("");
+		userBase.setCity(weChatInfo.getCity());
+		userBase.setProvince(weChatInfo.getProvince());
+		userBase.setCountry(weChatInfo.getCountry());
+		userBase.setSource((byte) 0);
+		userBase.setFetcherId(0l);
+		userBase.setPhoneNumber("");
+		userBase.setIdentity((byte) 0);
+		userBase.setLoginType((byte) 3);
+		userBase.setIsFetcher((byte) 0);
+		userBase.setUserNameCount(0);
+		userBase.setCreated(System.currentTimeMillis() / 1000);
+		userBase.setUpdated(System.currentTimeMillis() / 1000);
+		userBase.setIsDeleted(0);
+		Integer result = userBaseService.addUserBaseInfo(userBase);
+		if (result == 1) {
+			logger.warn("用户创建成功，userId="+userBase.getUserId());
+			return userBase.getId();
+		} else {
+			logger.error("用户数据插入失败");
+			throw new BusinessException("用户数据插入失败");
+		}
 	}
 
 	/**

@@ -6,6 +6,10 @@
     select areaname from prov_city_area where areano = #{code}
   </select>
 
+  <select id="selectAllAddress" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.pojo.address.AddressUtilPOJO">
+    select areano as areaNo,areaname as areaName,parentno as parentNo,arealevel as areaLevel from prov_city_area where arealevel=#{level}
+  </select>
+
   <select id="selectCodeByName" parameterType="java.util.Map" resultType="java.lang.Integer">
     select areano from prov_city_area where areaname = #{name} and arealevel = #{areaLevel}
   </select>

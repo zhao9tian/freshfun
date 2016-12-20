@@ -62,4 +62,9 @@ public class AddressUtilServiceImpl implements AddressUtilService {
         }
         return addressUtilMapper.selectCityArea(parentNo);
     }
+
+    @Override
+    public List<AddressUtilPOJO> queryAllAddress(Integer level) {
+        return addressUtilMapper.selectAllAddress(level);
+    }
 }

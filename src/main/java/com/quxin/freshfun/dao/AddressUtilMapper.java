@@ -9,6 +9,8 @@ import java.util.Map;
  * Created by Ziming on 2016/11/14.
  */
 public interface AddressUtilMapper {
+
+    List<AddressUtilPOJO> selectAllAddress(Integer level);
     /**
      * 通过code取name
      * @return name

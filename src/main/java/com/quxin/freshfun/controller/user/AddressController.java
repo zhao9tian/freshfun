@@ -41,19 +41,6 @@ public class AddressController {
      * 获取地址数据H5
      */
     @ResponseBody
-    @RequestMapping("/getAddresses")
-    public Map<String, Object> getAddresses(){
-        Map<String, Object> mapResult = new HashMap<String, Object>();
-        mapResult.put("provs_data", AddressUtil.provResult);
-        mapResult.put("citys_data", AddressUtil.mapProv);
-        mapResult.put("dists_data", AddressUtil.mapC);
-        return ResultUtil.success(mapResult);
-    }
-
-    /**
-     * 获取地址数据H5
-     */
-    @ResponseBody
     @RequestMapping("/getAddressesH5")
     public Map<String, Object> getAddressesH5(){
         Map<String, Object> mapResult = new HashMap<String, Object>();
@@ -68,7 +55,7 @@ public class AddressController {
     @RequestMapping("/getAddressesIos")
     public Map<String, Object> getAddressesIos(){
         Map<String, Object> mapResult = new HashMap<String, Object>();
-        mapResult.put("address_data", AddressUtil.provResultIOS);
+        mapResult.put("address_data", AddressUtil.addressDateIOS);
         return ResultUtil.success(mapResult);
     }
 
