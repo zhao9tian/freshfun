@@ -175,4 +175,10 @@ public interface OrderManager {
 	 * @return
 	 */
 	OrderDetailsPOJO selectConfirmOrderInfo(String orderId);
+
+	/**
+	 * 查询限量购超时订单
+	 * @return
+	 */
+	List<Long> selectOverTimeLimitedOrder();
 }

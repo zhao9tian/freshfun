@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.quxin.freshfun.dao.PromotionMapper">
   <resultMap id="BaseResultMap" type="com.quxin.freshfun.model.pojo.PromotionPOJO">
+    <result column="id" jdbcType="BIGINT" property="id"/>
     <result column="object_id" jdbcType="BIGINT" property="objectId"/>
     <result column="object_type" jdbcType="INTEGER" property="objectType"/>
     <result column="content" jdbcType="VARCHAR" property="content"/>
@@ -9,6 +10,7 @@
     <result column="end_time" jdbcType="BIGINT" property="endTime"/>
     <result column="created" jdbcType="BIGINT" property="created"/>
     <result column="updated" jdbcType="BIGINT" property="updated"/>
+    <result column="stock" jdbcType="INTEGER" property="stock"/>
   </resultMap>
 
   <resultMap id="IdResultMap" type="java.lang.Long">
@@ -56,6 +58,29 @@
       and #{now} <![CDATA[<=]]> end_time
       and is_deleted = 0
   </select>
+  
+  <select id="selectLimitedGoodsInfo" parameterType="java.util.List" resultMap="BaseResultMap">
+    SELECT
+      id ,
+      object_id,
+      object_type,
+      content,
+      start_time,
+      end_time,
+      created,
+      updated,
+      is_deleted
+    FROM
+      promotion
+    WHERE
+    object_id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item.goodsId}
+    </foreach>
+    AND object_type = 3
+    AND is_deleted = 0
+  </select>
+  
   <!--查询限时购商品-->
   <select id="selectLimitGoodsInfo" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select id,object_id,object_type,content,start_time,end_time,created,updated from promotion
@@ -78,6 +103,18 @@
   <select id="selectLimitGoodsId" resultMap="IdResultMap">
     select object_id from promotion where object_type = 1 and is_deleted = 0
   </select>
+  <!--查询剩余库存-->
+  <select id="selectStockByGoodsList" parameterType="java.util.List" resultMap="BaseResultMap">
+    select id,object_id,stock from promotion where object_type = 3 and is_deleted = 0
+    and object_id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item.goodsId}
+    </foreach>
+  </select>
+  <!--修改库存-->
+  <update id="updateStockById" parameterType="java.util.Map" >
+      update promotion set stock = stock - #{stock} where id = #{promotionId} and stock > 0
+  </update>
 
   <!--限量购商品详情查询-->
   <select id="selectLimitedNumGoodsById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO">

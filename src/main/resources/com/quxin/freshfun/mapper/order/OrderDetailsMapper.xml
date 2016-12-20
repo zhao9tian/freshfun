@@ -18,6 +18,7 @@
     <result column="order_detailscol" jdbcType="VARCHAR" property="orderDetailscol" />
     <result column="comment_status" jdbcType="INTEGER" property="commentStatus"/>
     <result column="order_status" jdbcType="INTEGER" property="orderStatus" />
+    <result column="order_type" jdbcType="INTEGER" property="orderType"/>
     <result column="agent_id" jdbcType="BIGINT" property="agentId" />
     <result column="agent_price" jdbcType="INTEGER" property="agentPrice"/>
     <result column="fetcher_id" jdbcType="INTEGER" property="fetcherId" />
@@ -82,6 +83,7 @@
     `create_date` as `createDate`,
     `update_date` as `updateDate`,
     `count`,`order_status` as `orderStatus`,
+    `order_type` as `orderType`,
     `actual_price` as `actualPrice`,
     `delivery_num` as `deliveryNum`,
     `comment_status` as `commentStatus`,
@@ -145,7 +147,7 @@
   </select>
   <!-- 关闭一条订单信息 -->
   <update id="delOrder">
-    update order_details set order_status = 15 where id = #{orderId} and order_status = 10
+    update order_details set order_status = 15,update_date=#{date}, where id = #{orderId} and order_status = 10
   </update>
   <!-- 修改订单支付状态 -->
   <update id="updatePayStatus" parameterType="java.lang.Long" useGeneratedKeys="true" keyProperty="id">
@@ -211,6 +213,22 @@
     `app_id` as `appId`
      from order_details where id = #{orderId}
   </select>
+  <!--查询父级编号-->
+  <select id="selectParentOrderId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.OrderDetailsPOJO">
+    select `order_id` as `orderId` from order_details where id = #{orderId}
+  </select>
+
+  <!--修改粉丝AppID-->
+  <update id="updateFansAppId" parameterType="java.lang.Long" >
+    update order_details set fans_app_id = #{fansAppId} where id = #{id}
+  </update>
+
+  <select id="selectAllAppId" resultMap="BaseResultMap" >
+    select `id`,`app_id` from order_details where is_deleted = 0
+  </select>
+
+
+
 
   <!-- 查询付款编号 -->
   <select id="selectPayIdByOrderDetailsId" parameterType="java.lang.String" resultMap="PayResultId">
@@ -264,6 +282,10 @@
   <select id="selectOvertimeOrder" resultMap="PayResultId">
     select id from order_details where order_status = 10 and is_deleted = 0 and (create_date + 1440*60 - unix_timestamp(now()) <![CDATA[<=]]> 0);
   </select>
+    
+  <select id="selectOverTimeLimitedOrder" resultMap="PayResultId">
+      select id from order_details where order_status = 10 and is_deleted = 0 and order_type = 2 and (create_date + 1440*60 - unix_timestamp(now()) <![CDATA[<=]]> 0)
+  </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from order_details
@@ -272,10 +294,16 @@
   
   <!--二维码支付url-->
   <update id="updatePayUrl" parameterType="java.util.HashMap">
+    update orders set pay_url = #{payUrl} where id = #{orderId}
+  </update>
+
+  <!--添加二维码支付-->
+  <update id="updateOrderUrl" parameterType="java.util.HashMap">
     update order_details set pay_url = #{payUrl} where id = #{orderId}
   </update>
+
   <select id="selectPayUrl" parameterType="java.lang.Long" resultType="java.lang.String">
-    select pay_url from order_details where id = #{orderId}
+    select pay_url from orders where id = #{orderId}
   </select>
   <insert id="insert" parameterType="com.quxin.freshfun.model.OrderDetailsPOJO">
     <!--
@@ -297,6 +325,63 @@
     #{payTime,jdbcType=INTEGER}, #{orderStatus,jdbcType=INTEGER},
     #{refundStatus,jdbcType=INTEGER}, #{commentStatus,jdbcType=INTEGER}, #{payPlateform,jdbcType=INTEGER},
     #{isDeleted,jdbcType=INTEGER}, #{createDate,jdbcType=INTEGER}, #{updateDate,jdbcType=INTEGER})
+  </insert>
+
+  <insert id="insertBatchOrder" parameterType="java.util.List">
+    <selectKey resultType ="java.lang.Integer" keyProperty= "id" order= "AFTER">
+        SELECT LAST_INSERT_ID()
+    </selectKey >
+    insert into order_details
+    (
+    id,user_id,order_id,
+    goods_id,actual_price,
+    address_id,
+    payment_method,
+    pay_time,
+    `count`,
+    order_status,
+    order_type,
+    create_date,
+    update_date,
+    pay_price,
+    `name`,
+    tel,
+    city,
+    address,
+    fans_app_id,
+    app_id,
+    province_code,
+    city_code,
+    district_code
+    )
+    values
+    <foreach collection ="list" item="order" index= "index" separator =",">
+      (
+      #{order.id,jdbcType=BIGINT},
+      #{order.userId},
+      #{order.orderId,jdbcType=INTEGER},
+      #{order.goodsId,jdbcType=INTEGER},
+      #{order.actualPrice,jdbcType=INTEGER},
+      #{order.addressId,jdbcType=INTEGER},
+      #{order.paymentMethod,jdbcType=INTEGER},
+      #{order.payTime,jdbcType=INTEGER},
+      #{order.count},
+      #{order.orderStatus,jdbcType=INTEGER},
+      #{order.orderType},
+      #{order.createDate,jdbcType=INTEGER},
+      #{order.updateDate,jdbcType=INTEGER},
+      #{order.payPrice},
+      #{order.name},
+      #{order.tel},
+      #{order.city},
+      #{order.address},
+      #{order.fansAppId},
+      #{order.appId},
+      #{order.provCode},
+      #{order.cityCode},
+      #{order.distCode}
+      )
+      </foreach>
   </insert>
   <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.quxin.freshfun.model.OrderDetailsPOJO">
     insert into order_details
@@ -337,6 +422,7 @@
       <if test="orderStatus != null">
         order_status,
       </if>
+        order_type,
       <if test="agentId != null">
         agent_id,
       </if>
@@ -382,6 +468,9 @@
       </if>
       <if test="address != null">
         address,
+      </if>
+      <if test="fansAppId != null">
+        fans_app_id,
       </if>
       <if test="appId != null">
         app_id,
@@ -433,6 +522,7 @@
       <if test="orderStatus != null">
         #{orderStatus,jdbcType=INTEGER},
       </if>
+        #{orderType},
       <if test="agentId != null">
         #{agentId,jdbcType=BIGINT},
       </if>
@@ -478,6 +568,9 @@
       </if>
       <if test="address != null">
         #{address},
+      </if>
+      <if test="fansAppId != null">
+        #{fansAppId},
       </if>
       <if test="appId != null">
         #{appId},

@@ -3,6 +3,7 @@ package com.quxin.freshfun.service.order;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
@@ -84,4 +85,12 @@ public interface OrderService {
 	List<OrderDetailsPOJO> selectPayId(Long parentOrderId);
 
 	void senderMail(OrderDetailsPOJO order,int sign);
+
+	/**
+	 * 修改粉丝来源标识
+	 * @return
+	 */
+	int updateFansAppId(Map<String,Object> map);
+
+	List<OrderDetailsPOJO> selectAllAppId();
 }

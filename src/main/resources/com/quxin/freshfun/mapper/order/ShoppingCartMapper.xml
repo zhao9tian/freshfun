@@ -21,6 +21,13 @@
   <resultMap id="IdResultMap" type="java.lang.Integer">
     <result column="sc_id" jdbcType="INTEGER" property="scId"/>
   </resultMap>
+
+  <resultMap id="OrderPayInfoResultMap" type="com.quxin.freshfun.model.OrderPayInfo">
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="goods_name" jdbcType="VARCHAR" property="goodsName"/>
+    <result column="goods_totals" jdbcType="INTEGER" property="total"/>
+    <result column="goods_totals_price" jdbcType="INTEGER" property="goodsPrice"/>
+  </resultMap>
   
   <sql id="Base_Column_List">
     <!--
@@ -41,7 +48,16 @@
   <select id="selectShoppingCart" parameterType="java.lang.Integer" resultType="com.quxin.freshfun.model.ShoppingCartPOJO">
       select goods_id as goodsId, goods_totals as goodsTotals, goods_name as goodsName, goods_totals_price as goodsTotalsPrice from shopping_cart where sc_id = #{scId} and is_delete = 0
   </select>
-   <!-- 查询商品数量 -->
+  <!--批量查询购物车信息-->
+  <select id="selectShoppingCartByList" parameterType="java.util.List" resultMap="OrderPayInfoResultMap">
+      select goods_id,goods_totals,goods_name,goods_totals_price from shopping_cart
+      where sc_id in
+      <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+        #{item.scId}
+      </foreach>
+      and is_delete = 0
+  </select>
+  <!-- 查询商品数量 -->
   <select id="selectGoodsTotals" parameterType="java.lang.Integer" resultType="java.lang.Integer">
       select goods_totals from shopping_cart where sc_id = #{scId} and is_delete = 0
   </select>

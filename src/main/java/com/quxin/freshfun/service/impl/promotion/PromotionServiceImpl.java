@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.dao.FlowMapper;
 import com.quxin.freshfun.dao.PromotionMapper;
+import com.quxin.freshfun.model.OrderPayInfo;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.param.PromotionParam;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.swing.plaf.nimbus.NimbusStyle;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,39 @@ public class PromotionServiceImpl implements PromotionService {
 		return promotionGoodsPOJO;
 	}
 
+	/**
+	 * 限量购
+	 * @param goodsBaseList 商品信息
+	 * @return
+	 */
+	@Override
+	public List<PromotionGoodsPOJO> queryLimitedGoods(List<OrderPayInfo> goodsBaseList) throws BusinessException {
+		if (goodsBaseList == null) {
+			throw new BusinessException("查询限量购参数为null");
+		}
+		List<PromotionGoodsPOJO> promotionGoodsList = new ArrayList<>();
+		List<PromotionPOJO> promotionList = promotionMapper.selectLimitedGoodsInfo(goodsBaseList);
+
+		if(promotionList != null) {
+			for (PromotionPOJO promotion : promotionList) {
+				PromotionGoodsPOJO promotionGoods = new PromotionGoodsPOJO();
+				// 获取优惠价格
+				String content = promotion.getContent();
+				Map<String,	Integer> contentMap = (Map) JSON.parse(content);
+				if (contentMap == null) {
+					throw new BusinessException("优惠价格解析失败");
+				}
+				// 优惠价格
+				promotionGoods.setDiscountPrice(contentMap.get("discountPrice").longValue());
+				// 商品ID
+				promotionGoods.setGoodsId(promotion.getObjectId());
+				promotionGoods.setDiscount(true);
+				promotionGoodsList.add(promotionGoods);
+			}
+		}
+		return promotionGoodsList;
+	}
+
 	@Override
 	public Integer addDiscountForGoods(PromotionGoodsPOJO promotionGoodsPOJO) throws BusinessException {
 
@@ -115,5 +150,32 @@ public class PromotionServiceImpl implements PromotionService {
 		}
 		return res;
 	}
+
+	/**
+	 * 批量查询库存
+	 * @param goodsBaseList
+	 * @return
+	 */
+	@Override
+	public List<PromotionPOJO> selectStockByGoodsList(List<OrderPayInfo> goodsBaseList) throws BusinessException {
+		if(goodsBaseList == null){
+			throw new BusinessException("批量查询库存信息参数为null");
+		}
+		return promotionMapper.selectStockByGoodsList(goodsBaseList);
+	}
+
+	/**
+	 * 修改库存信息
+	 * @param map 库存
+	 * @return
+	 */
+	@Override
+	public int updateStockById(Map<String,Object> map) throws BusinessException {
+		if (map == null){
+			throw new BusinessException("修改库存参数错误");
+		}
+		return promotionMapper.updateStockById(map);
+	}
+
 
 }

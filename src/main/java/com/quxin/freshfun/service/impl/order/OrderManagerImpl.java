@@ -398,5 +398,14 @@ public class OrderManagerImpl implements OrderManager {
 		return orderDetailsMapper.selectConfirmOrderInfo(orderId);
 	}
 
+	@Override
+	public List<Long> selectOverTimeLimitedOrder() {
+		List<Long> orderIdList = orderDetailsMapper.selectOverTimeLimitedOrder();
+		for (Long id : orderIdList) {
+
+		}
+		return null;
+	}
+
 
 }

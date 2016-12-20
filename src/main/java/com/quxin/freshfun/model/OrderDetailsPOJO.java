@@ -20,6 +20,10 @@ public class OrderDetailsPOJO {
     private Integer count;
     private Integer orderStatus;
     /**
+     * 订单类型
+     */
+    private Integer orderType;
+    /**
      * 商户编号
      */
     private Long agentId;
@@ -83,6 +87,10 @@ public class OrderDetailsPOJO {
      */
     private String deliveryRemark;
     /**
+     * 粉丝来源平台标识
+     */
+    private Long fansAppId;
+    /**
      * 平台标识
      */
     private Long appId;
@@ -111,6 +119,22 @@ public class OrderDetailsPOJO {
      * 订单用户昵称
      */
     private String nickName;
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
+    }
+
+    public Long getFansAppId() {
+        return fansAppId;
+    }
+
+    public void setFansAppId(Long fansAppId) {
+        this.fansAppId = fansAppId;
+    }
 
     public String getOrderSource() {
         return orderSource;

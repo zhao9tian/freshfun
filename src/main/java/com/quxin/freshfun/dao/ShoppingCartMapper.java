@@ -2,6 +2,8 @@ package com.quxin.freshfun.dao;
 
 import java.util.List;
 
+import com.quxin.freshfun.model.GoodsInfo;
+import com.quxin.freshfun.model.OrderPayInfo;
 import org.apache.ibatis.annotations.Param;
 
 import com.quxin.freshfun.model.ShoppingCartPOJO;
@@ -71,6 +73,11 @@ public interface ShoppingCartMapper {
      * @return
      */
     ShoppingCartPOJO selectShoppingCart(Integer scId);
+    /**
+     * 批量查询购物车信息
+     * @return
+     */
+    List<OrderPayInfo> selectShoppingCartByList(List<GoodsInfo> goodsInfo);
     /**
      * 查询商品数量
      * @return

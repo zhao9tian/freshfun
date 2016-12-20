@@ -17,6 +17,18 @@ public class PromotionPOJO extends BaseEntity {
     private Long startTime;
     /** 结束时间 */
     private Long endTime;
+    /**
+     * 库存
+     */
+    private Integer stock;
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
 
     public Integer getId() {
         return id;

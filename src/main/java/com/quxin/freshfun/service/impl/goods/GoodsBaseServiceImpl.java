@@ -1,6 +1,8 @@
 package com.quxin.freshfun.service.impl.goods;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -104,15 +106,19 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
             //分割商品编号
             List<GoodsOut> goodsOuts = new ArrayList<>();
             List<SelectionPOJO> selectionList = strToList(selection.getValue());
-            if (selectionList != null) {
-                for (SelectionPOJO sp : selectionList) {
-                    GoodsBasePOJO goods = goodsBaseMapper.findGoodsById(sp.getGoodsId());
-                    if (goods != null) {
-                        goods.setGoodsImg(sp.getImg());
-                        GoodsOut goodsOut = getGoods(goods);
-                        goodsOuts.add(goodsOut);
+            if(selectionList != null) {
+                    List<GoodsBasePOJO> goodsList = goodsBaseMapper.findGoodsInList(selectionList);
+                    if(goodsList != null) {
+                        for (GoodsBasePOJO goods : goodsList) {
+                            for (SelectionPOJO sl: selectionList) {
+                                if(goods.getId().equals(sl.getGoodsId())){
+                                    goods.setGoodsImg(sl.getImg());
+                                }
+                            }
+                            GoodsOut goodsOut = getGoods(goods);
+                            goodsOuts.add(goodsOut);
+                        }
                     }
-                }
                 return goodsOuts;
             }
         }
@@ -131,24 +137,24 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
             //分割商品编号
             Long[] themeIds = splitGoodsContent(banner.getValue());
             List<SpecialOut> specialList = new ArrayList<>();
-            if (themeIds != null && themeIds.length > 0) {
-                for (int i = 0; i < themeIds.length; i++) {
-                    ThemePOJO theme = goodsThemeMapper.selectThemeById(themeIds[i]);
-                    if (theme != null) {
+            if(themeIds != null && themeIds.length > 0) {
+                    List<ThemePOJO> themeList = goodsThemeMapper.selectThemeInId(themeIds);
+                    if(themeList != null) {
                         //获取专题下的商品
-                        Long[] goodsIds = splitGoodsContent(theme.getThemeInfoContent());
-                        if (goodsIds != null && goodsIds.length > 0) {
-                            List<GoodsOut> goodsList = getGoodsList(goodsIds);
-                            //生成出参对象
-                            SpecialOut special = new SpecialOut();
-                            special.setSpecialId(theme.getThemeId());
-                            special.setSpecialDesc(theme.getThemeDes());
-                            special.setSpecialInfoImg(theme.getThemeImg());
-                            special.setGoodsList(goodsList);
-                            specialList.add(special);
+                        for (ThemePOJO theme : themeList) {
+                            Long[] goodsIds = splitGoodsContent(theme.getThemeInfoContent());
+                            if (goodsIds != null && goodsIds.length > 0) {
+                                List<GoodsOut> goodsList = getGoodsList(goodsIds);
+                                //生成出参对象
+                                SpecialOut special = new SpecialOut();
+                                special.setSpecialId(theme.getThemeId());
+                                special.setSpecialDesc(theme.getThemeDes());
+                                special.setSpecialInfoImg(theme.getThemeImg());
+                                special.setGoodsList(goodsList);
+                                specialList.add(special);
+                            }
                         }
                     }
-                }
                 return specialList;
             }
         }
@@ -157,7 +163,6 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 获取商品排序列表
-     *
      * @return
      */
     @Override
@@ -189,7 +194,6 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 查询限时购商品
-     *
      * @return
      */
     @Override
@@ -222,7 +226,6 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据类目编号查询商品信息
-     *
      * @param categoryKey 类目编号
      * @return
      */
@@ -588,7 +591,6 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据商品列表
-     *
      * @param ids
      * @return
      */
@@ -596,14 +598,16 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
         if (ids == null)
             return null;
         List<GoodsOut> goodsList = new ArrayList<>();
-        for (Long id : ids) {
+        //for (Long id: ids) {
             //根据商品编号查询商品
-            GoodsBasePOJO goods = goodsBaseMapper.findGoodsById(id);
-            if (goods != null) {
-                GoodsOut goodsOut = getGoods(goods);
-                goodsList.add(goodsOut);
+            List<GoodsBasePOJO> goodsBaseList = goodsBaseMapper.findGoodsInId(ids);
+            if(goodsBaseList != null) {
+                for (GoodsBasePOJO goods : goodsBaseList) {
+                    GoodsOut goodsOut = getGoods(goods);
+                    goodsList.add(goodsOut);
+                }
             }
-        }
+       // }
         return goodsList;
     }
 

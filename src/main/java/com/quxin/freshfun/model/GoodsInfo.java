@@ -28,4 +28,10 @@ public class GoodsInfo {
 	public void setCount(Integer count) {
 		this.count = count;
 	}
+
+	public GoodsInfo(){}
+
+	public GoodsInfo(Integer goodsId) {
+		this.goodsId = goodsId;
+	}
 }

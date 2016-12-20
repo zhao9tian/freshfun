@@ -82,6 +82,9 @@ public class OrderController {
 		Long createTime = orderDetail.getCreateDate();
 		Long now = System.currentTimeMillis();
 		Long outTimeStamp = createTime*1000 + orderOutTime*60000 - now;
+        if(orderDetail.getOrderType() == 2){
+            outTimeStamp = createTime*1000 + 30 *60000 - now;
+        }
 		orderDetail.setOutTimeStamp(outTimeStamp);
 		orderDetail.setPayMoney(MoneyFormat.priceFormatString(orderDetail.getPayPrice()));
 		orderDetail.setPayPrice(null);

@@ -20,4 +20,10 @@ public interface GoodsThemeMapper {
      * @return
      */
     ThemePOJO selectThemeById(Long themeId);
+
+    /**
+     * 根据专题编号查询专题信息
+     * @return
+     */
+    List<ThemePOJO> selectThemeInId(Long[] themeId);
 }

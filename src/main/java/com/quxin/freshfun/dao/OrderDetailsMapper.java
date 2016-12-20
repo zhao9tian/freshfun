@@ -68,6 +68,12 @@ public interface OrderDetailsMapper {
      * @return
      */
     int updatePayStatus(Long orderId);
+
+    /**
+     * 批量添加订单
+     * @return
+     */
+    int insertBatchOrder(List<OrderDetailsPOJO> orderList);
     /**
      * 分页查询所有订单信息
      * @param currentPage
@@ -235,6 +241,12 @@ public interface OrderDetailsMapper {
     List<Long> selectOvertimeOrder();
 
     /**
+     * 查询限量购超时订单
+     * @return
+     */
+    List<Long> selectOverTimeLimitedOrder();
+
+    /**
      * 修改二维码支付url
      * @param map
      * @return
@@ -242,9 +254,31 @@ public interface OrderDetailsMapper {
     Integer updatePayUrl(Map<String,Object> map);
 
     /**
+     * 添加二维码支付url
+     * @param map
+     * @return
+     */
+    Integer updateOrderUrl(Map<String,Object> map);
+
+    /**
      * 根据订单编号查询二维码支付url
      * @param orderId
      * @return
      */
     String selectPayUrl(Long orderId);
+
+    /**
+     * 查询父级编号
+     * @param orderId 订单编号
+     * @return
+     */
+    OrderDetailsPOJO selectParentOrderId(Long orderId);
+
+    /**
+     * 修改粉丝来源标识
+     * @return
+     */
+    int updateFansAppId(Map<String,Object> map);
+
+    List<OrderDetailsPOJO> selectAllAppId();
 }

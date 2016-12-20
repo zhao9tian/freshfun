@@ -18,4 +18,14 @@
   <select id="selectThemeById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.ThemePOJO">
     select id as `themeId`,`theme_name` as `themeName`,theme_des as `themeDes`,img as `themeImg`,goods_id_list as `themeInfoContent` from goods_theme where id = #{themeId} and is_deleted = 0
   </select>
+
+  <select id="selectThemeInId" resultType="com.quxin.freshfun.model.pojo.goods.ThemePOJO">
+    select id as `themeId`,`theme_name` as `themeName`,theme_des as `themeDes`,img as `themeImg`,goods_id_list as `themeInfoContent`
+    from goods_theme
+    where is_deleted = 0
+    and id in 
+    <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
 </mapper>

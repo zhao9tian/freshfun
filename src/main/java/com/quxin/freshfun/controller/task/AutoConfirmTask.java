@@ -66,4 +66,8 @@ public class AutoConfirmTask {
         orderManager.scanningOvertimeOrder();
     }
 
+
+    public void scanningOverLimitedOrder(){
+
+    }
 }

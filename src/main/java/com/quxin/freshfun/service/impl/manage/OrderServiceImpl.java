@@ -9,6 +9,7 @@ import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.outparam.UserInfoOutParam;
 import com.quxin.freshfun.model.param.GoodsParam;
 import com.quxin.freshfun.model.param.OrderParam;
+import com.quxin.freshfun.model.pojo.PromotionPOJO;
 import com.quxin.freshfun.model.pojo.address.AddressPOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.service.address.AddressService;
@@ -89,53 +90,36 @@ public class OrderServiceImpl implements OrderService {
 	 */
 	@Override
 	public WxPayInfo addOrder(OrderInfo orderInfo,HttpServletRequest request) throws BusinessException, JSONException {
-		OrderPayInfo [] orderPayInfos = new OrderPayInfo[orderInfo.getGoodsInfo().size()];
+		if(orderInfo == null || orderInfo.getGoodsInfo() == null || orderInfo.getGoodsInfo().get(0) == null)
+			throw new BusinessException("添加订单时参数错误");
+//		OrderPayInfo [] orderPayInfos = new OrderPayInfo[orderInfo.getGoodsInfo().size()];
 		//订单总价格
 		Integer orderSumPrice = 0;
 		//订单编号
 		Long uId = orderInfo.getUserId();
 
-		for(int i = 0;i < orderInfo.getGoodsInfo().size();i++){
-			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
-			OrderPayInfo orderPayInfo = null;
-			//查询购物车
-			if(null == goodsInfo.getScId() || 0 == goodsInfo.getScId()){
-				//GoodsPOJO goodsPOJO = goodsMapper.selectShoppingInfo(goodsInfo.getGoodsId());
-				GoodsBasePOJO goodsBase = goodsBaseMapper.selectOrderPayInfo(goodsInfo.getGoodsId().longValue());
-				getShopPrice(goodsBase);
-				orderPayInfo = new OrderPayInfo(goodsBase.getTitle(), goodsBase.getShopPrice(),goodsInfo.getCount());
-			}else{
-				ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(goodsInfo.getScId());
-				GoodsBasePOJO goodsBase = goodsBaseMapper.selectOrderPayInfo(shoppingCart.getGoodsId().longValue());
-				getShopPrice(goodsBase);
-				orderPayInfo = new OrderPayInfo(shoppingCart.getGoodsName(), goodsBase.getShopPrice(),shoppingCart.getGoodsTotals());
-			}
-			orderPayInfos[i] = orderPayInfo;
-			orderSumPrice += orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
+		List<OrderPayInfo> goodsBaseList = null;
+		if(orderInfo.getGoodsInfo().get(0).getScId() == null || 0 == orderInfo.getGoodsInfo().get(0).getScId()){
+			goodsBaseList = getPayGoodsInfo(orderInfo);
+			//设置商品活动信息
+			setGoodsDiscountInfo(goodsBaseList);
+		} else {
+			//购物车
+			goodsBaseList = shoppingCartMapper.selectShoppingCartByList(orderInfo.getGoodsInfo());
+			//设置商品活动信息
+			setGoodsDiscountInfo(goodsBaseList);
 		}
 
-		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,orderSumPrice);
-		int insertStatus = ordersMapper.insertSelective(orderPOJO);
-		if(insertStatus <= 0){
-			resultLogger.error(orderInfo.getUserId()+"添加订单失败");
-			throw new BusinessException("订单添加失败");
-		}
+		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,goodsBaseList);
+		orderSumPrice = orderPOJO.getActualPrice();
+		//添加父级订单
+		insertOrderParent(orderInfo, orderPOJO);
 		//订单父级编号
 		Long orderId = orderPOJO.getId();
-		//订单详情编号
-		Long orderDetailsId = null;
-		for (int i = 0;i < orderPayInfos.length;i++){
-			GoodsInfo goodsInfo = orderInfo.getGoodsInfo().get(i);
-			OrderDetailsPOJO orderDetail = makeOrderDetail(orderPayInfos[i],goodsInfo,orderInfo,orderId);
-			//生成订单详情
-			int orderDetailStatus = orderDetailsMapper.insertSelective(orderDetail);
-			if(orderDetailStatus <= 0){
-				resultLogger.error(orderInfo.getUserId()+"添加订单详情失败");
-				throw new BusinessException("订单详情生成失败");
-			}else{
-				orderDetailsId = orderDetail.getId();
-			}
-		}
+
+		List<OrderDetailsPOJO> orderDetailList = makeOrderDetail(goodsBaseList, orderInfo, orderId);
+		insertOrder(orderDetailList);
+
 		//获取用户openId
         String openId = userBaseService.queryUserInfoByUserId(uId).getOpenId();
 		//生成订单后 调用支付
@@ -143,16 +127,208 @@ public class OrderServiceImpl implements OrderService {
 		payId.append("Z");
 		payId.append(orderId);
 		//微信支付
-		//String payMoney = MoneyFormat.priceFormatString(orderSumPrice);
 		WxPayInfo wxPayInfo = weChatService.wzPay(request, payId.toString(), orderSumPrice.toString(), openId);
-		wxPayInfo.setOrderId(orderDetailsId);
+		wxPayInfo.setOrderId(orderDetailList.get(0).getId());
 		//保存二维码支付url
-		savePayUrl(wxPayInfo);
-//		ResponseResult payResult = orderPay(payId.toString(),payMoney,orderInfo.getCode(),openId);
-//		payResult.setOrderId(orderDetailsId);
+		savePayUrl(wxPayInfo,orderId);
 		//修改支付状态
 		modifyShoppingCartState(orderInfo);
 		return wxPayInfo;
+	}
+
+	/**
+	 * 设置订单优惠信息
+	 * @param goodsBaseList 订单商品信息集合
+	 */
+	private void setGoodsDiscountInfo(List<OrderPayInfo> goodsBaseList) throws BusinessException {
+		List<PromotionPOJO> promotionList = promotionService.selectStockByGoodsList(goodsBaseList);
+		checkStock(goodsBaseList, promotionList);
+		for (OrderPayInfo payInfo : goodsBaseList) {
+			switch (payInfo.getIsDiscount()){
+				case 1:
+					//修改商品库存
+					updateGoodsStock(payInfo);
+					//修改销量
+					updateSaleNum(payInfo);
+					break;
+				case 2:
+					//修改限量购库存
+					updateDiscountStock(payInfo);
+					break;
+				case 3:
+					throw new BusinessException("商品已经售罄");
+			}
+		}
+		//设置商品优惠价格
+		List<PromotionGoodsPOJO> promotionGoods = promotionService.queryLimitedGoods(goodsBaseList);
+		for (OrderPayInfo payInfo: goodsBaseList) {
+			for (PromotionGoodsPOJO promotion : promotionGoods) {
+				if (promotion.getDiscount()){
+					if(payInfo.getGoodsId().equals(promotion.getGoodsId())){
+						payInfo.setGoodsPrice(promotion.getDiscountPrice().intValue());
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 增加销量
+	 * @param payInfo 支付信息
+	 */
+	private void updateSaleNum(OrderPayInfo payInfo) {
+		Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(payInfo.getGoodsId());
+		if (saleStatus <= 0) {
+            logger.error("修改商品销量失败");
+        }
+	}
+
+	/**
+	 * 修改优惠商品库存
+	 * @param payInfo 支付信息
+ 	 * @throws BusinessException
+	 */
+	private void updateDiscountStock(OrderPayInfo payInfo) throws BusinessException {
+		Map<String,Object> map = new HashMap<>();
+		map.put("stock",payInfo.getTotal());
+		map.put("promotionId",payInfo.getPromotionId());
+		int state = promotionService.updateStockById(map);
+		if(state <= 0){
+            throw new BusinessException("批量修改限量库存失败");
+        }
+	}
+
+	/**
+	 * 修改商品库存
+	 * @param payInfo 支付信息
+	 */
+	private void updateGoodsStock(OrderPayInfo payInfo) throws BusinessException {
+		Map<String,Object> map = new HashMap<>();
+		map.put("stock",payInfo.getTotal());
+		map.put("goodsId",payInfo.getGoodsId());
+		int state = goodsBaseMapper.updateGoodsStock(map);
+		if(state <= 0)
+			throw new BusinessException("修改商品库存失败");
+	}
+
+	/**
+	 * 修改商品库存
+	 * @param goodsBaseList
+	 */
+	private void modifyGoodsStock(List<OrderPayInfo> goodsBaseList) throws BusinessException {
+		List<GoodsBasePOJO> orderPayList = goodsBaseMapper.selectBatchStock(goodsBaseList);
+	}
+
+	/**
+	 * 批量修改库存
+	 * @param goodsBaseList
+	 * @throws BusinessException
+	 */
+	private void BatchModifyGoodsStock(List<OrderPayInfo> goodsBaseList) throws BusinessException {
+		int state = goodsBaseMapper.batchUpdateStock(goodsBaseList);
+		if(state <= 0){
+            throw new BusinessException("修改库存失败");
+        }
+	}
+
+	/**
+	 * 判断库存
+	 * @param goodsBaseList 商品集合
+	 * @param promotionList	优惠商品集合
+	 * @return
+	 */
+	private void checkStock(List<OrderPayInfo> goodsBaseList, List<PromotionPOJO> promotionList) {
+		if(promotionList != null && promotionList.size() > 0) {
+			for (OrderPayInfo payInfo : goodsBaseList) {
+					for (PromotionPOJO promotion : promotionList) {
+						if (payInfo.getGoodsId().equals(promotion.getObjectId())) {
+							if ((payInfo.getTotal() - promotion.getStock()) <= 0) {
+								payInfo.setIsDiscount(2);
+								payInfo.setPromotionId(promotion.getId());
+							} else {
+								payInfo.setIsDiscount(3);
+							}
+						}
+					}
+			}
+			for (OrderPayInfo payInfo : goodsBaseList) {
+				if(payInfo.getIsDiscount() == 0){
+					//查询单个商品库存
+					GoodsBasePOJO goodsBase = goodsBaseMapper.selectStockByGoodsId(payInfo.getGoodsId());
+					if(payInfo.getGoodsId().equals(goodsBase.getId())) {
+						if (payInfo.getTotal() - goodsBase.getStockNum() <= 0) {
+							payInfo.setIsDiscount(1);
+						} else {
+							payInfo.setIsDiscount(3);
+						}
+					}
+				}
+			}
+		} else {
+			List<GoodsBasePOJO> orderPayList = goodsBaseMapper.selectBatchStock(goodsBaseList);
+			if(orderPayList != null){
+				for (OrderPayInfo orderPayInfo : goodsBaseList) {
+					for (GoodsBasePOJO goodsBase: orderPayList) {
+						if(orderPayInfo.getGoodsId().equals(goodsBase.getId())) {
+							if (orderPayInfo.getTotal() - goodsBase.getStockNum() < 0) {
+								orderPayInfo.setIsDiscount(1);
+							} else {
+								orderPayInfo.setIsDiscount(3);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 添加订单
+	 * @param orderDetailList 订单数据
+	 */
+	private void insertOrder(List<OrderDetailsPOJO> orderDetailList) throws BusinessException {
+		for (OrderDetailsPOJO order : orderDetailList) {
+			int state = orderDetailsMapper.insertSelective(order);
+			if (state <= 0){
+				throw new BusinessException("订单添加失败");
+			}
+		}
+	}
+
+	/**
+	 * 添加父级订单
+	 * @param orderInfo 客户单提交支付信息
+	 * @param orderPOJO 订单数据
+	 * @throws BusinessException
+	 */
+	private void insertOrderParent(OrderInfo orderInfo, OrdersPOJO orderPOJO) throws BusinessException {
+		int insertStatus = ordersMapper.insertSelective(orderPOJO);
+		if(insertStatus <= 0){
+			resultLogger.error(orderInfo.getUserId()+"添加订单失败");
+			throw new BusinessException("父级订单添加失败");
+		}
+	}
+
+	/**
+	 * 获取支付商品信息
+	 * @param orderInfo
+	 */
+	private List<OrderPayInfo> getPayGoodsInfo(OrderInfo orderInfo) {
+		List<OrderPayInfo> goodsBaseList = new ArrayList<>();
+		if(orderInfo != null) {
+			//获取支付商品信息
+			goodsBaseList = goodsBaseMapper.selectGoodsInfoByGoodsList(orderInfo.getGoodsInfo());
+			if (goodsBaseList != null) {
+				for (OrderPayInfo orderPayInfo : goodsBaseList) {
+					for (GoodsInfo goodsInfo : orderInfo.getGoodsInfo()) {
+						if (orderPayInfo.getGoodsId().equals(goodsInfo.getGoodsId().longValue())) {
+							orderPayInfo.setTotal(goodsInfo.getCount());
+						}
+					}
+				}
+			}
+		}
+		return goodsBaseList;
 	}
 
 	/**
@@ -176,10 +352,10 @@ public class OrderServiceImpl implements OrderService {
 	 * 保存二维码支付url
 	 * @param wxPayInfo	返回客户端支付信息
 	 */
-	private void savePayUrl(WxPayInfo wxPayInfo) {
+	private void savePayUrl(WxPayInfo wxPayInfo,Long orderId) {
 		Map<String,Object> map = new HashMap<>();
 		map.put("payUrl",wxPayInfo.getPayUrl());
-		map.put("orderId",wxPayInfo.getOrderId());
+		map.put("orderId",orderId);
 		Integer state = orderDetailsMapper.updatePayUrl(map);
 		if(state <= 0)
 			logger.error("保存二维码支付url失败");
@@ -198,6 +374,91 @@ public class OrderServiceImpl implements OrderService {
 			}
 		}
 	}
+	/**
+	 * 根据用户提交的信息生成订单详情
+	 */
+	private List<OrderDetailsPOJO> makeOrderDetail(List<OrderPayInfo> goodsBaseList,OrderInfo orderInfo,Long orderId) throws BusinessException {
+		long currentTime = DateUtils.getCurrentDate();
+		long uid = orderInfo.getUserId();
+		List<OrderDetailsPOJO> orderList = new ArrayList<>();
+		for (OrderPayInfo orderPayInfo : goodsBaseList) {
+			OrderDetailsPOJO od = new OrderDetailsPOJO();
+			//订单编号
+			od.setOrderId(orderId);
+			od.setUserId(uid);
+			od.setGoodsId(orderPayInfo.getGoodsId().intValue());
+			od.setAddressId(orderInfo.getAddressId());
+			od.setPaymentMethod(orderInfo.getPaymentMethod());
+			/**
+			 * 订单支付金额
+			 */
+			Integer orderActualPrice = orderPayInfo.getGoodsPrice()*orderPayInfo.getTotal();
+			od.setActualPrice(orderActualPrice);
+			od.setPayPrice(orderPayInfo.getGoodsPrice());
+			od.setPayTime(currentTime);
+			od.setOrderStatus(10);
+			od.setOrderType(orderPayInfo.getIsDiscount());
+			//生成平台标识
+			generateAppIdentify(orderInfo, uid, od);
+			//查询用户绑定公众平台
+			UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(uid);
+			if(userInfo != null){
+				od.setFansAppId(userInfo.getAppId());
+			}
+			od.setCount(orderPayInfo.getTotal());
+			od.setCreateDate(currentTime);
+			od.setUpdateDate(currentTime);
+			//添加地址
+			generateOrderAddress(orderInfo, od);
+			orderList.add(od);
+		}
+
+		return orderList;
+	}
+
+	/**
+	 * 生成平台标识
+	 * @param orderInfo
+	 * @param uid
+	 * @param od
+	 * @throws BusinessException
+	 */
+	private void generateAppIdentify(OrderInfo orderInfo, long uid, OrderDetailsPOJO od) throws BusinessException {
+		if(!StringUtils.isEmpty(orderInfo.getAppId())){
+            Long urlId = FreshFunEncoder.urlToId(orderInfo.getAppId());
+            od.setAppId(urlId);
+            // 设置订单来源
+            setOrderSource(uid, urlId);
+        } else {
+            // 设置订单来源
+            setOrderSource(uid,888888L);
+			od.setAppId(888888L);
+        }
+	}
+
+	/**
+	 * 生成订单地址
+	 * @param orderInfo
+	 * @param od
+	 * @throws BusinessException
+	 */
+	private void generateOrderAddress(OrderInfo orderInfo, OrderDetailsPOJO od) throws BusinessException {
+		AddressPOJO address = addressService.queryAddressById(orderInfo.getAddressId());
+		if(address != null) {
+            od.setName(address.getName());
+            od.setTel(address.getTel());
+            od.setAddress(address.getAddress());
+            if (address.getIsNew() == 1) {
+                od.setProvCode(address.getProvCode());
+                od.setCityCode(address.getCityCode());
+                od.setDistCode(address.getDistCode());
+            } else {
+                od.setCity(address.getCity());
+            }
+        } else{
+            throw new BusinessException("下单时查询地址为空");
+        }
+	}
 
 	/**
 	 * 根据用户提交的信息生成订单详情
@@ -208,25 +469,18 @@ public class OrderServiceImpl implements OrderService {
 		long currentTime = DateUtils.getCurrentDate();
         long uid = orderInfo.getUserId();
 		//查询捕手信息
-		Long fetcherId = null;
-		UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(uid);
-		if(userInfo != null){
-			fetcherId = userInfo.getFetcherId();
-		}
+//		Long fetcherId = null;
+//		UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(uid);
+//		if(userInfo != null){
+//			fetcherId = userInfo.getFetcherId();
+//		}
 		OrderDetailsPOJO od = new OrderDetailsPOJO();
 		//订单编号
 		od.setOrderId(orderId);
-		od.setUserId(orderInfo.getUserId());
+		od.setUserId(uid);
 		od.setGoodsId(goodsInfo.getGoodsId());
 		od.setAddressId(orderInfo.getAddressId());
 		od.setPaymentMethod(orderInfo.getPaymentMethod());
-		//生成平台标识
-		if(!StringUtils.isEmpty(orderInfo.getAppId())){
-			Long urlId = FreshFunEncoder.urlToId(orderInfo.getAppId());
-			if(urlId != null){
-				od.setAppId(urlId);
-			}
-		}
 		/**
 		 * 订单支付金额
 		 */
@@ -235,56 +489,86 @@ public class OrderServiceImpl implements OrderService {
 		od.setPayPrice(payInfo.getGoodsPrice());
 		od.setPayTime(currentTime);
 		od.setOrderStatus(10);
-		//判断是否有上级
-		if(fetcherId !=null && fetcherId != 0) {
-			od.setFetcherId(fetcherId);
-			//计算捕手需要获取的提成
-			Double fetcherMoney = orderActualPrice * Constant.FECTHER_COMPONENT;
-			od.setFetcherPrice(fetcherMoney.intValue());
-			od.setPayPlateform(1);
-		}else{
-			String sign = orderInfo.getFetcherId();
-			if (sign != null && !"".equals(sign)){
-				Long id = FreshFunEncoder.urlToId(sign);
-				if(id != null) {
-                    //判断是否是捕手
-                    boolean bool = userBaseService.checkIsFetcherByUserId(id);
-                    if(bool){
-                        int status = userBaseService.modifyFetcherForUser(uid,id);
-                        if (status <= 0) {
-							logger.error("添加分享标记失败");
-                        }else{
-                            //添加分享提成
-                            od.setFetcherId(id);
-                            //计算捕手需要获取的提成
-                            Double fetcherMoney = orderActualPrice * Constant.FECTHER_COMPONENT;
-                            od.setFetcherPrice(fetcherMoney.intValue());
-							od.setPayPlateform(1);
-                        }
-                    }
-				}
-			}
+		//生成平台标识
+		generateAppIdentify(orderInfo, uid, od);
+		//查询用户绑定公众平台
+		UserInfoOutParam userInfo = userBaseService.queryUserInfoByUserId(uid);
+		if(userInfo != null){
+			od.setFansAppId(userInfo.getAppId());
 		}
+
+		//判断是否有上级
+//		if(fetcherId !=null && fetcherId != 0) {
+//			od.setFetcherId(fetcherId);
+//			//计算捕手需要获取的提成
+//			Double fetcherMoney = orderActualPrice * Constant.FECTHER_COMPONENT;
+//			od.setFetcherPrice(fetcherMoney.intValue());
+//			od.setPayPlateform(1);
+//		}else{
+//			String sign = orderInfo.getFetcherId();
+//			if (sign != null && !"".equals(sign)){
+//				Long id = FreshFunEncoder.urlToId(sign);
+//				if(id != null) {
+//                    //判断是否是捕手
+//                    boolean bool = userBaseService.checkIsFetcherByUserId(id);
+//                    if(bool){
+//                        int status = userBaseService.modifyFetcherForUser(uid,id);
+//                        if (status <= 0) {
+//							logger.error("添加分享标记失败");
+//                        }else{
+//                            //添加分享提成
+//                            od.setFetcherId(id);
+//                            //计算捕手需要获取的提成
+//                            Double fetcherMoney = orderActualPrice * Constant.FECTHER_COMPONENT;
+//                            od.setFetcherPrice(fetcherMoney.intValue());
+//							od.setPayPlateform(1);
+//                        }
+//                    }
+//				}
+//			}
+//		}
 		od.setCount(goodsInfo.getCount());
 		od.setCreateDate(currentTime);
 		od.setUpdateDate(currentTime);
 		//添加地址
-		AddressPOJO address = addressService.queryAddressById(orderInfo.getAddressId());
-		if(address != null) {
-			od.setName(address.getName());
-			od.setTel(address.getTel());
-			od.setAddress(address.getAddress());
-			if (address.getIsNew() == 1) {
-				od.setProvCode(address.getProvCode());
-				od.setCityCode(address.getCityCode());
-				od.setDistCode(address.getDistCode());
-			} else {
-				od.setCity(address.getCity());
-			}
-		} else{
-			throw new BusinessException("下单时查询地址为空");
-		}
+		generateOrderAddress(orderInfo, od);
 		return od;
+	}
+
+	/**
+	 * 查询订单来源
+	 * @param userId 用户编号
+	 * @param appId appId
+	 */
+	private void setOrderSource(Long userId, Long appId) {
+		int state = userBaseService.modifyUserAppId(userId,appId);
+		if(state <= 0)
+            logger.warn("根据AppID设置订单来源失败");
+	}
+
+	/**
+	 * 订单实体
+	 * @param orderInfo
+	 * @return
+	 */
+	private OrdersPOJO makeOrderPOJO(OrderInfo orderInfo,List<OrderPayInfo> goodsBaseList) {
+		int sumPrice = 0;
+		for (OrderPayInfo payInfo : goodsBaseList) {
+			sumPrice = payInfo.getGoodsPrice()*payInfo.getTotal();
+		}
+		long currentDate = DateUtils.getCurrentDate();
+		OrdersPOJO order = new OrdersPOJO();
+		order.setUserId(orderInfo.getUserId());
+		order.setGmtCreate(currentDate);
+		order.setGmtModified(currentDate);
+		order.setPaymentMethod(orderInfo.getPaymentMethod());
+		order.setOrderCount(orderInfo.getGoodsInfo().size());
+		order.setOrderStatus(0);
+		order.setPayStatus(0);
+		order.setUserId(orderInfo.getUserId());
+		order.setActualPrice(sumPrice);
+		order.setCode(orderInfo.getCode());
+		return order;
 	}
 
 	/**
@@ -361,7 +645,8 @@ public class OrderServiceImpl implements OrderService {
 	public String findPayUrl(Long orderId) throws BusinessException {
 		if(orderId == null)
 			throw new BusinessException("查询二维码支付url订单编号不能为null");
-		return orderDetailsMapper.selectPayUrl(orderId);
+		OrderDetailsPOJO order = orderDetailsMapper.selectParentOrderId(orderId);
+		return orderDetailsMapper.selectPayUrl(order.getOrderId());
 	}
 
 	/**
@@ -395,14 +680,6 @@ public class OrderServiceImpl implements OrderService {
 							senderMail(orderDetails,1);
 							//推送消息
 							pushMessage(orderDetails,1);
-							//修改库存
-							Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
-							if (stockStatus <= 0)
-								logger.error("订单修改库存失败");
-							//修改销量
-							Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
-							if (saleStatus <= 0)
-								logger.error("订单修改销量失败");
 						} else {
 							logger.error("订单回调查询商品失败");
 						}
@@ -431,15 +708,6 @@ public class OrderServiceImpl implements OrderService {
 								senderMail(orderDetails,0);
 								//推送消息
 								pushMessage(orderDetails,0);
-								Integer stockStatus = goodsBaseMapper.updateGoodsStock(orderDetails.getGoodsId().longValue());
-								if (stockStatus <= 0) {
-									logger.error("修改商品库存失败");
-								}
-								//修改销量
-								Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(orderDetails.getGoodsId().longValue());
-								if (saleStatus <= 0) {
-									logger.error("修改商品销量失败");
-								}
 							}
 						}
 					}else{
@@ -498,6 +766,21 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	/**
+	 * 修改粉丝订单来源
+	 * @param map
+	 * @return
+	 */
+	@Override
+	public int updateFansAppId(Map<String, Object> map) {
+		return orderDetailsMapper.updateFansAppId(map);
+	}
+
+	@Override
+	public List<OrderDetailsPOJO> selectAllAppId() {
+		return orderDetailsMapper.selectAllAppId();
+	}
+
+	/**
 	 * 设置订单来源
 	 * @param order
 	 */
@@ -548,9 +831,18 @@ public class OrderServiceImpl implements OrderService {
 			sb.append(order.getOrderId());
 			wxPayInfo = weChatService.wzPay(request, sb.toString(), detailsPOJO.getActualPrice().toString(), openId);
 			wxPayInfo.setOrderId(Long.parseLong(order.getOrderId()));
-			savePayUrl(wxPayInfo);
+			saveOrderPayUrl(wxPayInfo);
 		}
 		return wxPayInfo;
+	}
+
+	private void saveOrderPayUrl(WxPayInfo wxPayInfo) {
+		Map<String,Object> map = new HashMap<>();
+		map.put("payUrl",wxPayInfo.getPayUrl());
+		map.put("orderId",wxPayInfo.getOrderId());
+		Integer state = orderDetailsMapper.updateOrderUrl(map);
+		if(state <= 0)
+			logger.error("保存二维码支付url失败");
 	}
 
 	/**
@@ -648,11 +940,8 @@ public class OrderServiceImpl implements OrderService {
 		orderSumPrice = getOrderInfo(orderInfo, orderPayInfos, orderSumPrice);
 
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,orderSumPrice);
-		int insertStatus = ordersMapper.insertSelective(orderPOJO);
-		if(insertStatus <= 0){
-			resultLogger.error(orderInfo.getUserId()+"添加订单失败");
-			throw new BusinessException("订单添加失败");
-		}
+		//添加父级订单
+		insertOrderParent(orderInfo, orderPOJO);
 		//订单父级编号
 		Long orderId = orderPOJO.getId();
 		/**

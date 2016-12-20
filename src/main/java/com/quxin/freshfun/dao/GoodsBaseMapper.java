@@ -1,13 +1,18 @@
 package com.quxin.freshfun.dao;
 
 import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
+import com.quxin.freshfun.model.GoodsInfo;
+import com.quxin.freshfun.model.OrderPayInfo;
 import com.quxin.freshfun.model.param.GoodsParam;
+import com.quxin.freshfun.model.pojo.PromotionPOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsImage;
 import com.quxin.freshfun.model.pojo.goods.GoodsStandard;
+import com.quxin.freshfun.model.pojo.goods.SelectionPOJO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by gsix on 2016/10/26.
@@ -19,6 +24,25 @@ public interface GoodsBaseMapper {
      * @return
      */
     GoodsBasePOJO findGoodsById(Long goodsId);
+    /**
+     * 根据商品编号查询商品信息
+     * @param goodsId
+     * @return
+     */
+    List<GoodsBasePOJO> findGoodsInId(Long [] goodsId);
+    /**
+     * 根据商品编号查询商品信息
+     * @param goodsList
+     * @return
+     */
+    List<GoodsBasePOJO> findGoodsInList(List<SelectionPOJO> goodsList);
+
+    /**
+     * 根据优惠商品编号查询商品信息
+     * @param promotionList
+     * @return
+     */
+    List<GoodsBasePOJO> findPromotionGoodsList(List<PromotionPOJO> promotionList);
 
     /**
      * 查询二级类目商品
@@ -60,10 +84,16 @@ public interface GoodsBaseMapper {
     GoodsBasePOJO selectOrderPayInfo(Long goodsId);
 
     /**
+     * 根据商品集合查询商品信息
+     * @return
+     */
+    List<OrderPayInfo> selectGoodsInfoByGoodsList(List<GoodsInfo> goodsInfo);
+
+    /**
      * 修改库存数量
      * @return
      */
-    Integer updateGoodsStock(Long goodsId);
+    Integer updateGoodsStock(Map<String,Object> map);
 
     /**
      * 修改商品销量
@@ -78,6 +108,25 @@ public interface GoodsBaseMapper {
      * @return
      */
     GoodsParam selectGoodsByGoodsId(Long goodsId);
+
+    /**
+     * 根据商品编号查询库存
+     * @return
+     */
+    GoodsBasePOJO selectStockByGoodsId(Long goodsId);
+
+    /**
+     * 批量修改库存
+     * @param goodsBaseList 商品信息
+     * @return
+     */
+    int batchUpdateStock(List<OrderPayInfo> goodsBaseList);
+
+    /**
+     * 批量查询库存
+     * @return
+     */
+    List<GoodsBasePOJO> selectBatchStock(List<OrderPayInfo> goodsBaseList);
 
     /**
      * 根据排序Id查询排序限量购商品

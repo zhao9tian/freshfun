@@ -12,6 +12,7 @@
     <result column="img" jdbcType="VARCHAR" property="goodsImg" />
     <result column="sale_num" jdbcType="INTEGER" property="saleNum" />
     <result column="stock_num" jdbcType="INTEGER" property="stockNum" />
+    <result column="is_on_sale" jdbcType="INTEGER" property="isOnSale"/>
     <result column="catagory1" jdbcType="INTEGER" property="catagory1" />
     <result column="catagory2" jdbcType="INTEGER" property="catagory2" />
     <result column="catagory3" jdbcType="INTEGER" property="catagory3" />
@@ -21,11 +22,44 @@
     <result column="created" jdbcType="BIGINT" property="created" />
     <result column="updated" jdbcType="BIGINT" property="updated" />
   </resultMap>
+  <resultMap id="OrderPayInfoResultMap" type="com.quxin.freshfun.model.OrderPayInfo">
+      <id column="id" jdbcType="BIGINT" property="goodsId"/>
+      <result column="title" jdbcType="VARCHAR" property="goodsName"/>
+      <result column="shop_price" jdbcType="INTEGER" property="goodsPrice"/>
+  </resultMap>
   <!--根据商品编号查询商品信息-->
   <select id="findGoodsById" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
       select `id`,`title`,`des` as `goodsDes`,`sub_title` as `subTitle`,`img` as `goodsImg`,`shop_price` as `shopPrice`,origin_price as `originPrice`,`is_on_sale` as `isOnSale` from goods_base where id = #{goodsId} and is_deleted = 0
   </select>
-
+  <!--根据商品编号查询商品信息-->
+  <select id="findGoodsInId" resultMap="BaseResultMap">
+        select `id`,`title`,`des`,`sub_title`,`img`,`shop_price`,origin_price,`is_on_sale`
+        from goods_base
+        where id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_deleted = 0
+  </select>
+  <select id="findGoodsInList" parameterType="java.util.List" resultMap="BaseResultMap">
+      select `id`,`title`,`des`,`sub_title`,`img`,`shop_price`,origin_price,`is_on_sale`
+      from goods_base
+      where id in
+      <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+          #{item.goodsId}
+      </foreach>
+      and is_deleted = 0
+  </select>
+  <!--根据优惠商品编号查询商品信息-->
+  <select id="findPromotionGoodsList" parameterType="java.util.List" resultMap="BaseResultMap">
+      select `id`,`title`,`des`,`sub_title`,`img`,`shop_price`,origin_price,`is_on_sale`
+      from goods_base
+      where id in
+      <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+          #{item.objectId}
+      </foreach>
+      and is_deleted = 0
+  </select>
   <!--查询二级类目下商品-->
   <select id="selectCatagory2Goods" resultMap="BaseResultMap">
     select `id`,`title`,`sub_title`,`img`,`shop_price`,`origin_price` from goods_base where category2 = #{category} and is_on_sale = 1 and is_deleted = 0 order by created DESC limit #{page},#{pageSize}
@@ -49,10 +83,44 @@
   <select id="selectOrderPayInfo" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
     select `id`,`title`,`shop_price` as `shopPrice` from goods_base where id = #{goodsId}
   </select>
+  <!--根据商品集合信息查询商品信息-->
+  <select id="selectGoodsInfoByGoodsList" parameterType="java.util.List" resultMap="OrderPayInfoResultMap">
+      select `id`,`title`,`shop_price` from goods_base
+      where id IN
+      <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+          #{item.goodsId}
+      </foreach>
+  </select>
+
+  <!--批量查询商品库存-->
+  <select id="selectBatchStock" parameterType="java.util.List" resultMap="BaseResultMap">
+      SELECT id,stock_num from goods_base where id in
+      <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+          #{item.goodsId}
+      </foreach>
+  </select>
+
+  <!--查询单个库存-->
+  <select id="selectStockByGoodsId" parameterType="java.lang.Long" resultType="com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO">
+      SELECT `id`,`stock_num` as `stockNum` from goods_base where id = #{goodsId}
+  </select>
+    
+  <!--批量修改库存-->
+  <update id="batchUpdateStock" parameterType="java.util.List">
+      <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+          update goods_base set stock_num = stock_num - #{item.total} where id = #{item.goodsId} and stock_num > 0
+      </foreach>
+  </update>
+  <!--批量增加库存-->
+  <update id="batchUpdateSale" parameterType="java.util.List">
+      <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+          update goods_base set sale_num = sale_num + #{item.total} where id = #{item.goodsId}
+      </foreach>
+  </update>
 
   <!--修改商品库存-->
-  <update id="updateGoodsStock" parameterType="java.lang.Long" >
-      update goods_base set stock_num = stock_num - 1 where id = #{goodsId} and stock_num > 0
+  <update id="updateGoodsStock" parameterType="java.util.Map" >
+      update goods_base set stock_num = stock_num - #{stock} where id = #{goodsId} and stock_num > 0
   </update>
   <!--增加销量-->
   <update id="updateGoodsSaleNum" parameterType="java.lang.Long">
