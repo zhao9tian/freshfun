@@ -52,14 +52,14 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
-    public List<SpecialOut> getSpecialTheme(Integer page,Integer pageSize) throws BusinessException {
+    public List<SpecialOut> getSpecialTheme(Integer page, Integer pageSize) throws BusinessException {
         List<ThemePOJO> themeList = goodsThemeMapper.selectAll(page, pageSize);
-        if(themeList != null) {
+        if (themeList != null) {
             for (ThemePOJO theme : themeList) {
                 String content = theme.getThemeInfoContent();
                 //分割商品编号
                 Long[] goodsIds = splitGoodsContent(content);
-                if(goodsIds != null && goodsIds.length > 0) {
+                if (goodsIds != null && goodsIds.length > 0) {
                     List<GoodsOut> goodsList = getGoodsList(goodsIds);
                     theme.setGoodsList(goodsList);
                 }
@@ -71,17 +71,18 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * banner列表
+     *
      * @return
      */
     @Override
     public List<BannerOut> getBannerList() {
         GoodsPropertyPOJO banner = goodsPropertyMapper.selectValueByKey(Constant.BANNER_KEY);
-        if(banner != null) {
+        if (banner != null) {
             List<BannerOut> bannerOuts = strJsonToList(banner.getValue());
-            for (BannerOut bannerOut: bannerOuts) {
-                if(bannerOut.getThemeId()!= null && !"".equals(bannerOut.getThemeId())){
+            for (BannerOut bannerOut : bannerOuts) {
+                if (bannerOut.getThemeId() != null && !"".equals(bannerOut.getThemeId())) {
                     bannerOut.setIsCampaign(0);
-                }else{
+                } else {
                     bannerOut.setThemeId(0L);
                     bannerOut.setIsCampaign(10);
                 }
@@ -93,19 +94,20 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 精选列表
+     *
      * @return
      */
     @Override
     public List<GoodsOut> getSelectionList() throws BusinessException {
         GoodsPropertyPOJO selection = goodsPropertyMapper.selectValueByKey(Constant.SELECTION_KEY);
-        if(selection != null){
+        if (selection != null) {
             //分割商品编号
             List<GoodsOut> goodsOuts = new ArrayList<>();
             List<SelectionPOJO> selectionList = strToList(selection.getValue());
-            if(selectionList != null) {
+            if (selectionList != null) {
                 for (SelectionPOJO sp : selectionList) {
                     GoodsBasePOJO goods = goodsBaseMapper.findGoodsById(sp.getGoodsId());
-                    if(goods != null) {
+                    if (goods != null) {
                         goods.setGoodsImg(sp.getImg());
                         GoodsOut goodsOut = getGoods(goods);
                         goodsOuts.add(goodsOut);
@@ -119,22 +121,23 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 专题列表
+     *
      * @return
      */
     @Override
     public List<SpecialOut> getSpecialList() throws BusinessException {
         GoodsPropertyPOJO banner = goodsPropertyMapper.selectValueByKey(Constant.THEME_KEY);
-        if(banner != null){
+        if (banner != null) {
             //分割商品编号
-            Long [] themeIds = splitGoodsContent(banner.getValue());
+            Long[] themeIds = splitGoodsContent(banner.getValue());
             List<SpecialOut> specialList = new ArrayList<>();
-            if(themeIds != null && themeIds.length > 0) {
+            if (themeIds != null && themeIds.length > 0) {
                 for (int i = 0; i < themeIds.length; i++) {
                     ThemePOJO theme = goodsThemeMapper.selectThemeById(themeIds[i]);
-                    if(theme != null) {
+                    if (theme != null) {
                         //获取专题下的商品
                         Long[] goodsIds = splitGoodsContent(theme.getThemeInfoContent());
-                        if(goodsIds != null && goodsIds.length > 0) {
+                        if (goodsIds != null && goodsIds.length > 0) {
                             List<GoodsOut> goodsList = getGoodsList(goodsIds);
                             //生成出参对象
                             SpecialOut special = new SpecialOut();
@@ -154,15 +157,16 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 获取商品排序列表
+     *
      * @return
      */
     @Override
     public List<GoodsOut> getGoodsSortList() throws BusinessException {
         GoodsPropertyPOJO goodsProperty = goodsPropertyMapper.selectValueByKey(Constant.GOODS_KEY);
-        if(goodsProperty != null){
+        if (goodsProperty != null) {
             Long[] goodsIds = splitGoodsContent(goodsProperty.getValue());
-            if(goodsIds != null && goodsIds.length > 0){
-               return getGoodsList(goodsIds);
+            if (goodsIds != null && goodsIds.length > 0) {
+                return getGoodsList(goodsIds);
             }
         }
         return null;
@@ -170,20 +174,22 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 查询更多推荐商品
+     *
      * @return
      */
     @Override
-    public List<GoodsOut> getGoodsList(Integer page,Integer pageSize) throws BusinessException {
-        if(page == null || pageSize == 0 || pageSize == null || pageSize == 0)
+    public List<GoodsOut> getGoodsList(Integer page, Integer pageSize) throws BusinessException {
+        if (page == null || pageSize == 0 || pageSize == null || pageSize == 0)
             return null;
         List<GoodsBasePOJO> goodsList = goodsBaseMapper.selectGoodsList(page, pageSize);
-        if(goodsList != null)
+        if (goodsList != null)
             return goodsListConverted(goodsList);
         return null;
     }
 
     /**
      * 查询限时购商品
+     *
      * @return
      */
     @Override
@@ -191,11 +197,11 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
         Long currentDate = DateUtils.getCurrentDate();
         List<GoodsOut> goodsList = new ArrayList<>();
         List<PromotionPOJO> promotionList = promotionMapper.selectLimitGoodsInfo(currentDate);
-        if(promotionList != null) {
+        if (promotionList != null) {
             for (PromotionPOJO promotion : promotionList) {
                 //根据商品编号查询商品
                 GoodsBasePOJO goods = goodsBaseMapper.findGoodsById(promotion.getObjectId());
-                if(goods != null) {
+                if (goods != null) {
                     GoodsOut goodsOut = getGoods(goods);
                     if (currentDate >= promotion.getStartTime()) {
                         //限时购进行中
@@ -216,15 +222,16 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据类目编号查询商品信息
+     *
      * @param categoryKey 类目编号
      * @return
      */
     @Override
-    public List<GoodsOut> getCategory(Integer categoryKey,Integer page,Integer pageSize) throws BusinessException {
-        if(categoryKey == null)
+    public List<GoodsOut> getCategory(Integer categoryKey, Integer page, Integer pageSize) throws BusinessException {
+        if (categoryKey == null)
             throw new BusinessException("查询分类商品类目编号不能为空");
-        List<GoodsBasePOJO> goodsList = goodsBaseMapper.selectCatagory2Goods(categoryKey,page,pageSize);
-        if(goodsList != null) {
+        List<GoodsBasePOJO> goodsList = goodsBaseMapper.selectCatagory2Goods(categoryKey, page, pageSize);
+        if (goodsList != null) {
             return goodsListConverted(goodsList);
         }
         return null;
@@ -232,18 +239,19 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据类目编号查询类目图
+     *
      * @param categoryKey
      * @return
      */
     @Override
     public String getCategoryImg(Integer categoryKey) throws BusinessException {
-        if(categoryKey == null)
+        if (categoryKey == null)
             throw new BusinessException("查询分类商品类目编号不能为空");
         GoodsPropertyPOJO goodsProperty = goodsPropertyMapper.selectValueByKey(Constant.TYPE_IMG);
-        if(goodsProperty != null){
+        if (goodsProperty != null) {
             List<TypeImagePOJO> typeImgList = typeImgToList(goodsProperty.getValue());
             for (TypeImagePOJO typeImg : typeImgList) {
-                if(categoryKey.equals(typeImg.getTypeNo())){
+                if (categoryKey.equals(typeImg.getTypeNo())) {
                     return typeImg.getImg();
                 }
             }
@@ -253,40 +261,41 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据专题编号查询专题详情
+     *
      * @param specialId
      * @return
      */
     @Override
     public SpecialOut getSpecialDetails(Long specialId) throws BusinessException {
-        if(specialId == null){
+        if (specialId == null) {
             throw new BusinessException("查询专题专题编号不能为空");
         }
         ThemePOJO theme = goodsThemeMapper.selectThemeById(specialId);
         //查询推荐商品
         Long[] goodsIds = splitGoodsContent(theme.getThemeInfoContent());
-        if(goodsIds != null){
+        if (goodsIds != null) {
             List<GoodsOut> goodsList = getGoodsList(goodsIds);
             theme.setGoodsList(goodsList);
-        }else{
+        } else {
             logger.error("查询专题详情时,获取推荐商品编号为空");
         }
-        return  getSpecial(theme);
+        return getSpecial(theme);
     }
 
     @Override
     public Map<String, Object> findGoodsDetails(Long goodsId) throws BusinessException {
-        if(goodsId == null){
+        if (goodsId == null) {
             throw new BusinessException("查询商品详情商品编号不能为空");
         }
-        Map<String,Object> map = Maps.newHashMap();
+        Map<String, Object> map = Maps.newHashMap();
         GoodsBasePOJO goodsBase = goodsBaseMapper.findGoodsById(goodsId);
-        if(goodsBase == null){
-            return null ;
+        if (goodsBase == null) {
+            return null;
         }
         GoodsOut goodsOut = generateGoodsDetails(goodsBase);
         //是否限时
         isLimitGoods(goodsOut);
-        isLimitedNumGoods(goodsOut);
+        isLimitedNumGoods(goodsOut);//给限量购商品赋值做区分
         GoodsStandard goodsStandard = goodsBaseMapper.selectGoodsStandard(goodsId);
         List<PropertyValue> goodsStandardList = getGoodsStandardList(goodsStandard);
         map.put("goods", goodsOut);
@@ -296,99 +305,102 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 是否限量购,是就赋值属性 , 不是就不赋值
+     *
      * @param goodsOut 商品id
      * @return 是否是限量购
      */
     private Boolean isLimitedNumGoods(GoodsOut goodsOut) {
-        if(goodsOut != null && goodsOut.getGoodsId() != null){
+        if (goodsOut != null && goodsOut.getGoodsId() != null) {
             LimitedNumGoodsPOJO limitedNumGoods = promotionMapper.selectLimitedNumGoodsById(goodsOut.getGoodsId());
-            if(limitedNumGoods != null){
+            if (limitedNumGoods != null && limitedNumGoods.getLimitedRealStock() > 0) {//在打折表里面且限量购库存大于0
                 //处理金额
                 String limitedPriceDB = limitedNumGoods.getLimitedGoodsPrice();
                 String limitedPrice = "0.00";
-                if(limitedPriceDB!=null && !"".equals(limitedPriceDB)){
-                    Map<String , Object> map = JSON.parseObject(limitedPriceDB);
+                if (limitedPriceDB != null && !"".equals(limitedPriceDB)) {
+                    Map<String, Object> map = JSON.parseObject(limitedPriceDB);
                     limitedPrice = MoneyFormat.priceFormatString((Integer) map.get("discountPrice"));
                 }
                 goodsOut.setShopMoney(limitedPrice);
                 goodsOut.setLimitedNumStock(limitedNumGoods.getLimitedGoodsStock());
                 goodsOut.setLimitedNumLeaveStock(limitedNumGoods.getLimitedRealStock());
-                goodsOut.setIsLimitedNum(1);
-            }else {
+                goodsOut.setIsLimitedNum(1);//是限量购
+            }else{
                 goodsOut.setIsLimitedNum(0);
+                return true;
             }
-            return true ;
-        }else{
+        } else {
             logger.error("限量购商品id不能为空");
         }
-        return  false;
+        return false;
     }
 
     @Override
     public List<Map<String, Object>> queryLimitGoods(Integer isIndex) {
-        List<Map<String , Object>> unLimitedSortGoods = new ArrayList<>();
-        List<Map<String , Object>> limitedSortGoods = new ArrayList<>();
+        List<Map<String, Object>> unLimitedSortGoods = new ArrayList<>();
+        List<Map<String, Object>> limitedSortGoods = new ArrayList<>();
         //1.查询排序
         GoodsPropertyPOJO goodsProperty = goodsPropertyMapper.selectValueByKey(Constant.LIMITED_GOODS);
-        if(goodsProperty != null && goodsProperty.getValue() != null && !"".equals(goodsProperty.getValue()) && !"[]".equals(goodsProperty.getValue())){
-            List<Long> limitedNumIds = JSON.parseArray(goodsProperty.getValue() , Long.class);//排序规则
+        if (goodsProperty != null && goodsProperty.getValue() != null && !"".equals(goodsProperty.getValue()) && !"[]".equals(goodsProperty.getValue())) {
+            List<Long> limitedNumIds = JSON.parseArray(goodsProperty.getValue(), Long.class);//排序规则
             //2.查询限量购商品信息
-            List<LimitedNumGoodsPOJO> limitedNumGoodsPOJOs ;
-            if(isIndex == null || isIndex.equals(1)){//null(默认)或者1都查询所有排序
-                limitedNumGoodsPOJOs= goodsBaseMapper.selectAllLimitedNumInfo(limitedNumIds);
-            }else{//查询首页--剩余库存为0的不展示
+            List<LimitedNumGoodsPOJO> limitedNumGoodsPOJOs;
+            if (isIndex == null || isIndex.equals(1)) {//null(默认)或者1都查询所有排序
+                limitedNumGoodsPOJOs = goodsBaseMapper.selectAllLimitedNumInfo(limitedNumIds);
+            } else {//查询首页--剩余库存为0的不展示
                 limitedNumGoodsPOJOs = goodsBaseMapper.selectIndexLimitedNumInfo(limitedNumIds);
             }
             //3.查询商品信息
             List<GoodsBasePOJO> goodsBasePOJOs = goodsBaseMapper.selectGoodsByIds(limitedNumIds);
             //4.组合
-            if(limitedNumGoodsPOJOs != null){
-                for(LimitedNumGoodsPOJO limitedNumGoodsPOJO : limitedNumGoodsPOJOs){
-                    for(GoodsBasePOJO goodsBasePOJO : goodsBasePOJOs){
-                        if(limitedNumGoodsPOJO.getLimitedGoodsId().equals(goodsBasePOJO.getId())){
-                            Map<String , Object> limitedGoods = Maps.newHashMap();
-                            limitedGoods.put("goodsId" ,limitedNumGoodsPOJO.getLimitedGoodsId());
-                            limitedGoods.put("limitStock" ,limitedNumGoodsPOJO.getLimitedGoodsStock());
-                            limitedGoods.put("limitLeave" ,limitedNumGoodsPOJO.getLimitedRealStock());
+            if (limitedNumGoodsPOJOs != null) {
+                for (LimitedNumGoodsPOJO limitedNumGoodsPOJO : limitedNumGoodsPOJOs) {
+                    for (GoodsBasePOJO goodsBasePOJO : goodsBasePOJOs) {
+                        if (limitedNumGoodsPOJO.getLimitedGoodsId().equals(goodsBasePOJO.getId())) {
+                            Map<String, Object> limitedGoods = Maps.newHashMap();
+                            limitedGoods.put("goodsId", limitedNumGoodsPOJO.getLimitedGoodsId());
+                            limitedGoods.put("limitStock", limitedNumGoodsPOJO.getLimitedGoodsStock());
+                            limitedGoods.put("limitLeave", limitedNumGoodsPOJO.getLimitedRealStock());
                             //价格处理
                             String limitedGoodsPriceDB = limitedNumGoodsPOJO.getLimitedGoodsPrice();
-                            if(limitedGoodsPriceDB != null && !"".equals(limitedGoodsPriceDB)){
-                                Map<String , Object> money = JSON.parseObject(limitedGoodsPriceDB);
+                            if (limitedGoodsPriceDB != null && !"".equals(limitedGoodsPriceDB)) {
+                                Map<String, Object> money = JSON.parseObject(limitedGoodsPriceDB);
                                 Integer limitPrice = (Integer) money.get("discountPrice");
-                                limitedGoods.put("limitPrice" ,MoneyFormat.priceFormatString(limitPrice));
+                                limitedGoods.put("limitPrice", MoneyFormat.priceFormatString(limitPrice));
                             }
-                            limitedGoods.put("title" , goodsBasePOJO.getTitle());
-                            limitedGoods.put("originPrice" , MoneyFormat.priceFormatString(goodsBasePOJO.getOriginPrice()));
-                            limitedGoods.put("goodsImg" , goodsBasePOJO.getGoodsImg());
-                            if(isIndex == null || isIndex.equals(1)){
-                                limitedGoods.put("subTitle" , goodsBasePOJO.getSubTitle());
-                                if(limitedNumGoodsPOJO.getLimitedRealStock() > 0){
-                                    limitedGoods.put("isLimitedSell" , 0);
-                                }else{
-                                    limitedGoods.put("isLimitedSell" , 1);
+                            limitedGoods.put("title", goodsBasePOJO.getTitle());
+                            limitedGoods.put("originPrice", MoneyFormat.priceFormatString(goodsBasePOJO.getOriginPrice()));
+                            limitedGoods.put("goodsImg", goodsBasePOJO.getGoodsImg());
+                            if (isIndex == null || isIndex.equals(1)) {//列表页
+                                limitedGoods.put("subTitle", goodsBasePOJO.getSubTitle());
+                                if(limitedNumGoodsPOJO.getLimitedRealStock() <= 0){
+                                    limitedGoods.put("limitPrice", MoneyFormat.priceFormatString(goodsBasePOJO.getShopPrice()));
+                                }
+                                unLimitedSortGoods.add(limitedGoods);
+                            } else {
+                                if (isIndex.equals(2) && limitedNumGoodsPOJO.getLimitedRealStock() > 0) {//首页
+                                    unLimitedSortGoods.add(limitedGoods);
                                 }
                             }
-                            unLimitedSortGoods.add(limitedGoods);
                         }
                     }
                 }
                 //5.排序
-                for(Long id : limitedNumIds){
-                    for(Map<String , Object> map : unLimitedSortGoods){
-                        if(map.get("goodsId").equals(id)){
+                for (Long id : limitedNumIds) {
+                    for (Map<String, Object> map : unLimitedSortGoods) {
+                        if (map.get("goodsId").equals(id)) {
                             limitedSortGoods.add(map);
                         }
                     }
                 }
                 //6.首页最多只显示4条
-                if(isIndex != null && isIndex == 2 && limitedSortGoods.size() >=4){
-                        limitedSortGoods = limitedSortGoods.subList(0,4);
+                if (isIndex != null && isIndex == 2 && limitedSortGoods.size() >= 4) {
+                    limitedSortGoods = limitedSortGoods.subList(0, 4);
                 }
-            }else{
+            } else {
                 logger.warn("限量购商品已经售完");
                 limitedSortGoods = new ArrayList<>();
             }
-        }else{
+        } else {
             logger.warn("数据库里面没有限量购商品排序");
         }
         return limitedSortGoods;
@@ -396,12 +408,13 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 设置商品价格
-     * @param goodsOut  商品实体
+     *
+     * @param goodsOut 商品实体
      */
     private void getShopPrice(GoodsOut goodsOut) throws BusinessException {
         PromotionGoodsPOJO promotionGoods = promotionService.queryDiscountPriceByGoodsId(goodsOut.getGoodsId());
         //是否打折商品
-        if(promotionGoods != null) {
+        if (promotionGoods != null) {
             if (promotionGoods.getDiscount()) {
                 goodsOut.setShopMoney(MoneyFormat.priceFormatString(promotionGoods.getDiscountPrice().intValue()));
             }
@@ -410,22 +423,23 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 获取商品
+     *
      * @param goodsStandard 商品属性表
      * @return
      */
     private List<PropertyValue> getGoodsStandardList(GoodsStandard goodsStandard) {
-        if(goodsStandard == null)
+        if (goodsStandard == null)
             return new ArrayList<>();
         Field[] fields = goodsStandard.getClass().getDeclaredFields();
         List<PropertyValue> propertyList = new ArrayList<>();
         //查询商品属性列表
         GoodsPropertyPOJO goodsProperty = goodsPropertyMapper.selectValueByKey(Constant.GOODS_STANDARD);
-        List<PropertyValue> propertyAllList =  goodsStandardStrToList(goodsProperty.getValue());
-        for(int i = 0;i < propertyAllList.size();i++){
-            for(int j = 0; j < fields.length;j++) {
+        List<PropertyValue> propertyAllList = goodsStandardStrToList(goodsProperty.getValue());
+        for (int i = 0; i < propertyAllList.size(); i++) {
+            for (int j = 0; j < fields.length; j++) {
                 if (propertyAllList.get(i).getKey().equals(fields[j].getName())) {
                     Object value = getFieldValueByName(fields[j].getName(), goodsStandard);
-                    if (value != null&& !"".equals(value)) {
+                    if (value != null && !"".equals(value)) {
                         PropertyValue propertyValue = new PropertyValue();
                         propertyValue.setKey(propertyAllList.get(i).getName().toString());
                         propertyValue.setName(value);
@@ -439,32 +453,33 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据属性名获取属性值
-     * */
+     */
     private Object getFieldValueByName(String fieldName, Object o) {
         try {
             String firstLetter = fieldName.substring(0, 1).toUpperCase();
             String getter = "get" + firstLetter + fieldName.substring(1);
-            Method method = o.getClass().getMethod(getter, new Class[] {});
-            Object value = method.invoke(o, new Object[] {});
+            Method method = o.getClass().getMethod(getter, new Class[]{});
+            Object value = method.invoke(o, new Object[]{});
             return value;
         } catch (Exception e) {
-            logger.error(e.getMessage(),e);
+            logger.error(e.getMessage(), e);
             return null;
         }
     }
 
     /**
      * 生成商品详情出参
+     *
      * @param goodsBase
      */
     private GoodsOut generateGoodsDetails(GoodsBasePOJO goodsBase) throws BusinessException {
-        if(goodsBase == null) return null;
+        if (goodsBase == null) return null;
         //查询商品图片
         GoodsImage goodsImage = goodsBaseMapper.selectGoodsImgByGoodsId(goodsBase.getId());
         //设置商品的价格
-        if(goodsImage != null) {
+        if (goodsImage != null) {
             GoodsOut goods = getGoods(goodsBase);
-            if(goods != null) {
+            if (goods != null) {
                 //是否上架
                 goods.setIsOnSale(goodsBase.getIsOnSale());
                 goods.setDescriptionStr(goodsBase.getGoodsDes());
@@ -478,13 +493,14 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * goodsList转出参
+     *
      * @param goodsList
      * @return
      */
     private List<GoodsOut> goodsListConverted(List<GoodsBasePOJO> goodsList) throws BusinessException {
-        if(goodsList != null){
+        if (goodsList != null) {
             List<GoodsOut> goodsOuts = new ArrayList<>();
-            for (GoodsBasePOJO goods: goodsList) {
+            for (GoodsBasePOJO goods : goodsList) {
                 GoodsOut goodsOut = getGoods(goods);
                 goodsOuts.add(goodsOut);
             }
@@ -496,14 +512,15 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 专题POJO转出参
+     *
      * @param themeList
      * @return
      */
     private List<SpecialOut> getSpecialList(List<ThemePOJO> themeList) {
-        if(themeList == null)
+        if (themeList == null)
             return null;
         List<SpecialOut> specialList = new ArrayList<>();
-        for (ThemePOJO theme: themeList) {
+        for (ThemePOJO theme : themeList) {
             SpecialOut special = getSpecial(theme);
             specialList.add(special);
         }
@@ -512,6 +529,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 专题转出参
+     *
      * @param theme
      * @return
      */
@@ -527,6 +545,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 商品POJO转出参
+     *
      * @param goods
      * @return
      */
@@ -545,20 +564,21 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 判断是否是限时商品
+     *
      * @param goodsOut 商品类
      */
     private void isLimitGoods(GoodsOut goodsOut) {
-        if(goodsOut == null)
+        if (goodsOut == null)
             return;
         PromotionPOJO promotionPOJO = promotionMapper.selectLimitByGoodsId(goodsOut.getGoodsId(), DateUtils.getCurrentDate());
         goodsOut.setIsDiscount(0);
-        if(promotionPOJO != null){
+        if (promotionPOJO != null) {
             Long currentDate = DateUtils.getCurrentDate();
-            if(currentDate >= promotionPOJO.getStartTime()){
+            if (currentDate >= promotionPOJO.getStartTime()) {
                 goodsOut.setIsDiscount(10);
                 goodsOut.setStartTime(0l);
                 goodsOut.setEndTime(promotionPOJO.getEndTime() - currentDate);
-            }else{
+            } else {
                 goodsOut.setIsDiscount(5);
                 goodsOut.setStartTime(promotionPOJO.getStartTime() - currentDate);
                 goodsOut.setEndTime(promotionPOJO.getEndTime() - currentDate);
@@ -568,17 +588,18 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据商品列表
+     *
      * @param ids
      * @return
      */
-    private List<GoodsOut> getGoodsList(Long [] ids) throws BusinessException {
-        if(ids == null)
+    private List<GoodsOut> getGoodsList(Long[] ids) throws BusinessException {
+        if (ids == null)
             return null;
         List<GoodsOut> goodsList = new ArrayList<>();
-        for (Long id: ids) {
+        for (Long id : ids) {
             //根据商品编号查询商品
             GoodsBasePOJO goods = goodsBaseMapper.findGoodsById(id);
-            if(goods != null) {
+            if (goods != null) {
                 GoodsOut goodsOut = getGoods(goods);
                 goodsList.add(goodsOut);
             }
@@ -588,83 +609,94 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 分割商品编号
+     *
      * @param content
      * @return
      */
     private Long[] splitGoodsContent(String content) {
-        if(content == null || "".equals(content))
+        if (content == null || "".equals(content))
             return null;
         Gson gson = new Gson();
-        return gson.fromJson(content,Long [].class);
+        return gson.fromJson(content, Long[].class);
     }
 
     /**
      * 商品分类图
+     *
      * @param str
      * @return
      */
-    private List<TypeImagePOJO> typeImgToList(String str){
-        if(str == null || "".equals(str))
+    private List<TypeImagePOJO> typeImgToList(String str) {
+        if (str == null || "".equals(str))
             return null;
         Gson gson = new Gson();
-        Type type = new TypeToken<List<TypeImagePOJO>>() {}.getType();
-        return gson.fromJson(str,type);
+        Type type = new TypeToken<List<TypeImagePOJO>>() {
+        }.getType();
+        return gson.fromJson(str, type);
     }
 
     /**
      * 图片字符串转集合
+     *
      * @return
      */
-    private List<String> ImgStrToList(String str){
-        if(str == null || "".equals(str))
+    private List<String> ImgStrToList(String str) {
+        if (str == null || "".equals(str))
             return null;
         Gson gson = new Gson();
-        Type type = new TypeToken<List<String>>() {}.getType();
-        return gson.fromJson(str,type);
+        Type type = new TypeToken<List<String>>() {
+        }.getType();
+        return gson.fromJson(str, type);
     }
 
     /**
      * 商品属性Str转List
+     *
      * @param value
      * @return
      */
     private List<PropertyValue> goodsStandardStrToList(String value) {
-        if(value == null || "".equals(value))
+        if (value == null || "".equals(value))
             return null;
         Gson gson = new Gson();
-        Type type = new TypeToken<List<PropertyValue>>() {}.getType();
+        Type type = new TypeToken<List<PropertyValue>>() {
+        }.getType();
         return gson.fromJson(value, type);
     }
 
     /**
      * Json字符串转List
+     *
      * @param str json字符串
      * @return-
      */
-    private List<BannerOut> strJsonToList(String str){
-        if(str == null || "".equals(str))
+    private List<BannerOut> strJsonToList(String str) {
+        if (str == null || "".equals(str))
             return null;
         Gson gson = new Gson();
-        Type type = new TypeToken<List<BannerOut>>() {}.getType();
+        Type type = new TypeToken<List<BannerOut>>() {
+        }.getType();
         return gson.fromJson(str, type);
     }
 
     /**
      * 专题Json字符串转集合
+     *
      * @param str
      * @return
      */
-    public List<SelectionPOJO> strToList(String str){
-        if(str == null || "".equals(str)){
+    public List<SelectionPOJO> strToList(String str) {
+        if (str == null || "".equals(str)) {
             return null;
         }
         Gson gson = new Gson();
-        Type type = new TypeToken<List<SelectionPOJO>>() {}.getType();
-        return gson.fromJson(str,type);
+        Type type = new TypeToken<List<SelectionPOJO>>() {
+        }.getType();
+        return gson.fromJson(str, type);
     }
 
 
-    public static void main(String [] args){
+    public static void main(String[] args) {
         System.out.println(DateUtils.getCurrentDate());
     }
 }

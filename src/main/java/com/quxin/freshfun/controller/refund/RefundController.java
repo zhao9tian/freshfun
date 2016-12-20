@@ -89,7 +89,7 @@ public class RefundController {
 
 				//可以退款的总金额
 				String actualMoney = orderDetailsPOJO.getActualMoney();
-				Integer actualPrice = Math.round(Float.parseFloat(actualMoney));
+				Integer actualPrice = Math.round(Float.parseFloat(actualMoney)*100);
 				String refundMoney = refundParam.getRefundMoney();
 				String serverType = refundParam.getServerType();
 				String refundReason = refundParam.getRefundReason();
