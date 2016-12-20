@@ -134,48 +134,45 @@ public class AddressController {
      */
     @ResponseBody
     @RequestMapping("/getAllAddress")
-    public Map<String,Object> getAllAddress(HttpServletRequest request,String userIdStr){
+    public Map<String, Object> getAllAddress(HttpServletRequest request, String userIdStr) {
 
-        Map<String,Object> result = new HashMap<String,Object>();
-        List<Map<String,Object>> mapResult = new ArrayList<Map<String, Object>>();
-        Long userId = userIdStr!=null&&!"".equals(userIdStr)?Long.parseLong(userIdStr):CookieUtil.getUserIdFromCookie(request);
+        Map<String, Object> result = new HashMap<String, Object>();
+        List<Map<String, Object>> mapResult = new ArrayList<Map<String, Object>>();
+        Long userId = userIdStr != null && !"".equals(userIdStr) ? Long.parseLong(userIdStr) : CookieUtil.getUserIdFromCookie(request);
         AddressPOJO addressPOJO = addressService.queryDefaultAddress(userId);
-        if(addressPOJO!=null){
-            Map<String,Object> map = new HashMap<String,Object>();
-            map.put("addressId",addressPOJO.getId());
-            map.put("name",addressPOJO.getName());
-            map.put("tel",addressPOJO.getTel());
-            map.put("provCode",addressPOJO.getProvCode());
-            map.put("cityCode",addressPOJO.getCityCode());
-            map.put("distCode",addressPOJO.getDistCode());
-            String city = addressUtilService.queryNameByCode(addressPOJO.getProvCode(),addressPOJO.getCityCode(),addressPOJO.getDistCode());
-            map.put("city",city);
-            map.put("address",addressPOJO.getAddress());
-            map.put("isDefault",addressPOJO.getIsDefault());
+        if (addressPOJO != null) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("addressId", addressPOJO.getId());
+            map.put("name", addressPOJO.getName());
+            map.put("tel", addressPOJO.getTel());
+            map.put("provCode", addressPOJO.getProvCode());
+            map.put("cityCode", addressPOJO.getCityCode());
+            map.put("distCode", addressPOJO.getDistCode());
+            String city = addressUtilService.queryNameByCode(addressPOJO.getProvCode(), addressPOJO.getCityCode(), addressPOJO.getDistCode());
+            map.put("city", city);
+            map.put("address", addressPOJO.getAddress());
+            map.put("isDefault", addressPOJO.getIsDefault());
             mapResult.add(map);
         }
         List<AddressPOJO> addressList = addressService.queryAddress(userId);
-        if(addressList!=null&&addressList.size()>0){
-            for(AddressPOJO address : addressList){
-                Map<String,Object> map = new HashMap<String,Object>();
-                map.put("addressId",address.getId());
-                map.put("name",address.getName());
-                map.put("tel",address.getTel());
-                map.put("provCode",address.getProvCode());
-                map.put("cityCode",address.getCityCode());
-                map.put("distCode",address.getDistCode());
-                String city = addressUtilService.queryNameByCode(address.getProvCode(),address.getCityCode(),address.getDistCode());
-                map.put("city",city);
-                map.put("address",address.getAddress());
-                map.put("isDefault",address.getIsDefault());
+        if (addressList != null && addressList.size() > 0) {
+            for (AddressPOJO address : addressList) {
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("addressId", address.getId());
+                map.put("name", address.getName());
+                map.put("tel", address.getTel());
+                map.put("provCode", address.getProvCode());
+                map.put("cityCode", address.getCityCode());
+                map.put("distCode", address.getDistCode());
+                String city = addressUtilService.queryNameByCode(address.getProvCode(), address.getCityCode(), address.getDistCode());
+                map.put("city", city);
+                map.put("address", address.getAddress());
+                map.put("isDefault", address.getIsDefault());
                 mapResult.add(map);
             }
         }
-        if(addressPOJO!=null||(addressList!=null&&addressList.size()>0)){
-            result.put("addressList",mapResult);
-            return ResultUtil.success(result);
-        }else
-            return ResultUtil.fail(1004,"获取数据失败");
+        result.put("addressList", mapResult);
+        return ResultUtil.success(result);
     }
 
     /**
