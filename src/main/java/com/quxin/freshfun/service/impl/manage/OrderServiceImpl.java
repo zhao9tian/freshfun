@@ -156,14 +156,14 @@ public class OrderServiceImpl implements OrderService {
 					updateDiscountStock(payInfo);
 					break;
 				case 3:
-					throw new BusinessException("商品已经售罄");
+					throw new BusinessException("商品库存不足");
 			}
 		}
 		//设置商品优惠价格
 		List<PromotionGoodsPOJO> promotionGoods = promotionService.queryLimitedGoods(goodsBaseList);
 		for (OrderPayInfo payInfo: goodsBaseList) {
 			for (PromotionGoodsPOJO promotion : promotionGoods) {
-				if (promotion.getDiscount()){
+				if(payInfo.getIsDiscount() == 2) {
 					if(payInfo.getGoodsId().equals(promotion.getGoodsId())){
 						payInfo.setGoodsPrice(promotion.getDiscountPrice().intValue());
 					}
@@ -212,26 +212,6 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	/**
-	 * 修改商品库存
-	 * @param goodsBaseList
-	 */
-	private void modifyGoodsStock(List<OrderPayInfo> goodsBaseList) throws BusinessException {
-		List<GoodsBasePOJO> orderPayList = goodsBaseMapper.selectBatchStock(goodsBaseList);
-	}
-
-	/**
-	 * 批量修改库存
-	 * @param goodsBaseList
-	 * @throws BusinessException
-	 */
-	private void BatchModifyGoodsStock(List<OrderPayInfo> goodsBaseList) throws BusinessException {
-		int state = goodsBaseMapper.batchUpdateStock(goodsBaseList);
-		if(state <= 0){
-            throw new BusinessException("修改库存失败");
-        }
-	}
-
-	/**
 	 * 判断库存
 	 * @param goodsBaseList 商品集合
 	 * @param promotionList	优惠商品集合
@@ -248,20 +228,16 @@ public class OrderServiceImpl implements OrderService {
 							} else {
 								payInfo.setIsDiscount(3);
 							}
+							if(promotion.getStock() == 0){
+								findGoodsStock(payInfo);
+							}
 						}
 					}
 			}
 			for (OrderPayInfo payInfo : goodsBaseList) {
 				if(payInfo.getIsDiscount() == 0){
 					//查询单个商品库存
-					GoodsBasePOJO goodsBase = goodsBaseMapper.selectStockByGoodsId(payInfo.getGoodsId());
-					if(payInfo.getGoodsId().equals(goodsBase.getId())) {
-						if (payInfo.getTotal() - goodsBase.getStockNum() <= 0) {
-							payInfo.setIsDiscount(1);
-						} else {
-							payInfo.setIsDiscount(3);
-						}
-					}
+					findGoodsStock(payInfo);
 				}
 			}
 		} else {
@@ -280,6 +256,21 @@ public class OrderServiceImpl implements OrderService {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 查询普通商品库存
+	 * @param payInfo 订单支付信息
+	 */
+	private void findGoodsStock(OrderPayInfo payInfo) {
+		GoodsBasePOJO goodsBase = goodsBaseMapper.selectStockByGoodsId(payInfo.getGoodsId());
+		if(payInfo.getGoodsId().equals(goodsBase.getId())) {
+            if (payInfo.getTotal() - goodsBase.getStockNum() <= 0) {
+                payInfo.setIsDiscount(1);
+            } else {
+                payInfo.setIsDiscount(3);
+            }
+        }
 	}
 
 	/**

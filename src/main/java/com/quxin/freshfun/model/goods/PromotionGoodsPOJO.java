@@ -27,6 +27,18 @@ public class PromotionGoodsPOJO {
      * 是否打折中
      */
     private Boolean isDiscount;
+    /**
+     * 库存
+     */
+    private Integer stock;
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
 
     public Long getGoodsId() {
         return goodsId;

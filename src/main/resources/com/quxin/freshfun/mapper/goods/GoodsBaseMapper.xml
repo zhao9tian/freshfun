@@ -106,9 +106,18 @@
   </select>
     
   <!--批量修改库存-->
-  <update id="batchUpdateStock" parameterType="java.util.List">
-      <foreach collection="list" item="item" index="index" open="" close="" separator=";">
-          update goods_base set stock_num = stock_num - #{item.total} where id = #{item.goodsId} and stock_num > 0
+  <update id="batchAddStock" parameterType="java.util.List">
+      update goods_base
+          <trim prefix="set" suffixOverrides=",">
+              <trim prefix="stock_num =case" suffix="end,">
+                  <foreach collection="list" item="i" index="index">
+                      when id=#{i.goodsId} then `stock_num`+#{i.count}
+                  </foreach>
+              </trim>
+          </trim>
+        WHERE id in
+      <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+          #{item.goodsId}
       </foreach>
   </update>
   <!--批量增加库存-->

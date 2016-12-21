@@ -62,7 +62,7 @@ public interface OrderManager {
 	 * @param userId
 	 * @return
 	 */
-	Map<String,Object> selectShoppingCartByUserId(Long userId);
+	Map<String,Object> selectShoppingCartByUserId(Long userId) throws BusinessException;
 	/**
 	 * 添加到购物车
 	 * @param userId
@@ -180,5 +180,5 @@ public interface OrderManager {
 	 * 查询限量购超时订单
 	 * @return
 	 */
-	List<Long> selectOverTimeLimitedOrder();
+	void selectOverTimeLimitedOrder();
 }

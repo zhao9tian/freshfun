@@ -3,6 +3,7 @@ package com.quxin.freshfun.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.quxin.freshfun.model.pojo.PromotionPOJO;
 import org.apache.ibatis.annotations.Param;
 
 import com.quxin.freshfun.model.OrderDetailsPOJO;
@@ -238,13 +239,13 @@ public interface OrderDetailsMapper {
      * 查询超时订单编号
      * @return
      */
-    List<Long> selectOvertimeOrder();
+    List<OrderDetailsPOJO> selectOvertimeOrder();
 
     /**
      * 查询限量购超时订单
      * @return
      */
-    List<Long> selectOverTimeLimitedOrder();
+    List<OrderDetailsPOJO> selectOverTimeLimitedOrder();
 
     /**
      * 修改二维码支付url
@@ -281,4 +282,18 @@ public interface OrderDetailsMapper {
     int updateFansAppId(Map<String,Object> map);
 
     List<OrderDetailsPOJO> selectAllAppId();
+
+    /**
+     * 批量关闭限时购订单
+     * @param promotionGoods 限量商品信息
+     * @return
+     */
+    int batchCloseLimitedOrder(List<PromotionPOJO> promotionGoods);
+
+    /**
+     * 批量关闭订单
+     * @param orderList 订单列表
+     * @return
+     */
+    int batchCloseOrder(List<OrderDetailsPOJO> orderList);
 }

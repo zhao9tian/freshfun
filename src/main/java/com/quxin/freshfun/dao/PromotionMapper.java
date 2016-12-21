@@ -1,5 +1,7 @@
 package com.quxin.freshfun.dao;
 
+import com.quxin.freshfun.model.OrderDetailsPOJO;
+import com.quxin.freshfun.model.ShoppingCartPOJO;
 import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
 import com.quxin.freshfun.model.OrderPayInfo;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
@@ -70,10 +72,29 @@ public interface PromotionMapper {
     List<PromotionPOJO> selectStockByGoodsList(List<OrderPayInfo> goodsBaseList);
 
     /**
+     * 查询限量购超时订单
+     * @param orderDetails
+     * @return
+     */
+    List<PromotionPOJO> selectLimitedGoods(List<OrderDetailsPOJO> orderDetails);
+
+    /**
+     * 批量修改限量购库存
+     * @param orderIdList 限量购商品
+     * @return
+     */
+    int updateLimitedStock(OrderDetailsPOJO orderIdList);
+
+    /**
      * 修改限量商品库存
      * @param map 修改信息
      * @return
      */
     int updateStockById(Map<String,Object> map);
 
+    /**
+     * 查询是否属于限量购商品
+     * @return
+     */
+    List<PromotionPOJO> selectCartLimitedGoods(List<ShoppingCartPOJO> carts);
 }

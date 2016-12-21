@@ -66,8 +66,11 @@ public class AutoConfirmTask {
         orderManager.scanningOvertimeOrder();
     }
 
-
+    /**
+     * 扫描限时购订单超半小时
+     */
+    @Scheduled(cron = "0 * * * * ?")
     public void scanningOverLimitedOrder(){
-
+        orderManager.selectOverTimeLimitedOrder();
     }
 }

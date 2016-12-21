@@ -69,6 +69,7 @@
       end_time,
       created,
       updated,
+      stock,
       is_deleted
     FROM
       promotion
@@ -111,6 +112,29 @@
       #{item.goodsId}
     </foreach>
   </select>
+  
+  <!--批量查询限量商品-->
+  <select id="selectLimitedGoods" parameterType="java.util.List" resultMap="BaseResultMap">
+    select id,object_id,stock from promotion where object_type = 3 and is_deleted = 0
+    and object_id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item.goodsId}
+    </foreach>
+  </select>
+
+  <!--批量查询购物车商品是否属于限时购商品-->
+  <select id="selectCartLimitedGoods" parameterType="java.util.List" resultMap="BaseResultMap">
+    select id ,
+    object_id,
+    object_type,
+    content
+    from promotion where object_type = 3 and is_deleted = 0
+    and object_id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item.goodsId}
+    </foreach>
+  </select>
+
   <!--修改库存-->
   <update id="updateStockById" parameterType="java.util.Map" >
       update promotion set stock = stock - #{stock} where id = #{promotionId} and stock > 0
@@ -121,5 +145,12 @@
     select object_id as limitedGoodsId ,  content as limitedGoodsPrice , total_stock as limitedGoodsStock , stock as limitedRealStock from promotion
     where is_deleted = 0 and object_type = 3 and object_id = #{goodsId}
   </select>
+
+  <!--批量增加库存信息-->
+  <update id="updateLimitedStock" parameterType="com.quxin.freshfun.model.OrderDetailsPOJO" >
+    UPDATE promotion
+    set stock = stock + #{count}
+    WHERE object_type = 3 and is_deleted = 0 and object_id = #{goodsId}
+  </update>
 
 </mapper>

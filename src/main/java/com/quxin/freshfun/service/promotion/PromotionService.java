@@ -1,6 +1,8 @@
 package com.quxin.freshfun.service.promotion;
 
+import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.model.OrderPayInfo;
+import com.quxin.freshfun.model.ShoppingCartPOJO;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.param.PromotionParam;
 import com.quxin.freshfun.model.pojo.PromotionPOJO;
@@ -28,6 +30,12 @@ public interface PromotionService {
 	List<PromotionGoodsPOJO> queryLimitedGoods(List<OrderPayInfo> goodsBaseList) throws BusinessException;
 
 	/**
+	 * 查询购物车优惠商品信息
+	 * @return
+	 */
+	List<PromotionGoodsPOJO> queryCartLimitedGoods(List<ShoppingCartPOJO> carts) throws BusinessException;
+
+	/**
 	 * 添加优惠信息
 	 * @param promotionGoodsPOJO
 	 * @return
@@ -47,5 +55,19 @@ public interface PromotionService {
 	 * @return
 	 */
 	int updateStockById(Map<String,Object> map) throws BusinessException;
+
+	/**
+	 * 查询限量购超时订单
+	 * @param orderDetails 限时超时订单
+	 * @return
+	 */
+	List<PromotionPOJO> selectLimitedGoods(List<OrderDetailsPOJO> orderDetails) throws BusinessException;
+
+	/**
+	 * 批量修改限量购库存
+	 * @param orderIdList 限量购商品
+	 * @return
+	 */
+	int updateLimitedStock(OrderDetailsPOJO orderIdList) throws BusinessException;
 
 }

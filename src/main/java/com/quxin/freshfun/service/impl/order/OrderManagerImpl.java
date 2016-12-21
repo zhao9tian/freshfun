@@ -1,14 +1,15 @@
 package com.quxin.freshfun.service.impl.order;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.quxin.freshfun.dao.GoodsBaseMapper;
+import com.quxin.freshfun.dao.PromotionMapper;
+import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.param.GoodsParam;
+import com.quxin.freshfun.model.pojo.PromotionPOJO;
 import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import com.quxin.freshfun.service.address.AddressUtilService;
+import com.quxin.freshfun.service.promotion.PromotionService;
 import com.quxin.freshfun.utils.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,8 @@ public class OrderManagerImpl implements OrderManager {
 	private GoodsBaseMapper goodsBaseMapper;
 	@Autowired
 	private AddressUtilService addressUtilService;
+	@Autowired
+	private PromotionService promotionService;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -154,25 +157,28 @@ public class OrderManagerImpl implements OrderManager {
 	 * 根据用户编号查询购物车信息
 	 */
 	@Override
-	public Map<String,Object> selectShoppingCartByUserId(Long userId) {
+	public Map<String,Object> selectShoppingCartByUserId(Long userId) throws BusinessException {
 		List<ShoppingCartPOJO> carts = shoppingCartMapper.selectShoppingCartByUserId(userId);
+		//判断商品是否属于限量购商品
+		if(carts != null && carts.size() > 0) {
+			List<PromotionGoodsPOJO> promotionList = promotionService.queryCartLimitedGoods(carts);
+			for (ShoppingCartPOJO cartGoods : carts) {
+				for (PromotionGoodsPOJO promotion : promotionList) {
+					if (cartGoods.getGoodsId().equals(promotion.getGoodsId().intValue())) {
+						cartGoods.getGoods().setShopPrice(promotion.getDiscountPrice().intValue());
+					}
+				}
+			}
+		}
 		for (ShoppingCartPOJO sc : carts) {
 			GoodsParam goods = sc.getGoods();
-			String shopingMoney = MoneyFormat.priceFormatString(goods.getShopPrice());
+			String shoppingMoney = MoneyFormat.priceFormatString(goods.getShopPrice());
 			String marketMoney = MoneyFormat.priceFormatString(goods.getMarketPrice());
-			goods.setGoodsMoney(shopingMoney);
+			goods.setGoodsMoney(shoppingMoney);
 			goods.setMarketMoney(marketMoney);
 			String totalMoney = MoneyFormat.priceFormatString(sc.getGoodsTotalsPrice());
 			sc.setGoodsTotalMoney(totalMoney);
 		}
-		//推荐商品
-		/*List<GoodsPOJO> recommendGoods = goodsMapper.selectRecommendGoods();
-		for (GoodsPOJO goodsPOJO : recommendGoods) {
-			goodsPOJO.setGoodsMoney(MoneyFormat.priceFormatString(goodsPOJO.getShopPrice()));
-			goodsPOJO.setMarketMoney(MoneyFormat.priceFormatString(goodsPOJO.getMarketPrice()));
-			goodsPOJO.setShopPrice(null);
-			goodsPOJO.setMarketPrice(null);
-		}*/
 		//推荐商品
 		List<GoodsBasePOJO> goodsBaseList = goodsBaseMapper.findRecommendGoods();
 		List<GoodsParam> recommendGoods = new ArrayList<>();
@@ -310,12 +316,15 @@ public class OrderManagerImpl implements OrderManager {
 	 */
 	@Override
 	public void scanningOvertimeOrder() {
-		Long currentDate = DateUtils.getCurrentDate();
-		List<Long> orderIds = orderDetailsMapper.selectOvertimeOrder();
-		for (Long orderId: orderIds) {
-			int state = orderDetailsMapper.delOrder(currentDate,orderId.toString());
-			if(state <= 0)
-				logger.error("关闭超时订单失败");
+		List<OrderDetailsPOJO> orderIds = orderDetailsMapper.selectOvertimeOrder();
+		int state = goodsBaseMapper.batchAddStock(orderIds);
+		if(state <= 0){
+			logger.error("超时订单返库存失败");
+		}
+		//批量修改订单状态
+		int result = orderDetailsMapper.batchCloseOrder(orderIds);
+		if(result <= 0){
+			logger.error("批量修改订单状态失败");
 		}
 	}
 
@@ -399,13 +408,24 @@ public class OrderManagerImpl implements OrderManager {
 	}
 
 	@Override
-	public List<Long> selectOverTimeLimitedOrder() {
-		List<Long> orderIdList = orderDetailsMapper.selectOverTimeLimitedOrder();
-		for (Long id : orderIdList) {
+	public void selectOverTimeLimitedOrder()  {
+		List<OrderDetailsPOJO> orderIdList = orderDetailsMapper.selectOverTimeLimitedOrder();
+		if(orderIdList != null && orderIdList.size() > 0) {
+			try {
+				for (OrderDetailsPOJO order : orderIdList) {
+					promotionService.updateLimitedStock(order);
+				}
+				//批量修改订单状态
+				int result = orderDetailsMapper.batchCloseOrder(orderIdList);
+				if (result <= 0) {
+					logger.error("批量关闭订单状态失败");
+				}
 
+				//}
+			} catch (BusinessException e){
+				logger.error("扫描限量购超时订单异常",e);
+			}
 		}
-		return null;
 	}
-
 
 }

@@ -1,5 +1,6 @@
 package com.quxin.freshfun.dao;
 
+import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.model.goods.LimitedNumGoodsPOJO;
 import com.quxin.freshfun.model.GoodsInfo;
 import com.quxin.freshfun.model.OrderPayInfo;
@@ -120,7 +121,7 @@ public interface GoodsBaseMapper {
      * @param goodsBaseList 商品信息
      * @return
      */
-    int batchUpdateStock(List<OrderPayInfo> goodsBaseList);
+    int batchAddStock(List<OrderDetailsPOJO> goodsBaseList);
 
     /**
      * 批量查询库存

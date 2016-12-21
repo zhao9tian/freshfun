@@ -10,16 +10,14 @@ import com.quxin.freshfun.service.goods.GoodsService;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.order.OrderService;
 import com.quxin.freshfun.service.user.UserBaseService;
-import com.quxin.freshfun.utils.BusinessException;
-import com.quxin.freshfun.utils.CookieUtil;
-import com.quxin.freshfun.utils.FieldUtil;
-import com.quxin.freshfun.utils.MoneyFormat;
+import com.quxin.freshfun.utils.*;
 import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -189,7 +187,7 @@ public class OrderController {
 	 */
 	@RequestMapping("/selectShoppingCartByUserId")
 	@ResponseBody
-	public Map<String,Object> selectShoppingCartByUserId(HttpServletRequest request){
+	public Map<String,Object> selectShoppingCartByUserId(HttpServletRequest request) throws BusinessException {
 		Long uId = CookieUtil.getUserIdFromCookie(request);
 		return orderManager.selectShoppingCartByUserId(uId);
 	}
@@ -231,11 +229,15 @@ public class OrderController {
 	 */
 	@RequestMapping("/delOrder")
 	@ResponseBody
-	public Map<String, Integer> delOrder(String orderId){
+	public Map<String, Object> delOrder(String orderId){
+		if(StringUtils.isEmpty(orderId)){
+			ResultUtil.fail(1004,"参数不能为空");
+		}
 		int status = orderManager.delOrder(orderId);
-		Map<String, Integer> map = Maps.newHashMap();
-		map.put("status", status);
-		return map;
+		if(status <= 0){
+			ResultUtil.fail(1004,"订单删除失败");
+		}
+		return ResultUtil.success(status);
 	}
 	/**
 	 * 减少商品数量

@@ -22,6 +22,16 @@ public class PromotionPOJO extends BaseEntity {
      */
     private Integer stock;
 
+    private int count;
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
     public Integer getStock() {
         return stock;
     }

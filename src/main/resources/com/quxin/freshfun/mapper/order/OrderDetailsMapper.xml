@@ -147,7 +147,7 @@
   </select>
   <!-- 关闭一条订单信息 -->
   <update id="delOrder">
-    update order_details set order_status = 15,update_date=#{date}, where id = #{orderId} and order_status = 10
+    update order_details set order_status = 15,update_date=#{date} where id = #{orderId} and order_status = 10
   </update>
   <!-- 修改订单支付状态 -->
   <update id="updatePayStatus" parameterType="java.lang.Long" useGeneratedKeys="true" keyProperty="id">
@@ -228,7 +228,36 @@
   </select>
 
 
-
+  <!--批量关闭限时购订单-->
+  <update id="batchCloseLimitedOrder" parameterType="java.util.List">
+     update order_details
+    <trim prefix="set" suffixOverrides=",">
+      <trim prefix="order_status =case" suffix="end,">
+        <foreach collection="list" item="i" index="index">
+          when id=#{i.objectId} then 15
+        </foreach>
+      </trim>
+    </trim>
+    WHERE id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item.objectId}
+    </foreach>
+  </update>
+  <!--批量关闭订单-->
+  <update id="batchCloseOrder" parameterType="java.util.List" >
+    update order_details
+    <trim prefix="set" suffixOverrides=",">
+      <trim prefix="order_status =case" suffix="end,">
+        <foreach collection="list" item="i" index="index">
+          when id=#{i.id} then 15
+        </foreach>
+      </trim>
+    </trim>
+    WHERE id in
+    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+      #{item.id}
+    </foreach>
+  </update>
 
   <!-- 查询付款编号 -->
   <select id="selectPayIdByOrderDetailsId" parameterType="java.lang.String" resultMap="PayResultId">
@@ -279,12 +308,12 @@
   </update>
 
   <!--查询超时订单-->
-  <select id="selectOvertimeOrder" resultMap="PayResultId">
-    select id from order_details where order_status = 10 and is_deleted = 0 and (create_date + 1440*60 - unix_timestamp(now()) <![CDATA[<=]]> 0);
+  <select id="selectOvertimeOrder" resultMap="BaseResultMap">
+    select `id`,`goods_id`,`count` from order_details where order_status = 10 and is_deleted = 0 and order_type in (0,1) and (create_date + 1440*60 - unix_timestamp(now()) <![CDATA[<=]]> 0);
   </select>
     
-  <select id="selectOverTimeLimitedOrder" resultMap="PayResultId">
-      select id from order_details where order_status = 10 and is_deleted = 0 and order_type = 2 and (create_date + 1440*60 - unix_timestamp(now()) <![CDATA[<=]]> 0)
+  <select id="selectOverTimeLimitedOrder" resultMap="BaseResultMap">
+      select `id`,`goods_id`,`count` from order_details where order_status = 10 and is_deleted = 0 and order_type = 2 and (create_date + 30*60 - unix_timestamp(now()) <![CDATA[<=]]> 0)
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">

@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.dao.FlowMapper;
 import com.quxin.freshfun.dao.PromotionMapper;
+import com.quxin.freshfun.model.OrderDetailsPOJO;
 import com.quxin.freshfun.model.OrderPayInfo;
+import com.quxin.freshfun.model.ShoppingCartPOJO;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
 import com.quxin.freshfun.model.param.FlowParam;
 import com.quxin.freshfun.model.param.PromotionParam;
@@ -89,22 +91,41 @@ public class PromotionServiceImpl implements PromotionService {
 		if (goodsBaseList == null) {
 			throw new BusinessException("查询限量购参数为null");
 		}
-		List<PromotionGoodsPOJO> promotionGoodsList = new ArrayList<>();
 		List<PromotionPOJO> promotionList = promotionMapper.selectLimitedGoodsInfo(goodsBaseList);
+		return getPromotionInfo(promotionList);
+	}
 
-		if(promotionList != null) {
+	@Override
+	public List<PromotionGoodsPOJO> queryCartLimitedGoods(List<ShoppingCartPOJO> carts) throws BusinessException {
+		if (carts == null) {
+			throw new BusinessException("查询限量购参数为null");
+		}
+		List<PromotionPOJO> promotionList = promotionMapper.selectCartLimitedGoods(carts);
+		return getPromotionInfo(promotionList);
+	}
+
+	/**
+	 * 获取优惠信息
+	 * @param promotionList 限时商品信息
+	 * @return
+	 * @throws BusinessException
+	 */
+	private List<PromotionGoodsPOJO> getPromotionInfo(List<PromotionPOJO> promotionList) throws BusinessException {
+		List<PromotionGoodsPOJO> promotionGoodsList = new ArrayList<>();
+		if(promotionList != null && promotionList.size() > 0) {
 			for (PromotionPOJO promotion : promotionList) {
 				PromotionGoodsPOJO promotionGoods = new PromotionGoodsPOJO();
 				// 获取优惠价格
 				String content = promotion.getContent();
-				Map<String,	Integer> contentMap = (Map) JSON.parse(content);
+				Map<String,	String > contentMap = (Map) JSON.parse(content);
 				if (contentMap == null) {
 					throw new BusinessException("优惠价格解析失败");
 				}
 				// 优惠价格
-				promotionGoods.setDiscountPrice(contentMap.get("discountPrice").longValue());
+				promotionGoods.setDiscountPrice(Long.parseLong(contentMap.get("discountPrice")));
 				// 商品ID
 				promotionGoods.setGoodsId(promotion.getObjectId());
+				promotionGoods.setStock(promotion.getStock());
 				promotionGoods.setDiscount(true);
 				promotionGoodsList.add(promotionGoods);
 			}
@@ -175,6 +196,34 @@ public class PromotionServiceImpl implements PromotionService {
 			throw new BusinessException("修改库存参数错误");
 		}
 		return promotionMapper.updateStockById(map);
+	}
+
+	/**
+	 * 查询限量购超时订单
+	 * @param orderDetails 限时超时订单
+	 * @return
+	 * @throws BusinessException
+	 */
+	@Override
+	public List<PromotionPOJO> selectLimitedGoods(List<OrderDetailsPOJO> orderDetails) throws BusinessException {
+		if(orderDetails == null){
+			throw new BusinessException("修改库存参数错误");
+		}
+		return promotionMapper.selectLimitedGoods(orderDetails);
+	}
+
+	/**
+	 *
+	 * @param orderIdList 限量购商品
+	 * @return
+	 * @throws BusinessException
+	 */
+	@Override
+	public int updateLimitedStock(OrderDetailsPOJO orderIdList) throws BusinessException {
+		if(orderIdList == null){
+			throw new BusinessException("订单超时返库存参数为空");
+		}
+		return promotionMapper.updateLimitedStock(orderIdList);
 	}
 
 
