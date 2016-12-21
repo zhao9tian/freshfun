@@ -5,6 +5,8 @@ import org.junit.BeforeClass;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.text.ParseException;
+
 public class TestBase {
     @SuppressWarnings("resource")
     private static AbstractApplicationContext CONTEXT;
@@ -23,4 +25,11 @@ public class TestBase {
         CONTEXT.close();
     }
 
+
+    public static void main(String[] args) throws ParseException {
+        String a ="a";
+        String b = new String("b");
+        System.out.println(a);
+        System.out.println(b);
+    }
 }

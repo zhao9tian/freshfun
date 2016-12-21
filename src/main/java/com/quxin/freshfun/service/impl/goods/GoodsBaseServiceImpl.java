@@ -321,7 +321,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                 String limitedPrice = "0.00";
                 if (limitedPriceDB != null && !"".equals(limitedPriceDB)) {
                     Map<String, Object> map = JSON.parseObject(limitedPriceDB);
-                    limitedPrice = MoneyFormat.priceFormatString((Integer) map.get("discountPrice"));
+                    limitedPrice = MoneyFormat.priceFormatString(Integer.parseInt((String) map.get("discountPrice")));
                 }
                 goodsOut.setShopMoney(limitedPrice);
                 goodsOut.setLimitedNumStock(limitedNumGoods.getLimitedGoodsStock());
@@ -367,7 +367,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                             String limitedGoodsPriceDB = limitedNumGoodsPOJO.getLimitedGoodsPrice();
                             if (limitedGoodsPriceDB != null && !"".equals(limitedGoodsPriceDB)) {
                                 Map<String, Object> money = JSON.parseObject(limitedGoodsPriceDB);
-                                Integer limitPrice = (Integer) money.get("discountPrice");
+                                Integer limitPrice = Integer.parseInt((String) money.get("discountPrice"));
                                 limitedGoods.put("limitPrice", MoneyFormat.priceFormatString(limitPrice));
                             }
                             limitedGoods.put("title", goodsBasePOJO.getTitle());
