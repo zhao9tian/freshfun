@@ -13,11 +13,21 @@ public class RefundPOJO {
 
     private String returnDes;
 
+    private Integer actualReturnMoney ;
+
     private Long gmtCreate;
 
     private Long gmtModified;
 
     private String remark ;
+
+    public Integer getActualReturnMoney() {
+        return actualReturnMoney;
+    }
+
+    public void setActualReturnMoney(Integer actualReturnMoney) {
+        this.actualReturnMoney = actualReturnMoney;
+    }
 
     public Integer getId() {
         return id;

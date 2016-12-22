@@ -5,6 +5,7 @@ import com.quxin.freshfun.model.RefundPOJO;
 import com.quxin.freshfun.model.param.RefundParam;
 import com.quxin.freshfun.service.order.OrderManager;
 import com.quxin.freshfun.service.refund.RefundService;
+import com.quxin.freshfun.utils.MoneyFormat;
 import com.quxin.freshfun.utils.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -148,8 +149,9 @@ public class RefundController {
 			refundParam.put("serverType" , refundPOJO.getServiceType());
 			refundParam.put("refundReason" , refundPOJO.getReturnReason());
 			refundParam.put("refundDes" , refundPOJO.getReturnDes());
-			refundParam.put("refundMoney" , refundPOJO.getReturnMoney());
+			refundParam.put("refundMoney" , MoneyFormat.priceFormatString(refundPOJO.getReturnMoney()));
 			refundParam.put("remark" , refundPOJO.getRemark());
+			refundParam.put("actualRefundMoney" , MoneyFormat.priceFormatString(refundPOJO.getActualReturnMoney()));
 			Map<String , Object> data = new HashMap<>();
 			data.put("refundDetail",refundParam);
 			return ResultUtil.success(data);
