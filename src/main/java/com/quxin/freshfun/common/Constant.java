@@ -46,4 +46,13 @@ public class Constant {
     public static final Integer OBJECT_TYPE_TIME_LIMIT = 1;
     /** 优惠券 */
     public static final Integer OBJECT_TYPE_COUPON = 2;
+
+    /**
+     * 普通订单
+     */
+    public static final Integer ORDER_COMMON = 1;
+    /**
+     * 限量购订单
+     */
+    public static final Integer ORDER_LIMITED = 2;
 }

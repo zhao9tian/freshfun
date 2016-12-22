@@ -2,6 +2,7 @@ package com.quxin.freshfun.service.impl.order;
 
 import java.util.*;
 
+import com.quxin.freshfun.common.Constant;
 import com.quxin.freshfun.dao.GoodsBaseMapper;
 import com.quxin.freshfun.dao.PromotionMapper;
 import com.quxin.freshfun.model.goods.PromotionGoodsPOJO;
@@ -46,8 +47,21 @@ public class OrderManagerImpl implements OrderManager {
 	 * 根据订单编号删除订单信息
 	 */
 	@Override
-	public int delOrder(String orderId) {
+	public int delOrder(String orderId) throws BusinessException {
 		Long date = DateUtils.getCurrentDate();
+		int state = 0;
+		//查询订单信息
+		OrderDetailsPOJO order = orderDetailsMapper.selectSigleOrder(Long.parseLong(orderId));
+		if(order != null) {
+			if (order.getOrderType().equals(Constant.ORDER_COMMON)) {
+				state = goodsBaseMapper.addStock(order);
+			} else if (order.getOrderType().equals(Constant.ORDER_LIMITED)) {
+				state = promotionService.updateLimitedStock(order);
+			}
+			if (state <= 0) {
+				logger.error("关闭订单时，返还库存失败");
+			}
+		}
 		return orderDetailsMapper.delOrder(date,orderId);
 	}
 	/**
@@ -317,14 +331,17 @@ public class OrderManagerImpl implements OrderManager {
 	@Override
 	public void scanningOvertimeOrder() {
 		List<OrderDetailsPOJO> orderIds = orderDetailsMapper.selectOvertimeOrder();
-		int state = goodsBaseMapper.batchAddStock(orderIds);
-		if(state <= 0){
-			logger.error("超时订单返库存失败");
-		}
-		//批量修改订单状态
-		int result = orderDetailsMapper.batchCloseOrder(orderIds);
-		if(result <= 0){
-			logger.error("批量修改订单状态失败");
+		if(orderIds != null && orderIds.size() > 0) {
+			int state = goodsBaseMapper.batchAddStock(orderIds);
+			if (state <= 0) {
+				logger.error("超时订单返库存失败");
+			} else {
+				//批量修改订单状态
+				int result = orderDetailsMapper.batchCloseOrder(orderIds);
+				if (result <= 0) {
+					logger.error("批量修改订单状态失败");
+				}
+			}
 		}
 	}
 

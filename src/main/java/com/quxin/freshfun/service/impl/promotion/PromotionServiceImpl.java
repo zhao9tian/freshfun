@@ -42,7 +42,7 @@ public class PromotionServiceImpl implements PromotionService {
 			throw new BusinessException("请输入商品ID");
 		}
 
-		Map<String, Object> paramMap = new HashMap();
+		Map<String, Object> paramMap = new HashMap<>();
 
 		paramMap.put("goodsId",goodsId);
 		paramMap.put("now",System.currentTimeMillis()/1000);

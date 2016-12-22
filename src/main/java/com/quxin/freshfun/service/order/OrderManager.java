@@ -15,7 +15,7 @@ public interface OrderManager {
 	 * @param orderId
 	 * @return
 	 */
-	int delOrder(String orderId);
+	int delOrder(String orderId) throws BusinessException;
 	/**
 	 * 根据订单编号查询订单
 	 * @param orderDetailsId

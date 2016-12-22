@@ -124,6 +124,13 @@ public interface GoodsBaseMapper {
     int batchAddStock(List<OrderDetailsPOJO> goodsBaseList);
 
     /**
+     * 增加库存
+     * @param order 订单信息
+     * @return
+     */
+    int addStock(OrderDetailsPOJO order);
+
+    /**
      * 批量查询库存
      * @return
      */

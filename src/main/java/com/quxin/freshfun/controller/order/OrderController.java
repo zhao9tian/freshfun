@@ -80,7 +80,8 @@ public class OrderController {
 		Long createTime = orderDetail.getCreateDate();
 		Long now = System.currentTimeMillis();
 		Long outTimeStamp = createTime*1000 + orderOutTime*60000 - now;
-        if(orderDetail.getOrderType() == 2){
+		System.out.println(orderDetail.getOrderType());
+		if(orderDetail.getOrderType() != null && orderDetail.getOrderType() == 2){
             outTimeStamp = createTime*1000 + 30 *60000 - now;
         }
 		orderDetail.setOutTimeStamp(outTimeStamp);
@@ -95,8 +96,6 @@ public class OrderController {
 		//控制付款成功页面申请退款按钮是否有效 isRefund 1是有效  0是无效
 		return orderDetail;
 	}
-
-
 
 
 	/**
@@ -229,13 +228,13 @@ public class OrderController {
 	 */
 	@RequestMapping("/delOrder")
 	@ResponseBody
-	public Map<String, Object> delOrder(String orderId){
+	public Map<String, Object> delOrder(String orderId) throws BusinessException {
 		if(StringUtils.isEmpty(orderId)){
 			ResultUtil.fail(1004,"参数不能为空");
 		}
 		int status = orderManager.delOrder(orderId);
 		if(status <= 0){
-			ResultUtil.fail(1004,"订单删除失败");
+			ResultUtil.fail(1004,"取消订单失败");
 		}
 		return ResultUtil.success(status);
 	}

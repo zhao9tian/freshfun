@@ -121,10 +121,8 @@
       </foreach>
   </update>
   <!--批量增加库存-->
-  <update id="batchUpdateSale" parameterType="java.util.List">
-      <foreach collection="list" item="item" index="index" open="" close="" separator=";">
-          update goods_base set sale_num = sale_num + #{item.total} where id = #{item.goodsId}
-      </foreach>
+  <update id="addStock" parameterType="com.quxin.freshfun.model.OrderDetailsPOJO">
+      update goods_base set sale_num = sale_num + #{count} where id = #{goodsId}
   </update>
 
   <!--修改商品库存-->
