@@ -109,14 +109,14 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
             if(selectionList != null) {
                     List<GoodsBasePOJO> goodsList = goodsBaseMapper.findGoodsInList(selectionList);
                     if(goodsList != null) {
-                        for (GoodsBasePOJO goods : goodsList) {
-                            for (SelectionPOJO sl: selectionList) {
+                        for (SelectionPOJO sl: selectionList) {
+                            for (GoodsBasePOJO goods : goodsList) {
                                 if(goods.getId().equals(sl.getGoodsId())){
                                     goods.setGoodsImg(sl.getImg());
+                                    GoodsOut goodsOut = getGoods(goods);
+                                    goodsOuts.add(goodsOut);
                                 }
                             }
-                            GoodsOut goodsOut = getGoods(goods);
-                            goodsOuts.add(goodsOut);
                         }
                     }
                 return goodsOuts;
@@ -602,9 +602,13 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
             //根据商品编号查询商品
             List<GoodsBasePOJO> goodsBaseList = goodsBaseMapper.findGoodsInId(ids);
             if(goodsBaseList != null) {
-                for (GoodsBasePOJO goods : goodsBaseList) {
-                    GoodsOut goodsOut = getGoods(goods);
-                    goodsList.add(goodsOut);
+                for(Long id : ids){
+                    for (GoodsBasePOJO goods : goodsBaseList) {
+                        if(goods.getId().equals(id)){
+                            GoodsOut goodsOut = getGoods(goods);
+                            goodsList.add(goodsOut);
+                        }
+                    }
                 }
             }
        // }
