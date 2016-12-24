@@ -39,7 +39,7 @@
         <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
-        and is_deleted = 0
+        and is_deleted = 0 and is_on_sale = 1
   </select>
   <select id="findGoodsInList" parameterType="java.util.List" resultMap="BaseResultMap">
       select `id`,`title`,`des`,`sub_title`,`img`,`shop_price`,origin_price,`is_on_sale`
@@ -48,7 +48,7 @@
       <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
           #{item.goodsId}
       </foreach>
-      and is_deleted = 0
+      and is_deleted = 0 and is_on_sale = 1
   </select>
   <!--根据优惠商品编号查询商品信息-->
   <select id="findPromotionGoodsList" parameterType="java.util.List" resultMap="BaseResultMap">

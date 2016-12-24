@@ -13,7 +13,7 @@ public class ThemePOJO {
     /**
      * 专题Id
      */
-    private Integer themeId ;
+    private Long themeId ;
     /**
      * 专题名
      */
@@ -60,11 +60,11 @@ public class ThemePOJO {
         this.goodsList = goodsList;
     }
 
-    public Integer getThemeId() {
+    public Long getThemeId() {
         return themeId;
     }
 
-    public void setThemeId(Integer themeId) {
+    public void setThemeId(Long themeId) {
         this.themeId = themeId;
     }
 

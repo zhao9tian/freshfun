@@ -1,8 +1,6 @@
 package com.quxin.freshfun.service.impl.goods;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -63,7 +61,16 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                 Long[] goodsIds = splitGoodsContent(content);
                 if (goodsIds != null && goodsIds.length > 0) {
                     List<GoodsOut> goodsList = getGoodsList(goodsIds);
-                    theme.setGoodsList(goodsList);
+                    List<GoodsOut> goodsSortList = new ArrayList<>();
+                    //排序专题下的商品
+                    for (Long goodsId : goodsIds){
+                        for (GoodsOut goodsOut : goodsList){
+                            if(goodsId.equals(goodsOut.getGoodsId())){
+                                goodsSortList.add(goodsOut);
+                            }
+                        }
+                    }
+                    theme.setGoodsList(goodsSortList);
                 }
             }
             return getSpecialList(themeList);
@@ -106,19 +113,19 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
             //分割商品编号
             List<GoodsOut> goodsOuts = new ArrayList<>();
             List<SelectionPOJO> selectionList = strToList(selection.getValue());
-            if(selectionList != null) {
-                    List<GoodsBasePOJO> goodsList = goodsBaseMapper.findGoodsInList(selectionList);
-                    if(goodsList != null) {
-                        for (SelectionPOJO sl: selectionList) {
-                            for (GoodsBasePOJO goods : goodsList) {
-                                if(goods.getId().equals(sl.getGoodsId())){
-                                    goods.setGoodsImg(sl.getImg());
-                                    GoodsOut goodsOut = getGoods(goods);
-                                    goodsOuts.add(goodsOut);
-                                }
+            if (selectionList != null) {
+                List<GoodsBasePOJO> goodsList = goodsBaseMapper.findGoodsInList(selectionList);
+                if (goodsList != null) {
+                    for (SelectionPOJO sl : selectionList) {
+                        for (GoodsBasePOJO goods : goodsList) {
+                            if (goods.getId().equals(sl.getGoodsId())) {
+                                goods.setGoodsImg(sl.getImg());
+                                GoodsOut goodsOut = getGoods(goods);
+                                goodsOuts.add(goodsOut);
                             }
                         }
                     }
+                }
                 return goodsOuts;
             }
         }
@@ -126,9 +133,9 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
     }
 
     /**
-     * 专题列表
+     * 首页专题列表
      *
-     * @return
+     * @return 返回首页专题
      */
     @Override
     public List<SpecialOut> getSpecialList() throws BusinessException {
@@ -137,24 +144,41 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
             //分割商品编号
             Long[] themeIds = splitGoodsContent(banner.getValue());
             List<SpecialOut> specialList = new ArrayList<>();
-            if(themeIds != null && themeIds.length > 0) {
-                    List<ThemePOJO> themeList = goodsThemeMapper.selectThemeInId(themeIds);
-                    if(themeList != null) {
-                        //获取专题下的商品
+            if (themeIds != null && themeIds.length > 0) {
+                List<ThemePOJO> themeList = goodsThemeMapper.selectThemeInId(themeIds);
+                if (themeList != null) {
+                    //获取专题下的商品
+                    for (Long themeId : themeIds) {
                         for (ThemePOJO theme : themeList) {
-                            Long[] goodsIds = splitGoodsContent(theme.getThemeInfoContent());
-                            if (goodsIds != null && goodsIds.length > 0) {
-                                List<GoodsOut> goodsList = getGoodsList(goodsIds);
-                                //生成出参对象
-                                SpecialOut special = new SpecialOut();
-                                special.setSpecialId(theme.getThemeId());
-                                special.setSpecialDesc(theme.getThemeDes());
-                                special.setSpecialInfoImg(theme.getThemeImg());
-                                special.setGoodsList(goodsList);
-                                specialList.add(special);
+                            //根据property的value排序
+                            if (theme.getThemeId().equals(themeId)) {
+                                //专题下的商品id
+                                Long[] goodsIds = splitGoodsContent(theme.getThemeInfoContent());
+                                if (goodsIds != null && goodsIds.length > 0) {
+                                    //生成出参对象
+                                    SpecialOut special = new SpecialOut();
+                                    special.setSpecialId(theme.getThemeId());
+                                    special.setSpecialDesc(theme.getThemeDes());
+                                    special.setSpecialInfoImg(theme.getThemeImg());
+                                    //排序专题下的商品
+                                    List<GoodsOut> goodsList = getGoodsList(goodsIds);
+                                    List<GoodsOut> goodsOuts = new ArrayList<>();
+                                    if (goodsList != null && goodsList.size() > 0) {
+                                        for (Long goodsId : goodsIds) {
+                                            for (GoodsOut goodsOut : goodsList) {
+                                                if (goodsOut.getGoodsId().equals(goodsId)) {
+                                                    goodsOuts.add(goodsOut);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    special.setGoodsList(goodsOuts);
+                                    specialList.add(special);
+                                }
                             }
                         }
                     }
+                }
                 return specialList;
             }
         }
@@ -163,6 +187,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 获取商品排序列表
+     *
      * @return
      */
     @Override
@@ -184,7 +209,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
      */
     @Override
     public List<GoodsOut> getGoodsList(Integer page, Integer pageSize) throws BusinessException {
-        if (page == null || pageSize == 0 || pageSize == null || pageSize == 0)
+        if (page == null || pageSize == 0)
             return null;
         List<GoodsBasePOJO> goodsList = goodsBaseMapper.selectGoodsList(page, pageSize);
         if (goodsList != null)
@@ -194,6 +219,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 查询限时购商品
+     *
      * @return
      */
     @Override
@@ -211,7 +237,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                         //限时购进行中
                         goodsOut.setIsDiscount(10);
                         goodsOut.setEndTime(promotion.getEndTime() - currentDate);
-                        goodsOut.setStartTime(0l);
+                        goodsOut.setStartTime(0L);
                     } else {
                         goodsOut.setIsDiscount(5);
                         goodsOut.setStartTime(promotion.getStartTime() - currentDate);
@@ -226,6 +252,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
 
     /**
      * 根据类目编号查询商品信息
+     *
      * @param categoryKey 类目编号
      * @return
      */
@@ -327,7 +354,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                 goodsOut.setLimitedNumStock(limitedNumGoods.getLimitedGoodsStock());
                 goodsOut.setLimitedNumLeaveStock(limitedNumGoods.getLimitedRealStock());
                 goodsOut.setIsLimitedNum(1);//是限量购
-            }else{
+            } else {
                 goodsOut.setIsLimitedNum(0);
                 return true;
             }
@@ -375,7 +402,7 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
                             limitedGoods.put("goodsImg", goodsBasePOJO.getGoodsImg());
                             if (isIndex == null || isIndex.equals(1)) {//列表页
                                 limitedGoods.put("subTitle", goodsBasePOJO.getSubTitle());
-                                if(limitedNumGoodsPOJO.getLimitedRealStock() <= 0){
+                                if (limitedNumGoodsPOJO.getLimitedRealStock() <= 0) {
                                     limitedGoods.put("limitPrice", MoneyFormat.priceFormatString(goodsBasePOJO.getShopPrice()));
                                 }
                                 unLimitedSortGoods.add(limitedGoods);
@@ -590,28 +617,27 @@ public class GoodsBaseServiceImpl implements GoodsBaseService {
     }
 
     /**
-     * 根据商品列表
-     * @param ids
-     * @return
+     * 根据商品id查询商品列表-- 无序
+     *
+     * @param ids 商品ids
+     * @return 无序的商品列表
      */
     private List<GoodsOut> getGoodsList(Long[] ids) throws BusinessException {
         if (ids == null)
             return null;
         List<GoodsOut> goodsList = new ArrayList<>();
-        //for (Long id: ids) {
-            //根据商品编号查询商品
-            List<GoodsBasePOJO> goodsBaseList = goodsBaseMapper.findGoodsInId(ids);
-            if(goodsBaseList != null) {
-                for(Long id : ids){
-                    for (GoodsBasePOJO goods : goodsBaseList) {
-                        if(goods.getId().equals(id)){
-                            GoodsOut goodsOut = getGoods(goods);
-                            goodsList.add(goodsOut);
-                        }
+        //根据商品编号查询商品
+        List<GoodsBasePOJO> goodsBaseList = goodsBaseMapper.findGoodsInId(ids);
+        if (goodsBaseList != null) {
+            for (Long id : ids) {
+                for (GoodsBasePOJO goods : goodsBaseList) {
+                    if (goods.getId().equals(id)) {
+                        GoodsOut goodsOut = getGoods(goods);
+                        goodsList.add(goodsOut);
                     }
                 }
             }
-       // }
+        }
         return goodsList;
     }
 

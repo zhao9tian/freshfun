@@ -12,7 +12,7 @@ public class SpecialOut {
     /**
      * 专题编号
      */
-    private Integer specialId;
+    private Long specialId;
     /**
      * 主题名
      */
@@ -54,11 +54,11 @@ public class SpecialOut {
         this.goodsList = goodsList;
     }
 
-    public Integer getSpecialId() {
+    public Long getSpecialId() {
         return specialId;
     }
 
-    public void setSpecialId(Integer specialId) {
+    public void setSpecialId(Long specialId) {
         this.specialId = specialId;
     }
 
