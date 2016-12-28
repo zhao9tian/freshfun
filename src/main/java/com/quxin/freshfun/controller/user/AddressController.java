@@ -66,7 +66,12 @@ public class AddressController {
     @RequestMapping(value = "/addAddress",method = {RequestMethod.POST})
     public Map<String,Object> addAddress(HttpServletRequest request, @RequestBody AddressPOJO address){
         Map<String,Object> map = new HashMap<String,Object>();
-        Long userId = CookieUtil.getUserIdFromCookie(request);
+        Long userId;
+        if(CookieUtil.getUserIdFromCookie(request)==null){
+            return ResultUtil.fail(1022,"获取用户信息失败，重新登录");
+        }else{
+            userId = CookieUtil.getUserIdFromCookie(request);
+        }
         address.setUserId(userId);
         Integer result = addressService.addAddress(address);
         if(result>0){
@@ -83,7 +88,12 @@ public class AddressController {
     @RequestMapping(value = "/modifyAddress",method = {RequestMethod.POST})
     public Map<String,Object> modifyAddress(HttpServletRequest request, @RequestBody AddressPOJO address){
         Map<String,Object> map = new HashMap<String,Object>();
-        Long userId = CookieUtil.getUserIdFromCookie(request);
+        Long userId;
+        if(CookieUtil.getUserIdFromCookie(request)==null){
+            return ResultUtil.fail(1022,"获取用户信息失败，重新登录");
+        }else{
+            userId = CookieUtil.getUserIdFromCookie(request);
+        }
         address.setUserId(userId);
         address.setId(address.getAddressId());
         Integer result = addressService.modifyAddress(address);
@@ -106,7 +116,16 @@ public class AddressController {
         if(addressId!=null&&!"".equals(addressId)){
             address = addressService.queryAddressById(Integer.parseInt(addressId));
         }else{
-            Long userId = userIdStr!=null&&!"".equals(userIdStr)?Long.parseLong(userIdStr):CookieUtil.getUserIdFromCookie(request);
+            Long userId;
+            if(userIdStr!=null&&!"".equals(userIdStr)){
+                userId = Long.parseLong(userIdStr);
+            }else{
+                if(CookieUtil.getUserIdFromCookie(request)==null){
+                    return ResultUtil.fail(1022,"获取用户信息失败，重新登录");
+                }else{
+                    userId = CookieUtil.getUserIdFromCookie(request);
+                }
+            }
             address = addressService.queryDefaultAddress(userId);
             if(address==null){
                 List<AddressPOJO> addressList = addressService.queryAddress(userId);
@@ -138,7 +157,16 @@ public class AddressController {
 
         Map<String, Object> result = new HashMap<String, Object>();
         List<Map<String, Object>> mapResult = new ArrayList<Map<String, Object>>();
-        Long userId = userIdStr != null && !"".equals(userIdStr) ? Long.parseLong(userIdStr) : CookieUtil.getUserIdFromCookie(request);
+        Long userId;
+        if(userIdStr!=null&&!"".equals(userIdStr)){
+            userId = Long.parseLong(userIdStr);
+        }else{
+            if(CookieUtil.getUserIdFromCookie(request)==null){
+                return ResultUtil.fail(1022,"获取用户信息失败，重新登录");
+            }else{
+                userId = CookieUtil.getUserIdFromCookie(request);
+            }
+        }
         AddressPOJO addressPOJO = addressService.queryDefaultAddress(userId);
         if (addressPOJO != null) {
             Map<String, Object> map = new HashMap<String, Object>();

@@ -31,7 +31,7 @@ public class UserBaseServiceImpl implements UserBaseService {
      * @param userBase  用户信息对象
      * @return 受影响行数
      */
-     public Integer addUserBaseInfo(UserBasePOJO userBase) {
+     public Long addUserBaseInfo(UserBasePOJO userBase) {
          //校验参数
          boolean checkPram = true;
          if (userBase == null) {
@@ -50,12 +50,11 @@ public class UserBaseServiceImpl implements UserBaseService {
          if (checkPram) {
              Integer resultId = userBaseMapper.insertUserBaseInfo(userBase);
              Integer resultUserId = userBaseMapper.updateUserIdById(userBase.getId());
-             if (resultId == 1 && resultUserId == 1)
-                 return 1;
-             else
-                 return 0;
+             if (resultId == 1 && resultUserId == 1) {
+                 return userBase.getId();
+             }
          }
-         return 0;
+         return null;
      }
 
     /**

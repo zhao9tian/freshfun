@@ -14,7 +14,7 @@ public interface UserBaseService {
      * @param userBase  用户信息对象
      * @return 受影响行数
      */
-    Integer addUserBaseInfo(UserBasePOJO userBase);
+    Long addUserBaseInfo(UserBasePOJO userBase);
 
     /**
      * 为用户添加父级捕手id

@@ -218,10 +218,10 @@ public class UserLoginController {
 		userBase.setCreated(System.currentTimeMillis() / 1000);
 		userBase.setUpdated(System.currentTimeMillis() / 1000);
 		userBase.setIsDeleted(0);
-		Integer result = userBaseService.addUserBaseInfo(userBase);
-		if (result == 1) {
-			logger.warn("用户创建成功，userId="+userBase.getUserId());
-			return userBase.getId();
+		Long result = userBaseService.addUserBaseInfo(userBase);
+		if (result != null) {
+			logger.warn("用户创建成功，userId="+result);
+			return result;
 		} else {
 			logger.error("用户数据插入失败");
 			throw new BusinessException("用户数据插入失败");
@@ -297,9 +297,9 @@ public class UserLoginController {
 					userBase.setCreated(System.currentTimeMillis() / 1000);
 					userBase.setUpdated(System.currentTimeMillis() / 1000);
 					userBase.setIsDeleted(0);
-					Integer result = userBaseService.addUserBaseInfo(userBase);
-					if (result == 1) {
-						userId = userBase.getId();
+					Long result = userBaseService.addUserBaseInfo(userBase);
+					if (result !=null) {
+						userId = result;
 					} else {
 						logger.warn("用户数据插入失败");
 					}
@@ -414,9 +414,9 @@ public class UserLoginController {
 						userBase.setCreated(System.currentTimeMillis() / 1000);
 						userBase.setUpdated(System.currentTimeMillis() / 1000);
 						userBase.setIsDeleted(0);
-						Integer result = userBaseService.addUserBaseInfo(userBase);
-						if (result == 1) {
-							userId = userBase.getId();
+						Long result = userBaseService.addUserBaseInfo(userBase);
+						if (result != null) {
+							userId = result;
 							userInfo = userBaseService.queryUserInfoByUserId(userId);
 						} else {
 							logger.warn("用户数据插入失败");
