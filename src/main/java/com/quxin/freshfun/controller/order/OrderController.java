@@ -72,29 +72,36 @@ public class OrderController {
 	 * @param orderDetailsId 订单Id
 	 * @return 返回单个订单信息
 	 */
-	@RequestMapping("/selectSigleOrder")
+	@RequestMapping("/selectSingleOrder")
 	@ResponseBody
-	public OrderDetailsPOJO selectSigleOrder(Long orderDetailsId){
+	public Map<String,Object> selectSingleOrder(Long orderDetailsId){
+		if (orderDetailsId == null){
+			return ResultUtil.fail(1004,"参数不能为空");
+		}
 		OrderDetailsPOJO orderDetail = orderManager.selectSigleOrder(orderDetailsId);
+		if(orderDetail == null) {
+			return ResultUtil.fail(1004,"查询数据不存在");
+		}
 		//限时页面倒计时
 		Long createTime = orderDetail.getCreateDate();
 		Long now = System.currentTimeMillis();
-		Long outTimeStamp = createTime*1000 + orderOutTime*60000 - now;
-		System.out.println(orderDetail.getOrderType());
-		if(orderDetail.getOrderType() != null && orderDetail.getOrderType() == 2){
-            outTimeStamp = createTime*1000 + 30 *60000 - now;
-        }
+		Long outTimeStamp = createTime * 1000 + orderOutTime * 60000 - now;
+		if (orderDetail.getOrderType() != null && orderDetail.getOrderType() == 2) {
+			outTimeStamp = createTime * 1000 + 30 * 60000 - now;
+		}
 		orderDetail.setOutTimeStamp(outTimeStamp);
-		orderDetail.setPayMoney(MoneyFormat.priceFormatString(orderDetail.getPayPrice()));
-		orderDetail.setPayPrice(null);
-		GoodsParam goods = orderDetail.getGoods();
-		goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
-		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
-		goods.setMarketPrice(null);
-		goods.setShopPrice(null);
-		orderDetail.setGoods(goods);
+		//设置订单金额显示
+		setGoodsMoneyDetail(orderDetail);
+//		orderDetail.setPayMoney(MoneyFormat.priceFormatString(orderDetail.getPayPrice()));
+//		orderDetail.setPayPrice(null);
+//		GoodsParam goods = orderDetail.getGoods();
+//		goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
+//		goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+//		goods.setMarketPrice(null);
+//		goods.setShopPrice(null);
+//		orderDetail.setGoods(goods);
 		//控制付款成功页面申请退款按钮是否有效 isRefund 1是有效  0是无效
-		return orderDetail;
+		return ResultUtil.success(orderDetail);
 	}
 
 
@@ -500,20 +507,28 @@ public class OrderController {
 	 */
 	public List<OrderDetailsPOJO> setGoodsMoney(List<OrderDetailsPOJO> order){
 		for (OrderDetailsPOJO o: order) {
-			if(o.getPayPrice() != null){
-				o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
-				o.setPayPrice(null);
-			}
-			GoodsParam goods = o.getGoods();
-			if(goods.getMarketPrice() != null) {
-				goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
-				goods.setMarketPrice(null);
-			}
-			if(goods.getShopPrice() != null) {
-				goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
-				goods.setShopPrice(null);
-			}
+			setGoodsMoneyDetail(o);
 		}
 		return order;
+	}
+
+	/**
+	 * 设置订单显示金额
+	 * @param o 订单
+	 */
+	private void setGoodsMoneyDetail(OrderDetailsPOJO o) {
+		if(o.getPayPrice() != null){
+            o.setPayMoney(MoneyFormat.priceFormatString(o.getPayPrice()));
+            o.setPayPrice(null);
+        }
+		GoodsParam goods = o.getGoods();
+		if(goods.getMarketPrice() != null) {
+            goods.setMarketMoney(MoneyFormat.priceFormatString(goods.getMarketPrice()));
+            goods.setMarketPrice(null);
+        }
+		if(goods.getShopPrice() != null) {
+            goods.setGoodsMoney(MoneyFormat.priceFormatString(goods.getShopPrice()));
+            goods.setShopPrice(null);
+        }
 	}
 }

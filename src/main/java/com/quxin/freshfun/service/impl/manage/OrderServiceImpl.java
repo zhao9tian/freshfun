@@ -105,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
 			setGoodsDiscountInfo(goodsBaseList);
 		} else {
 			//购物车
-			goodsBaseList = shoppingCartMapper.selectShoppingCartByList(orderInfo.getGoodsInfo());
+			goodsBaseList = getShoppingCartInfo(orderInfo);
 			//设置商品活动信息
 			setGoodsDiscountInfo(goodsBaseList);
 		}
@@ -134,6 +134,29 @@ public class OrderServiceImpl implements OrderService {
 		//修改支付状态
 		modifyShoppingCartState(orderInfo);
 		return wxPayInfo;
+	}
+
+	/**
+	 * 查询商品信息
+	 * @param orderInfo 订单信息
+	 */
+	private List<OrderPayInfo> getShoppingCartInfo(OrderInfo orderInfo) {
+		List<OrderPayInfo> goodsBaseList = new ArrayList<>();
+		if(orderInfo != null){
+			for (GoodsInfo info : orderInfo.getGoodsInfo()) {
+				ShoppingCartPOJO shoppingCart = shoppingCartMapper.selectShoppingCart(info.getScId());
+				if(shoppingCart != null) {
+					OrderPayInfo payInfo = new OrderPayInfo();
+					GoodsParam goodsParam = goodsBaseMapper.selectGoodsByGoodsId(shoppingCart.getGoodsId().longValue());
+					payInfo.setGoodsPrice(goodsParam.getShopPrice());
+					payInfo.setGoodsId(shoppingCart.getGoodsId().longValue());
+					payInfo.setTotal(shoppingCart.getGoodsTotals());
+					payInfo.setGoodsName(shoppingCart.getGoodsName());
+					goodsBaseList.add(payInfo);
+				}
+			}
+		}
+		return goodsBaseList;
 	}
 
 	/**
@@ -532,9 +555,7 @@ public class OrderServiceImpl implements OrderService {
 	 * @param appId appId
 	 */
 	private void setOrderSource(Long userId, Long appId) {
-		int state = userBaseService.modifyUserAppId(userId,appId);
-		if(state <= 0)
-            logger.warn("根据AppID设置订单来源失败");
+		userBaseService.modifyUserAppId(userId,appId);
 	}
 
 	/**
@@ -545,7 +566,7 @@ public class OrderServiceImpl implements OrderService {
 	private OrdersPOJO makeOrderPOJO(OrderInfo orderInfo,List<OrderPayInfo> goodsBaseList) {
 		int sumPrice = 0;
 		for (OrderPayInfo payInfo : goodsBaseList) {
-			sumPrice = payInfo.getGoodsPrice()*payInfo.getTotal();
+			sumPrice += payInfo.getGoodsPrice()*payInfo.getTotal();
 		}
 		long currentDate = DateUtils.getCurrentDate();
 		OrdersPOJO order = new OrdersPOJO();
