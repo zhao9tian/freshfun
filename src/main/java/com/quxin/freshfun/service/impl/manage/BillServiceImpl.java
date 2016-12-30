@@ -78,13 +78,13 @@ public class BillServiceImpl implements BillService {
                         flowParam.setFlowType(0);//默认入账
                         flowService.addFlowBase(flowParam);
                     }else{
-                        UserInfoOutParam user = userBaseService.queryUserInfoByUserId(order.getUserId());
-                        if(user.getAppId()!=null&&user.getAppId()!=888888){
+                        //UserInfoOutParam user = userBaseService.queryUserInfoByUserId(order.getUserId());
+                        if(order.getFansAppId()!=null&&order.getFansAppId()!=888888){
                             FlowBasePOJO flowParam = new FlowBasePOJO();
                             flowParam.setOrderId(order.getId());
                             flowParam.setCreated(order.getReciveTime() + 7 * 24 * 60 * 60);
                             flowParam.setUpdated(order.getReciveTime() + 7 * 24 * 60 * 60);
-                            flowParam.setAppId(user.getAppId());
+                            flowParam.setAppId(order.getFansAppId());
                             flowParam.setFlowMoney(order.getActualPrice() / 10);
                             flowParam.setFlowType(0);//默认入账
                             flowService.addFlowBase(flowParam);
