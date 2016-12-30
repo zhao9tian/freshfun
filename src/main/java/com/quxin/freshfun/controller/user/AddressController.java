@@ -44,6 +44,12 @@ public class AddressController {
     @RequestMapping("/getAddressesH5")
     public Map<String, Object> getAddressesH5(){
         Map<String, Object> mapResult = new HashMap<String, Object>();
+        if(AddressUtil.addressDateH5.size()==0){
+            List<AddressUtilPOJO> addressProvList = addressUtilService.queryAllAddress(1);
+            List<AddressUtilPOJO> addressCityList = addressUtilService.queryAllAddress(2);
+            List<AddressUtilPOJO> addressDistList = addressUtilService.queryAllAddress(3);
+            AddressUtil.initAddres(addressProvList,addressCityList,addressDistList);
+        }
         mapResult.put("addressDate",AddressUtil.addressDateH5);
         return ResultUtil.success(mapResult);
     }
@@ -55,6 +61,12 @@ public class AddressController {
     @RequestMapping("/getAddressesIos")
     public Map<String, Object> getAddressesIos(){
         Map<String, Object> mapResult = new HashMap<String, Object>();
+        if(AddressUtil.addressDateIOS.size()==0){
+            List<AddressUtilPOJO> addressProvList = addressUtilService.queryAllAddress(1);
+            List<AddressUtilPOJO> addressCityList = addressUtilService.queryAllAddress(2);
+            List<AddressUtilPOJO> addressDistList = addressUtilService.queryAllAddress(3);
+            AddressUtil.initAddres(addressProvList,addressCityList,addressDistList);
+        }
         mapResult.put("address_data", AddressUtil.addressDateIOS);
         return ResultUtil.success(mapResult);
     }
