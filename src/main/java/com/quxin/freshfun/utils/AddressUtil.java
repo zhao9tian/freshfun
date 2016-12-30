@@ -18,20 +18,18 @@ import java.util.Map;
 /**
  * Created by Ziming on 2016/11/16.
  */
-@Component
-public class AddressUtil implements ApplicationContextAware {
+public class AddressUtil{
     @Autowired
     private AddressUtilService addressUtilService;
     public static List<Map<String, Object>> addressDateIOS = new ArrayList<Map<String, Object>>();
     public static List<Map<String, Object>> addressDateH5 = new ArrayList<Map<String, Object>>();
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public static void initAddres(List<AddressUtilPOJO> addressProvList,List<AddressUtilPOJO> addressCityList,List<AddressUtilPOJO> addressDistList) throws BeansException {
         System.out.println("*************************************开始初始化全国地址*************************************");
         Long begin = System.currentTimeMillis();
-        List<AddressUtilPOJO> addressProvList = addressUtilService.queryAllAddress(1);
-        List<AddressUtilPOJO> addressCityList = addressUtilService.queryAllAddress(2);
-        List<AddressUtilPOJO> addressDistList = addressUtilService.queryAllAddress(3);
+        //List<AddressUtilPOJO> addressProvList = addressUtilService.queryAllAddress(1);
+        //List<AddressUtilPOJO> addressCityList = addressUtilService.queryAllAddress(2);
+        //List<AddressUtilPOJO> addressDistList = addressUtilService.queryAllAddress(3);
         for(AddressUtilPOJO prov : addressProvList){
             Map<String, Object> mapProvIOS = new HashMap<String, Object>();     //ios省级
             List<Map<String, Object>> cityResultIOS = new ArrayList<Map<String, Object>>();//ios市级
