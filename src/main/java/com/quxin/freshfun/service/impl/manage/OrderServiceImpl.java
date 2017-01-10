@@ -22,6 +22,7 @@ import com.quxin.freshfun.dao.*;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.service.order.OrderService;
+import com.quxin.freshfun.service.order.OrderStockService;
 import com.quxin.freshfun.service.promotion.PromotionService;
 import com.quxin.freshfun.service.user.UserBaseService;
 import com.quxin.freshfun.service.wechat.WeChatService;
@@ -78,6 +79,8 @@ public class OrderServiceImpl implements OrderService {
 	private AddressService addressService;
 	@Autowired
 	private WeChatService weChatService;
+	@Autowired
+	private OrderStockService orderStockService;
 
 
 	private Logger resultLogger = LoggerFactory.getLogger("info_log");
@@ -113,12 +116,12 @@ public class OrderServiceImpl implements OrderService {
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,goodsBaseList);
 		orderSumPrice = orderPOJO.getActualPrice();
 		//添加父级订单
-		insertOrderParent(orderInfo, orderPOJO);
+		modifyOrderParent(orderInfo, orderPOJO);
 		//订单父级编号
 		Long orderId = orderPOJO.getId();
 
 		List<OrderDetailsPOJO> orderDetailList = makeOrderDetail(goodsBaseList, orderInfo, orderId);
-		insertOrder(orderDetailList);
+		modifyOrder(orderDetailList);
 
 		//获取用户openId
         String openId = userBaseService.queryUserInfoByUserId(uId).getOpenId();
@@ -170,13 +173,13 @@ public class OrderServiceImpl implements OrderService {
 			switch (payInfo.getIsDiscount()){
 				case 1:
 					//修改商品库存
-					updateGoodsStock(payInfo);
+					modifyGoodsStock(payInfo);
 					//修改销量
-					updateSaleNum(payInfo);
+					modifySaleNum(payInfo);
 					break;
 				case 2:
 					//修改限量购库存
-					updateDiscountStock(payInfo);
+					modifyDiscountStock(payInfo);
 					break;
 				case 3:
 					throw new BusinessException("商品库存不足");
@@ -199,8 +202,8 @@ public class OrderServiceImpl implements OrderService {
 	 * 增加销量
 	 * @param payInfo 支付信息
 	 */
-	private void updateSaleNum(OrderPayInfo payInfo) {
-		Integer saleStatus = goodsBaseMapper.updateGoodsSaleNum(payInfo.getGoodsId());
+	private void modifySaleNum(OrderPayInfo payInfo) {
+		Integer saleStatus = orderStockService.modifyGoodsSaleNum(payInfo.getGoodsId());
 		if (saleStatus <= 0) {
             logger.error("修改商品销量失败");
         }
@@ -211,11 +214,11 @@ public class OrderServiceImpl implements OrderService {
 	 * @param payInfo 支付信息
  	 * @throws BusinessException
 	 */
-	private void updateDiscountStock(OrderPayInfo payInfo) throws BusinessException {
+	private void modifyDiscountStock(OrderPayInfo payInfo) throws BusinessException {
 		Map<String,Object> map = new HashMap<>();
 		map.put("stock",payInfo.getTotal());
 		map.put("promotionId",payInfo.getPromotionId());
-		int state = promotionService.updateStockById(map);
+		int state = orderStockService.modifyStockById(map);
 		if(state <= 0){
             throw new BusinessException("批量修改限量库存失败");
         }
@@ -225,11 +228,11 @@ public class OrderServiceImpl implements OrderService {
 	 * 修改商品库存
 	 * @param payInfo 支付信息
 	 */
-	private void updateGoodsStock(OrderPayInfo payInfo) throws BusinessException {
+	private void modifyGoodsStock(OrderPayInfo payInfo) throws BusinessException {
 		Map<String,Object> map = new HashMap<>();
 		map.put("stock",payInfo.getTotal());
 		map.put("goodsId",payInfo.getGoodsId());
-		int state = goodsBaseMapper.updateGoodsStock(map);
+		int state = orderStockService.modifyGoodsStock(map);
 		if(state <= 0)
 			throw new BusinessException("修改商品库存失败");
 	}
@@ -300,7 +303,7 @@ public class OrderServiceImpl implements OrderService {
 	 * 添加订单
 	 * @param orderDetailList 订单数据
 	 */
-	private void insertOrder(List<OrderDetailsPOJO> orderDetailList) throws BusinessException {
+	private void modifyOrder(List<OrderDetailsPOJO> orderDetailList) throws BusinessException {
 		for (OrderDetailsPOJO order : orderDetailList) {
 			int state = orderDetailsMapper.insertSelective(order);
 			if (state <= 0){
@@ -315,7 +318,7 @@ public class OrderServiceImpl implements OrderService {
 	 * @param orderPOJO 订单数据
 	 * @throws BusinessException
 	 */
-	private void insertOrderParent(OrderInfo orderInfo, OrdersPOJO orderPOJO) throws BusinessException {
+	private void modifyOrderParent(OrderInfo orderInfo, OrdersPOJO orderPOJO) throws BusinessException {
 		int insertStatus = ordersMapper.insertSelective(orderPOJO);
 		if(insertStatus <= 0){
 			resultLogger.error(orderInfo.getUserId()+"添加订单失败");
@@ -767,11 +770,11 @@ public class OrderServiceImpl implements OrderService {
 		orderParam.setAddress(order.getCity()+order.getAddress());
 		String [] titles = new String[]{"订单编号","商品名","支付金额","成交时间","数量","单价","成本价","订单来源","收货人","联系电话","收货地址"};
 		//titles = new String[]{"orderNumber","goodsName","payMoney","payTime","amount","price","costPrice","orderSource","consignee","tel","address"};
-		String htmlStr = ObjectToHtml.getHtmlStr(orderParam, titles);
+		String htmlStr = ObjectToHtml.getHtmlStr(orderParam, titles,order.getGoodsId());
 		//发送
 		MailSender sender = MailSenderFactory.getSender();
-		try {
-			sender.send("order@freshfun365.com",new StringBuilder().append("支付订单：").append(order.getId()).toString(),htmlStr);
+		try {//order@freshfun365.com
+			sender.send("474754280@qq.com",new StringBuilder().append("支付订单：").append(order.getId()).toString(),htmlStr);
 		} catch (MessagingException e) {
 			logger.error("发送邮件出现异常",e);
 		}
@@ -953,7 +956,7 @@ public class OrderServiceImpl implements OrderService {
 
 		OrdersPOJO orderPOJO = makeOrderPOJO(orderInfo,orderSumPrice);
 		//添加父级订单
-		insertOrderParent(orderInfo, orderPOJO);
+		modifyOrderParent(orderInfo, orderPOJO);
 		//订单父级编号
 		Long orderId = orderPOJO.getId();
 		/**

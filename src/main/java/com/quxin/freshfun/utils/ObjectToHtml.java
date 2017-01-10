@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
  */
 public class ObjectToHtml {
 
-    public static String getHtmlStr(Object obj,String [] title){
+    public static String getHtmlStr(Object obj,String [] title,int goodsId){
         Field[] fields = obj.getClass().getDeclaredFields();
         StringBuilder content = new StringBuilder();
         content.append("<!DOCTYPE html>");
@@ -21,7 +21,11 @@ public class ObjectToHtml {
         for (int i = 0;i < title.length;i++){
             content.append("<tr style=\"background-color: #ddeeba\">");
             content.append(getTitle(title[i]));
-            content.append(getHtmlContent(obj,fields[i]));
+            if ("商品名".equals(title[i])){
+                content.append(getHtmlContent(obj,fields[i],goodsId,1));
+            }else{
+                content.append(getHtmlContent(obj,fields[i],goodsId,0));
+            }
             content.append("</tr>");
         }
         content.append("</table>");
@@ -48,10 +52,18 @@ public class ObjectToHtml {
      * @param field
      * @return
      */
-    private static Object getHtmlContent(Object obj,Field field) {
+    private static Object getHtmlContent(Object obj,Field field,int goodsId,int state) {
         StringBuilder content = new StringBuilder();
         content.append("<td align=\"center\" style=\"width:70%\">");
-        content.append(ReflectionUtils.invokeGetterMethod(obj, field.getName()));
+        if(state == 1) {
+            content.append("<a href=\"https://www.freshfun365.com/app/goodsInfo?goodsId=");
+            content.append(goodsId);
+            content.append("\">");
+            content.append(ReflectionUtils.invokeGetterMethod(obj, field.getName()));
+            content.append("</a>");
+        } else {
+            content.append(ReflectionUtils.invokeGetterMethod(obj, field.getName()));
+        }
         content.append("</td>");
         return content.toString();
     }

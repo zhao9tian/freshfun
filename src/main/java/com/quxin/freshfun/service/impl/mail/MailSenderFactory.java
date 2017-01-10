@@ -18,7 +18,7 @@ public class MailSenderFactory {
      */
     public synchronized static MailSender getSender(){
         if (mailSender == null){
-            mailSender = new MailSender("m18106555694@163.com","freshfun365");
+            mailSender = new MailSender("1260855435@qq.com","spkaxvhybyuwgajd");
         }
         return mailSender;
     }
@@ -26,7 +26,7 @@ public class MailSenderFactory {
     public static void main(String [] args){
         MailSender sender = MailSenderFactory.getSender();
         try {
-            sender.send("zhili.tu@freshfun365.com","邮件测试","测试");
+            sender.send("474754280@qq.com","邮件测试","测试");
         } catch (MessagingException e) {
             e.printStackTrace();
         }

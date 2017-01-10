@@ -1,5 +1,6 @@
 package com.quxin.freshfun.service.impl.mail;
 
+import com.sun.mail.util.MailSSLSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.util.Properties;
 
 /**
@@ -54,6 +56,7 @@ public class MailSender {
     public MailSender(final String username, final String password) {
         //通过邮箱地址解析出smtp服务器，对大多数邮箱都管用
         final String smtpHostName = "smtp." + username.split("@")[1];
+        System.out.println(smtpHostName);
         init(username, password, smtpHostName);
     }
 
@@ -66,7 +69,11 @@ public class MailSender {
     private void init(String username, String password, String smtpHostName) {
         // 初始化props
         props.put("mail.smtp.auth", "true");
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.port","587");
+        props.put("mail.smtp.starttls.enable",true);
         props.put("mail.smtp.host", smtpHostName);
+
         // 验证
         authenticator = new MailAuthenticator(username, password);
         // 创建session
