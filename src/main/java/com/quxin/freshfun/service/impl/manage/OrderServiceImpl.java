@@ -773,11 +773,7 @@ public class OrderServiceImpl implements OrderService {
 		String htmlStr = ObjectToHtml.getHtmlStr(orderParam, titles,order.getGoodsId());
 		//发送
 		MailSender sender = MailSenderFactory.getSender();
-		try {//order@freshfun365.com
-			sender.send("474754280@qq.com",new StringBuilder().append("支付订单：").append(order.getId()).toString(),htmlStr);
-		} catch (MessagingException e) {
-			logger.error("发送邮件出现异常",e);
-		}
+		sender.send("order@freshfun365.com",new StringBuilder().append("支付订单：").append(order.getId()).toString(),htmlStr);
 	}
 
 	/**
