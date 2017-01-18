@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.quxin.freshfun.dao.WalletMapper">
+
+    <!--插入钱包信息-->
+    <insert id="insertWallet" parameterType="com.quxin.freshfun.model.user.WalletPOJO" >
+        insert into user_wallet(user_id , order_id , type , flow_money , balance , created , updated) values
+          (#{userId} , #{orderId} , #{type} , #{flowMoney} , #{balance} ,unix_timestamp(now()) , unix_timestamp(now()))
+    </insert>
+
+    <!--查询用户钱包余额-->
+    <select id="selectWalletBalanceByUserId" resultType="Long">
+        select balance from user_wallet where id = (select max(id) from user_wallet where is_deleted = 0 and user_id = #{userId})
+    </select>
+
+</mapper>
