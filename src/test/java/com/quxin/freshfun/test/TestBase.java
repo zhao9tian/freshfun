@@ -1,5 +1,6 @@
 package com.quxin.freshfun.test;
 
+import com.quxin.freshfun.model.pojo.goods.GoodsBasePOJO;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -25,11 +26,21 @@ public class TestBase {
         CONTEXT.close();
     }
 
+    private static  String a ;
 
     public static void main(String[] args) throws ParseException {
-        String a ="a";
-        String b = new String("b");
-        System.out.println(a);
-        System.out.println(b);
+//        a ="aa";
+        String aa = null ;
+        Integer bb = 0;
+//        final String vv ;
+//        String s = aa + bb;
+        System.out.println(bb);
+//        String a = "abc";
+//        System.out.println(1+2+a);
+//        Integer
+//        String b = "a" +a;
+//        b.length();
+//        System.out.println(b == "aabc".intern());
+
     }
 }

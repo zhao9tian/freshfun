@@ -1,4 +1,4 @@
-package com.quxin.freshfun.dao;
+package com.quxin.freshfun.model;
 
 public class WXResultPOJO {
 	private String appid;

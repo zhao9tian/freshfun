@@ -10,12 +10,10 @@ import com.quxin.freshfun.model.outparam.WxPayInfo;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 
-import com.quxin.freshfun.dao.ResponseResult;
+import com.quxin.freshfun.model.ResponseResult;
 import com.quxin.freshfun.utils.BusinessException;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Service
 public interface OrderService {

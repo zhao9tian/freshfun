@@ -1,8 +1,7 @@
 package com.quxin.freshfun.controller.order;
 
-import com.google.common.collect.Maps;
 import com.quxin.freshfun.dao.GoodsLimitMapper;
-import com.quxin.freshfun.dao.ResponseResult;
+import com.quxin.freshfun.model.ResponseResult;
 import com.quxin.freshfun.model.*;
 import com.quxin.freshfun.model.outparam.WxPayInfo;
 import com.quxin.freshfun.model.param.GoodsParam;
